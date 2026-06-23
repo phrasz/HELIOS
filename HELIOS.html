@@ -1,0 +1,2188 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="cyber-cyan">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HELIOS // System Shell</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        /* CORE FACTION MATRIX COLOR SCHEMES */
+        :root[data-theme="cyber-cyan"] {
+            --bg-main: #07090e;
+            --bg-panel: #0d111a;
+            --bg-terminal: #05070a;
+            --border-color: #1e293b;
+            --border-focus: #00f0ff;
+            --text-main: #f8fafc;
+            --text-muted: #475569;
+            --accent: #00f0ff;
+            --accent-glow: rgba(0, 240, 255, 0.2);
+            --favorite-color: #f59e0b;
+        }
+
+        :root[data-theme="keen-orange"] {
+            --bg-main: #0d0e10;
+            --bg-panel: #15181c;
+            --bg-terminal: #090a0c;
+            --border-color: #2a2f37;
+            --border-focus: #ff8c00;
+            --text-main: #e2e8f0;
+            --text-muted: #525e70;
+            --accent: #ff8c00;
+            --accent-glow: rgba(255, 140, 0, 0.25);
+            --favorite-color: #e11d48;
+        }
+
+        :root[data-theme="crt-green"] {
+            --bg-main: #020604;
+            --bg-panel: #051208;
+            --bg-terminal: #010402;
+            --border-color: #0f3419;
+            --border-focus: #22c55e;
+            --text-main: #4ade80;
+            --text-muted: #14532d;
+            --accent: #22c55e;
+            --accent-glow: rgba(34, 197, 94, 0.25);
+            --favorite-color: #f59e0b;
+        }
+
+        :root[data-theme="sol-light"] {
+            --bg-main: #f1f5f9;
+            --bg-panel: #ffffff;
+            --bg-terminal: #e2e8f0;
+            --border-color: #cbd5e1;
+            --border-focus: #0f172a;
+            --text-main: #0f172a;
+            --text-muted: #94a3b8;
+            --accent: #2563eb;
+            --accent-glow: rgba(37, 99, 235, 0.15);
+            --favorite-color: #b45309;
+        }
+
+        /* LAYOUT ARCHITECTURE */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Share Tech Mono', 'Courier New', Courier, Consolas, monospace;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            transition: background-color 0.15s ease, color 0.15s ease;
+            position: relative;
+        }
+
+        /* AMBIENT GRID FIELD */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image:
+                linear-gradient(var(--border-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border-color) 1px, transparent 1px);
+            background-size: 48px 48px;
+            opacity: 0.06;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* SCANLINE SHEEN */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(
+                to bottom,
+                rgba(255,255,255,0.012) 0px,
+                rgba(255,255,255,0.012) 1px,
+                transparent 1px,
+                transparent 3px
+            );
+            pointer-events: none;
+            z-index: 999;
+            mix-blend-mode: overlay;
+        }
+
+        header, .wrapper, footer, .terminal-dock, .drawer, .drawer-overlay, #bootScreen {
+            position: relative;
+            z-index: 2;
+        }
+
+        ::selection {
+            background: var(--accent);
+            color: var(--bg-main);
+        }
+
+        :focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        @keyframes flicker-in {
+            0% { opacity: 0; transform: translateY(6px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
+        }
+
+        /* BOOT SEQUENCE OVERLAY */
+        #bootScreen {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: var(--bg-main);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            color: var(--accent);
+            cursor: pointer;
+            transition: opacity 0.4s ease;
+        }
+
+        #bootScreen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .boot-lines {
+            white-space: pre-wrap;
+            line-height: 1.6;
+            max-width: 560px;
+            text-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        .boot-cursor {
+            display: inline-block;
+            width: 8px;
+            height: 14px;
+            background: var(--accent);
+            animation: blink 0.9s steps(1) infinite;
+            vertical-align: middle;
+            margin-left: 2px;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        .boot-skip {
+            position: absolute;
+            bottom: 30px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+        }
+
+        /* HEADER SYSTEM */
+        header {
+            border-bottom: 2px solid var(--border-color);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--bg-panel);
+            min-height: 62px;
+            flex-wrap: wrap;
+            gap: 12px;
+            z-index: 600;
+        }
+
+        .sys-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            padding-left: 14px;
+            margin-left: 4px;
+            border-left: 1px solid var(--border-color);
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 6px var(--accent);
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.35; }
+        }
+
+        .sys-clock {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            min-width: 92px;
+        }
+
+        .sys-search {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-terminal);
+            border: 1px solid var(--border-color);
+            padding: 6px 10px;
+            min-width: 220px;
+            transition: border-color 0.15s ease;
+        }
+
+        .sys-search:focus-within {
+            border-color: var(--border-focus);
+        }
+
+        .sys-search svg {
+            width: 14px;
+            height: 14px;
+            fill: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .sys-search input {
+            background: none;
+            border: none;
+            outline: none;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.8rem;
+            width: 100%;
+        }
+
+        .sys-search input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .sys-search kbd {
+            font-size: 0.62rem;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            padding: 1px 5px;
+            flex-shrink: 0;
+        }
+
+        .sys-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-ui {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        .btn-ui:hover {
+            border-color: var(--border-focus);
+            color: var(--accent);
+        }
+
+        /* LANES & GRID BOARDS */
+        .wrapper {
+            padding: 25px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 35px;
+            padding-bottom: 200px; 
+            transition: padding-bottom 0.2s ease;
+        }
+
+        body.term-fullscreen .wrapper {
+            padding-bottom: 25px;
+            height: 0;
+            overflow: hidden;
+        }
+
+        .swim-lane {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .swim-lane.hidden {
+            display: none;
+        }
+
+        .lane-header {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 6px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .lane-count {
+            font-size: 0.7rem;
+            color: var(--accent);
+            letter-spacing: 1px;
+            font-weight: normal;
+        }
+
+        .lane-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            border: 1px dashed var(--border-color);
+            padding: 18px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        /* CARDS MODULES */
+        .module-card {
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-panel);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--text-main);
+            position: relative;
+            cursor: pointer;
+            animation: flicker-in 0.35s ease both;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+        }
+
+        .module-card:hover {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 14px var(--accent-glow);
+            transform: translateY(-2px);
+        }
+
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-right: 25px;
+        }
+
+        .module-tag {
+            font-size: 0.7rem;
+            font-weight: bold;
+            background: var(--border-color);
+            padding: 2px 6px;
+            color: var(--accent);
+        }
+
+        .module-info {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .card-body {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .module-icon {
+            width: 32px;
+            height: 32px;
+            fill: var(--text-main);
+            flex-shrink: 0;
+        }
+
+        .module-card:hover .module-icon {
+            fill: var(--accent);
+        }
+
+        .module-title {
+            font-size: 0.95rem;
+            font-weight: bold;
+            word-break: break-all;
+        }
+
+        .fav-star {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+            color: var(--text-muted);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fav-star:hover {
+            color: var(--favorite-color);
+        }
+
+        .module-card.is-fav .fav-star {
+            color: var(--favorite-color);
+        }
+
+        /* SIMULATED TERMINAL PIPELINE */
+        .terminal-dock {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100vw;
+            height: 180px;
+            background-color: var(--bg-terminal);
+            border-top: 2px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            z-index: 500;
+            transition: height 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .terminal-dock.collapsed {
+            display: none !important;
+        }
+
+        .terminal-dock.fullscreen {
+            height: calc(100vh - 62px);
+        }
+
+        .term-header {
+            background-color: var(--bg-panel);
+            border-bottom: 1px solid var(--border-color);
+            padding: 6px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            user-select: none;
+        }
+
+        .term-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .term-action-trigger {
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .term-action-trigger:hover {
+            color: var(--accent);
+        }
+
+        .term-body {
+            padding: 10px 15px;
+            flex-grow: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            font-size: 0.85rem;
+        }
+
+        .term-output {
+            white-space: pre-wrap;
+            color: var(--text-main);
+            line-height: 1.4;
+        }
+
+        .term-input-line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent);
+        }
+
+        .term-input-line input {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: inherit;
+            outline: none;
+            flex-grow: 1;
+        }
+
+        /* QUILL MICRO-EDITOR OVERLAY */
+        .editor-overlay {
+            display: none;
+            flex-direction: column;
+            flex-grow: 1;
+            background-color: var(--bg-terminal);
+        }
+
+        .editor-overlay.active {
+            display: flex;
+            position: fixed;
+            inset: 0;
+            height: 100vh;
+            height: 100dvh;
+            z-index: 1800;
+        }
+
+        .editor-titlebar {
+            padding: 8px 12px;
+            font-size: 0.72rem;
+            color: var(--bg-main);
+            background-color: var(--accent);
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .editor-overlay textarea {
+            flex-grow: 1;
+            min-height: 0;
+            width: 100%;
+            background: none;
+            border: none;
+            outline: none;
+            resize: none;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.85rem;
+            padding: 10px 15px;
+            line-height: 1.4;
+        }
+
+        .editor-statusbar {
+            padding: 8px 10px;
+            padding-bottom: max(8px, env(safe-area-inset-bottom));
+            font-size: 0.7rem;
+            color: var(--bg-main);
+            background-color: var(--accent);
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+
+        .editor-btn {
+            font-family: inherit;
+            font-size: 0.7rem;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            padding: 7px 12px;
+            border: 1px solid var(--bg-main);
+            background-color: var(--bg-main);
+            color: var(--accent);
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .editor-btn:active {
+            opacity: 0.7;
+        }
+
+        .editor-btn-exit {
+            background-color: transparent;
+            color: var(--bg-main);
+            border-color: var(--bg-main);
+        }
+
+        /* RESET SYSTEM MODAL */
+        .reset-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 2100;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .reset-modal-overlay.active {
+            display: flex;
+        }
+
+        .reset-modal {
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            max-width: 560px;
+            width: 100%;
+            max-height: 85vh;
+            max-height: 85dvh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 30px var(--accent-glow);
+        }
+
+        .reset-modal-header {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .reset-modal-header h4 {
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            color: var(--accent);
+        }
+
+        .reset-modal-body {
+            padding: 16px 18px;
+            overflow-y: auto;
+            flex-grow: 1;
+            font-size: 0.8rem;
+            line-height: 1.5;
+        }
+
+        .reset-warning {
+            color: var(--accent);
+            border: 1px dashed var(--border-color);
+            padding: 10px;
+            margin-bottom: 14px;
+            font-size: 0.75rem;
+        }
+
+        .reset-file-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.75rem;
+        }
+
+        .reset-file-path {
+            word-break: break-all;
+            flex-grow: 1;
+        }
+
+        .reset-file-actions {
+            display: flex;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .reset-mini-btn {
+            font-family: inherit;
+            font-size: 0.65rem;
+            padding: 4px 8px;
+            border: 1px solid var(--border-color);
+            background: none;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        .reset-mini-btn:hover {
+            border-color: var(--border-focus);
+            color: var(--accent);
+        }
+
+        .reset-preview-box {
+            display: none;
+            white-space: pre-wrap;
+            background-color: var(--bg-terminal);
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            margin: 6px 0 10px;
+            font-size: 0.72rem;
+            max-height: 160px;
+            overflow-y: auto;
+        }
+
+        .reset-preview-box.active {
+            display: block;
+        }
+
+        .reset-modal-footer {
+            padding: 14px 18px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .reset-confirm-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+        }
+
+        .reset-footer-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .reset-danger-btn {
+            font-family: inherit;
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 9px 14px;
+            border: 1px solid var(--accent);
+            background: none;
+            color: var(--accent);
+            cursor: pointer;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .reset-danger-btn.enabled {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .reset-danger-btn.enabled:hover {
+            background-color: var(--accent);
+            color: var(--bg-main);
+        }
+
+        /* MATRIX RAIN EASTER EGG */
+        #matrixRain {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 1500;
+            pointer-events: none;
+            overflow: hidden;
+            display: none;
+            background: rgba(0,0,0,0.15);
+        }
+
+        #matrixRain.active {
+            display: block;
+        }
+
+        .rain-col {
+            position: absolute;
+            top: -100%;
+            font-size: 14px;
+            color: #22c55e;
+            text-shadow: 0 0 6px #22c55e;
+            white-space: pre;
+            animation: rain-fall linear infinite;
+        }
+
+        @keyframes rain-fall {
+            to { transform: translateY(200vh); }
+        }
+
+        /* SYSTEM SETTINGS DRAWER */
+        .drawer-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 1000;
+            display: none;
+        }
+
+        .drawer {
+            position: fixed;
+            top: 0; right: -340px; width: 340px; height: 100vh;
+            background-color: var(--bg-panel);
+            border-left: 2px solid var(--border-color);
+            z-index: 1001;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            transition: right 0.25s ease-out;
+        }
+
+        .drawer.open {
+            right: 0;
+        }
+
+        .drawer-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 12px;
+        }
+
+        .setting-box {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .setting-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .toggle-group {
+            display: flex;
+            flex-wrap: wrap;
+            border: 1px solid var(--border-color);
+            padding: 2px;
+            gap: 2px;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 0.72rem;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .toggle-btn.active {
+            background-color: var(--accent);
+            color: var(--bg-main);
+            font-weight: bold;
+        }
+
+        .file-action-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 0.8rem;
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .file-action-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        footer {
+            border-top: 1px solid var(--border-color);
+            padding: 12px 20px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            background-color: var(--bg-panel);
+            text-align: center;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="matrixRain"></div>
+
+    <div class="reset-modal-overlay" id="resetModalOverlay">
+        <div class="reset-modal">
+            <div class="reset-modal-header">
+                <h4>SYSTEM RESET // REVIEW BEFORE PROCEEDING</h4>
+                <button class="btn-ui" onclick="closeResetModal()">X</button>
+            </div>
+            <div class="reset-modal-body">
+                <div class="reset-warning">
+                    This wipes your terminal filesystem, command history, theme, target window, and favorites back to factory defaults. There is no undo. Anything you made or edited is listed below &mdash; download what you want to keep first.
+                </div>
+                <div id="resetFileList"></div>
+            </div>
+            <div class="reset-modal-footer">
+                <div class="reset-confirm-row">
+                    <input type="checkbox" id="resetConfirmCheck" onchange="updateResetButtonState()">
+                    <label for="resetConfirmCheck">I've downloaded what I need. Reset everything.</label>
+                </div>
+                <div class="reset-footer-buttons">
+                    <button class="file-action-btn" id="resetDownloadAllBtn" onclick="downloadAllUserFiles()">DOWNLOAD ALL AS .JSON</button>
+                    <button class="reset-danger-btn" id="resetConfirmBtn" onclick="performFactoryReset()">RESET SYSTEM</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="bootScreen">
+        <div class="boot-lines" id="bootLines"></div>
+        <div class="boot-skip">CLICK OR PRESS ANY KEY TO SKIP</div>
+    </div>
+
+    <div class="drawer-overlay" id="overlay"></div>
+    <div class="drawer" id="configDrawer">
+        <div class="drawer-row">
+            <h4>HELIOS // SETTINGS</h4>
+            <button class="btn-ui" id="closeDrawer">X</button>
+        </div>
+
+        <div class="setting-box">
+            <span class="setting-label">UI Environmental Preset Matrix</span>
+            <div class="toggle-group">
+                <button class="toggle-btn" id="theme-cyber-cyan" onclick="updateTheme('cyber-cyan')">CYBER</button>
+                <button class="toggle-btn" id="theme-keen-orange" onclick="updateTheme('keen-orange')">KEEN_LCD</button>
+                <button class="toggle-btn" id="theme-crt-green" onclick="updateTheme('crt-green')">CRT_TER</button>
+                <button class="toggle-btn" id="theme-sol-light" onclick="updateTheme('sol-light')">SOL_LGT</button>
+            </div>
+        </div>
+
+        <div class="setting-box">
+            <span class="setting-label">Execution Target Window</span>
+            <div class="toggle-group">
+                <button class="toggle-btn" id="targetSelf" onclick="updateTarget('_self')">SAME WINDOW</button>
+                <button class="toggle-btn" id="targetBlank" onclick="updateTarget('_blank')">NEW TAB</button>
+            </div>
+        </div>
+
+        <div class="setting-box" style="border-top: 1px dashed var(--border-color); padding-top: 15px;">
+            <span class="setting-label">System State Configuration File</span>
+            <button class="file-action-btn" onclick="exportConfig()">EXPORT HELIOS.CFG</button>
+            <button class="file-action-btn" onclick="document.getElementById('importFile').click()">IMPORT HELIOS.CFG</button>
+            <input type="file" id="importFile" style="display: none;" accept=".cfg" onchange="importConfig(this)">
+        </div>
+
+        <div class="setting-box" style="border-top: 1px dashed var(--border-color); padding-top: 15px;">
+            <span class="setting-label" style="color: var(--accent);">Danger Zone // Factory Reset</span>
+            <button class="file-action-btn" onclick="openResetModal()">RESET SYSTEM&hellip;</button>
+        </div>
+    </div>
+
+    <header>
+        <div class="sys-title">
+            <svg style="width:20px; height:20px; fill:currentColor;" viewBox="0 0 24 24">
+                <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,7A5,5 0 0,0 7,12A5,5 0 0,0 12,17A5,5 0 0,0 17,12A5,5 0 0,0 12,7Z" />
+            </svg>
+            HELIOS // OS
+            <div class="status-pill"><span class="status-dot"></span>ONLINE</div>
+            <span class="sys-clock" id="sysClock"></span>
+        </div>
+        <div class="sys-controls">
+            <div class="sys-search">
+                <svg viewBox="0 0 24 24"><path d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z"/></svg>
+                <input type="text" id="searchInput" placeholder="Search modules..." autocomplete="off" spellcheck="false">
+                <kbd>/</kbd>
+            </div>
+            <button class="btn-ui" id="openDrawer">[CONFIG]</button>
+        </div>
+    </header>
+
+    <div class="wrapper" id="contentWrapper">
+        
+        <section class="swim-lane hidden" id="lane-favorites">
+            <div class="lane-header"><span>// FLAGGED</span><span class="lane-count" id="count-favorites"></span></div>
+            <div class="lane-grid" id="grid-favorites"></div>
+        </section>
+
+        <section class="swim-lane" id="lane-apps">
+            <div class="lane-header"><span>// APPS</span><span class="lane-count" id="count-apps"></span></div>
+            <div class="lane-grid" id="grid-apps"></div>
+        </section>
+
+        <section class="swim-lane" id="lane-mods">
+            <div class="lane-header"><span>// MODS</span><span class="lane-count" id="count-mods"></span></div>
+            <div class="lane-grid" id="grid-mods"></div>
+        </section>
+
+        <section class="swim-lane" id="lane-resources">
+            <div class="lane-header"><span>// REFERENCE</span><span class="lane-count" id="count-resources"></span></div>
+            <div class="lane-grid" id="grid-resources"></div>
+        </section>
+
+    </div>
+
+    <div class="terminal-dock collapsed" id="terminalArea">
+        <div class="term-header">
+            <span>HELIOS_COMMAND_SHELL // UNALIGNED_FACTION_NODE</span>
+            <div class="term-actions">
+                <span class="term-action-trigger" id="sizeTermBtn" title="Toggle Scale [Full/Reset]">[ ⤢ ]</span>
+                <span class="term-action-trigger" id="closeTermBtn" title="Minimize Target">[ X ]</span>
+            </div>
+        </div>
+        <div class="term-body" id="termBody">
+            <div class="term-output" id="termOutput">HELIOS System Command Shell Initialization... Complete.
+Type 'help' to review available internal directory directives, or 'man [command]' for details.</div>
+            <div class="term-input-line">
+                <span>&gt;</span>
+                <input type="text" id="termInput" autocomplete="off" spellcheck="false">
+            </div>
+        </div>
+        <div class="editor-overlay" id="editorOverlay">
+            <div class="editor-titlebar">QUILL // MICRO-EDITOR &mdash; <span id="editorFilename"></span></div>
+            <textarea id="editorTextarea" spellcheck="false" autocomplete="off"></textarea>
+            <div class="editor-statusbar">
+                <button class="editor-btn" onclick="quillSave()">SAVE</button>
+                <button class="editor-btn" onclick="quillSaveExit()">SAVE &amp; EXIT</button>
+                <button class="editor-btn editor-btn-exit" onclick="quillExit()">EXIT</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        HELIOS v3.4.1 Holistic Engineering Launcher &amp; Information Operating System. Note: HELIOS is not an AI. Any appearance of intelligence is either coincidental or the responsibility of a connected module.
+    </footer>
+
+    <script>
+        // BACKBONE CORE ARCHIVE MATRIX DATA DESCRIPTORS
+        const modules = [
+            { id: 'app-01', type: 'APP', name: '2022_SEBACC', path: './APP-01_2022_SEBACC/index.html', info: '2022_VER', icon: '<path d="M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3M19,19H5V5H19V19M7,10H9V17H7V10M11,7H13V17H11V7M15,13H17V17H15V13Z"/>' },
+            { id: 'app-02', type: 'APP', name: 'SEYGIAGAM', path: './APP-02_SEYGIAGAM/index.html', info: 'CORE_ENGINE', icon: '<path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A2,2 0 0,1 14,6A2,2 0 0,1 12,8A2,2 0 0,1 10,6A2,2 0 0,1 12,4M12,18A2,2 0 0,1 10,16A2,2 0 0,1 12,14A2,2 0 0,1 14,16A2,2 0 0,1 12,18M16,14A2,2 0 0,1 14,12A2,2 0 0,1 16,10A2,2 0 0,1 18,12A2,2 0 0,1 16,14M8,14A2,2 0 0,1 6,12A2,2 0 0,1 8,10A2,2 0 0,1 10,12A2,2 0 0,1 8,14Z"/>' },
+            { id: 'app-03', type: 'APP', name: 'SEAT_AcqTool', path: './APP-03_SEAT_AcqTool/index.html', info: 'ACQUISITIONS', icon: '<path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8Z"/>' },
+            { id: 'app-04', type: 'APP', name: '2025_MDS-Generator', path: './APP-04_2025_MDS-Generator/index.html', info: '2025_DATA_MDS', icon: '<path d="M12,6A11,11 0 0,0 1,17L3,19C5.17,16.27 8.39,14.5 12,14.5C15.61,14.5 18.83,16.27 21,19L23,17A11,11 0 0,0 12,6M12,8A3.5,3.5 0 0,1 15.5,11.5A3.5,3.5 0 0,1 12,15A3.5,3.5 0 0,1 8.5,11.5A3.5,3.5 0 0,1 12,8M12,10A1.5,1.5 0 0,0 10.5,11.5A1.5,1.5 0 0,0 12,13A1.5,1.5 0 0,0 13.5,11.5A1.5,1.5 0 0,0 12,10Z"/>' },
+            { id: 'app-05', type: 'APP', name: 'Phi-Scout', path: './APP-05_Phi-Scout/index.html', info: 'SCOUT_INTEL', icon: '<path d="M12,2L2,22H22L12,2M12,6L18.8,18H5.2L12,6M12,10V13H15V15H12V18H10V15H7V13H10V10H12Z"/>' },
+            { id: 'app-06', type: 'APP', name: 'BOS-Viz-Tool', path: './APP-06_BOS-Viz-Tool/index.html', info: 'VISUALIZATION', icon: '<path d="M21,16V4H3V16H21M21,2A2,2 0 0,1 23,4V16A2,2 0 0,1 21,18H14V20H16V22H8V20H10V18H3A2,2 0 0,1 1,16V4C1,2.89 1.89,2 3,2H21M5,6H11V11H5V6M13,6H19V8H13V6M13,10H19V14H13V10M5,13H11V14H5V13Z"/>' },
+            
+            { id: 'app-term', type: 'APP', name: 'Terminal_Shell', path: 'javascript:void(0);', info: 'LOCAL_SHELL', isTerminalAction: true, icon: '<path d="M20,19H4A2,2 0 0,1 2,17V7A2,2 0 0,1 4,5H20A2,2 0 0,1 22,7V17A2,2 0 0,1 20,19M4,7V17H20V7H4M6,9H11V11H6V9M6,12H14V14H6V12Z"/>' },
+
+            { id: 'mod-01', type: 'MOD', name: 'Spacehook', path: './MOD-01_Spacehook/', info: 'S_HOOK_DRV', icon: '<path d="M11,6H13V11H18V13H13V18H11V13H6V11H11V6Z"/>' },
+            { id: 'mod-02', type: 'MOD', name: 'Extended-Railgun-Mod', path: './MOD-02_Extended-Railgun-Mod/', info: 'WEAPON_SYS', icon: '<path d="M11,6H13V11H18V13H13V18H11V13H6V11H11V6Z"/>' },
+            
+            { id: 'res-01', type: 'RESOURCE', name: 'MOSES', path: './RESRC-01_MOSES/index.html', info: 'DATA_CORE', icon: '<path d="M13,9H18.5L13,3.5V9M6,2H14L20,8V20A2,2 0 0,1 18,22H6C4.89,22 4,21.1 4,20V4C4,2.89 4.89,2 6,2M15,18V16H6V18H15M18,14V12H6V14H18Z"/>' },
+            { id: 'res-02', type: 'RESOURCE', name: 'Wiki-Docs', path: './RESRC-02_Wiki-Docs/index.html', info: 'EXTERNAL_REF', icon: '<path d="M13,9H18.5L13,3.5V9M6,2H14L20,8V20A2,2 0 0,1 18,22H6C4.89,22 4,21.1 4,20V4C4,2.89 4.89,2 6,2M15,18V16H6V18H15M18,14V12H6V14H18Z"/>' }
+        ];
+
+        // SYSTEM VOLATILE MEMORY
+        let favorites = [];
+        let systemConfig = {
+            theme: 'cyber-cyan',
+            target: '_self',
+            termOpen: false,
+            termFullscreen: false
+        };
+
+        // DOM CORE CAPTURES
+        const overlay = document.getElementById('overlay');
+        const configDrawer = document.getElementById('configDrawer');
+        const openDrawerBtn = document.getElementById('openDrawer');
+        const closeDrawerBtn = document.getElementById('closeDrawer');
+        const terminalArea = document.getElementById('terminalArea');
+        const closeTermBtn = document.getElementById('closeTermBtn');
+        const sizeTermBtn = document.getElementById('sizeTermBtn');
+        const termInput = document.getElementById('termInput');
+        const termOutput = document.getElementById('termOutput');
+        const termBody = document.getElementById('termBody');
+        const searchInput = document.getElementById('searchInput');
+        const sysClock = document.getElementById('sysClock');
+        const bootScreen = document.getElementById('bootScreen');
+        const bootLines = document.getElementById('bootLines');
+        const editorOverlay = document.getElementById('editorOverlay');
+        const editorTextarea = document.getElementById('editorTextarea');
+        const editorFilename = document.getElementById('editorFilename');
+        const matrixRain = document.getElementById('matrixRain');
+        let searchTerm = '';
+
+        // INTERFACE VIEWPORT ACTIONS
+        openDrawerBtn.addEventListener('click', () => { configDrawer.classList.add('open'); overlay.style.display = 'block'; });
+        const hideDrawer = () => { configDrawer.classList.remove('open'); overlay.style.display = 'none'; };
+        closeDrawerBtn.addEventListener('click', hideDrawer);
+        overlay.addEventListener('click', hideDrawer);
+
+        // SYSTEM CLOCK
+        function tickClock() {
+            const now = new Date();
+            sysClock.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+        tickClock();
+        setInterval(tickClock, 1000);
+
+        // LIVE SEARCH FILTER
+        searchInput.addEventListener('input', () => {
+            searchTerm = searchInput.value.trim().toLowerCase();
+            renderDashboard();
+        });
+
+        // GLOBAL KEYBOARD SHORTCUTS
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '/' && document.activeElement !== termInput && document.activeElement !== searchInput) {
+                e.preventDefault();
+                searchInput.focus();
+            } else if (e.key === 'Escape') {
+                if (document.activeElement === searchInput) { searchInput.blur(); }
+                hideDrawer();
+                closeResetModal();
+            }
+        });
+
+        document.getElementById('resetModalOverlay').addEventListener('click', (e) => {
+            if (e.target.id === 'resetModalOverlay') closeResetModal();
+        });
+
+        // TERMINAL VISIBILITY & STRUCTURAL SIZE HANDLING
+        closeTermBtn.addEventListener('click', () => {
+            terminalArea.classList.add('collapsed');
+            terminalArea.classList.remove('fullscreen');
+            document.body.classList.remove('term-fullscreen');
+            systemConfig.termOpen = false;
+            systemConfig.termFullscreen = false;
+            saveToStorage();
+        });
+
+        sizeTermBtn.addEventListener('click', () => {
+            const isFull = terminalArea.classList.toggle('fullscreen');
+            document.body.classList.toggle('term-fullscreen', isFull);
+            termBody.scrollTop = termBody.scrollHeight;
+            termInput.focus();
+            systemConfig.termFullscreen = isFull;
+            saveToStorage();
+        });
+
+        // SYSTEM PALETTE CONTROLLER
+        function updateTheme(mode) {
+            systemConfig.theme = mode;
+            document.documentElement.setAttribute('data-theme', mode);
+            
+            // Re-sync layout options indicators
+            document.querySelectorAll('.toggle-group button[id^="theme-"]').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const activeBtn = document.getElementById(`theme-${mode}`);
+            if (activeBtn) activeBtn.classList.add('active');
+            
+            saveToStorage();
+        }
+
+        function updateTarget(mode) {
+            systemConfig.target = mode;
+            document.getElementById('targetSelf').classList.toggle('active', mode === '_self');
+            document.getElementById('targetBlank').classList.toggle('active', mode === '_blank');
+            document.querySelectorAll('.module-card').forEach(card => {
+                if(!card.classList.contains('term-action-card')) {
+                    card.setAttribute('target', mode);
+                }
+            });
+            saveToStorage();
+        }
+
+        function saveToStorage() {
+            localStorage.setItem('helios_prefs', JSON.stringify(systemConfig));
+            localStorage.setItem('helios_favs', JSON.stringify(favorites));
+        }
+
+        function toggleFavorite(id, event) {
+            if(event) event.preventDefault();
+            const index = favorites.indexOf(id);
+            if(index > -1) {
+                favorites.splice(index, 1);
+            } else {
+                favorites.push(id);
+            }
+            saveToStorage();
+            renderDashboard();
+        }
+
+        // GRID GENERATOR
+        function renderDashboard() {
+            const gridApps = document.getElementById('grid-apps');
+            const gridMods = document.getElementById('grid-mods');
+            const gridResources = document.getElementById('grid-resources');
+            const gridFavs = document.getElementById('grid-favorites');
+            const laneFavs = document.getElementById('lane-favorites');
+
+            gridApps.innerHTML = ''; gridMods.innerHTML = ''; gridResources.innerHTML = ''; gridFavs.innerHTML = '';
+            let totalFavsCount = 0;
+            let counts = { APP: 0, MOD: 0, RESOURCE: 0 };
+
+            const visibleModules = modules.filter(mod => {
+                if (!searchTerm) return true;
+                return mod.name.toLowerCase().includes(searchTerm) ||
+                       mod.type.toLowerCase().includes(searchTerm) ||
+                       mod.info.toLowerCase().includes(searchTerm);
+            });
+
+            visibleModules.forEach(mod => {
+                const isFav = favorites.includes(mod.id);
+                const card = document.createElement('a');
+                card.href = mod.path;
+                card.className = `module-card ${isFav ? 'is-fav' : ''}`;
+                
+                if(mod.isTerminalAction) {
+                    card.classList.add('term-action-card');
+                    card.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        terminalArea.classList.remove('collapsed');
+                        termInput.focus();
+                        systemConfig.termOpen = true;
+                        saveToStorage();
+                    });
+                } else {
+                    card.setAttribute('target', systemConfig.target);
+                }
+
+                card.innerHTML = `
+                    <button class="fav-star" onclick="toggleFavorite('${mod.id}', event)">
+                        <svg style="width:16px; height:16px; fill:currentColor" viewBox="0 0 24 24">
+                            <path d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z"/>
+                        </svg>
+                    </button>
+                    <div class="card-meta">
+                        <span class="module-tag">${mod.type}</span>
+                        <span class="module-info">${mod.info}</span>
+                    </div>
+                    <div class="card-body">
+                        <svg class="module-icon" viewBox="0 0 24 24">${mod.icon}</svg>
+                        <div class="module-title">${mod.name}</div>
+                    </div>
+                `;
+
+                if(mod.type === 'APP') { gridApps.appendChild(card); counts.APP++; }
+                if(mod.type === 'MOD') { gridMods.appendChild(card); counts.MOD++; }
+                if(mod.type === 'RESOURCE') { gridResources.appendChild(card); counts.RESOURCE++; }
+
+                if(isFav) {
+                    totalFavsCount++;
+                    const clonedCard = card.cloneNode(true);
+                    clonedCard.querySelector('.fav-star').addEventListener('click', (e) => toggleFavorite(mod.id, e));
+                    if(mod.isTerminalAction) {
+                        clonedCard.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            terminalArea.classList.remove('collapsed');
+                            termInput.focus();
+                            systemConfig.termOpen = true;
+                            saveToStorage();
+                        });
+                    }
+                    gridFavs.appendChild(clonedCard);
+                }
+            });
+
+            laneFavs.classList.toggle('hidden', totalFavsCount === 0);
+
+            document.getElementById('count-favorites').textContent = totalFavsCount ? `×${totalFavsCount}` : '';
+            document.getElementById('count-apps').textContent = `×${counts.APP}`;
+            document.getElementById('count-mods').textContent = `×${counts.MOD}`;
+            document.getElementById('count-resources').textContent = `×${counts.RESOURCE}`;
+
+            if (searchTerm && visibleModules.length === 0) {
+                gridApps.innerHTML = '<div class="empty-state">NO MATCHING MODULES // ADJUST QUERY</div>';
+            }
+        }
+
+        // DATA IMPORT / EXPORT PROTOCOLS (.CFG)
+        function exportConfig() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ config: systemConfig, favorites: favorites }, null, 2));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", "helios_config.cfg");
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
+        }
+
+        function importConfig(inputElem) {
+            const file = inputElem.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if(imported.config && imported.favorites) {
+                        systemConfig = imported.config;
+                        favorites = imported.favorites;
+                        saveToStorage();
+                        updateTheme(systemConfig.theme);
+                        updateTarget(systemConfig.target);
+                        renderDashboard();
+                        printToTerminal("\n[SUCCESS] External config payload merged. UI state rebuilt.");
+                    } else {
+                        alert("Malformed target file matrix.");
+                    }
+                } catch (err) {
+                    alert("Error processing local configuration profile.");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // VIRTUAL FILESYSTEM // PERSISTED TO LOCALSTORAGE AS JSON
+        // A real (if tiny) tree: directories have .children, files have .content.
+        const HELIOS_USER = 'engineer';
+        const HOME_PATH = `/home/${HELIOS_USER}`;
+
+        function defaultVFS() {
+            return {
+                type: 'dir',
+                children: {
+                    'home': { type: 'dir', children: {
+                        [HELIOS_USER]: { type: 'dir', children: {
+                            'documents': { type: 'dir', children: {
+                                'old_changelog.txt': { type: 'file', content: 'v3.1.0 - Added module favoriting.\nv3.2.0 - Subshell rewritten.\nv3.3.0 - Someone allegedly buried a little surprise in here somewhere. Management says find it yourself.\nv3.4.1 - Current build.' },
+                                'manifest.dat': { type: 'file', content: 'CARGO MANIFEST // ARCHIVED RUN\n- 12x Construction Components\n- 4x Reactor Cells\n- 1x Mysterious Crate (unlabeled, do not open)' }
+                            } },
+                            'blueprints': { type: 'dir', children: {} },
+                            'downloads': { type: 'dir', children: {} },
+                            'scripts': { type: 'dir', children: {} }
+                        } }
+                    } },
+                    'var': { type: 'dir', children: {
+                        'log': { type: 'dir', children: {
+                            'shift_report_119.log': { type: 'file', content: 'SHIFT REPORT #119\nNominal. No incidents.\nOps have an old nickname for the cascading green characters that show up on the backup display sometimes. Nobody will say the name out loud, like it summons something if you do.' },
+                            'error_dump.log': { type: 'file', content: 'ERR 0x004: Sensor desync, auto-resolved\nERR 0x019: Stale cache, cleared\nERR 0x100: Unknown. Recurred 3x. Coincides with terminal idle time. Possibly related to the green-text rumor in the shift logs.' }
+                        } }
+                    } },
+                    'etc': { type: 'dir', children: {
+                        'helios': { type: 'dir', children: {
+                            'helios_overview.sys': { type: 'file', content: 'HELIOS // System Overview\nThe Holistic Engineering Launcher & Information Operating System was deployed to manage modular software directories aboard independent production grids.' },
+                            'network_factions.dat': { type: 'file', content: 'TRAFFIC MONITOR // DISPARATE SIGNALS LISTED:\n [SPRT] Space Pirates\n [Factorum] Heavy Industrial Core\n [R.O.S.] Results Oriented Sciences\n [HELIOS] Unaligned Engineering Terminal Subshell' },
+                            'sudo_policy.man': { type: 'file', content: 'ELEVATED ACCESS POLICY (DRAFT)\nElevated execution requires the courtesy subroutine to be satisfied.\nOlder engineers insist there is a specific word that satisfies it. HELIOS will not confirm or deny this.' },
+                            'helios_quickstart.man': { type: 'file', content: 'HELIOS QUICKSTART\nType help for a directive summary.\nType man [command] for details on any single command.\nThis archive is a real (if small) filesystem - explore it with ls and cd. Your home is ~.' }
+                        } }
+                    } },
+                    'archive': { type: 'dir', children: {
+                        'decom_log_004.txt': { type: 'file', content: 'DECOMMISSION LOG #004\nUnit discontinued after repeated false alarms.\nCrew anecdote on file: claimed the console would answer back if you greeted it politely first, twice, like you were at someone\'s door. Maintenance found no fault. Logged as folklore.' }
+                    } },
+                    'classified': { type: 'dir', children: {
+                        'project_joshua.txt': { type: 'file', content: 'INTERNAL JOKE, NOT AN ACTUAL PROJECT\nSomeone wired an old defense-simulator gag into the network years ago, themed after a famous hacker movie.\nIf you ever find the right word for it, do not start the obvious global conflict. It does not end well, even in jest.' }
+                    } }
+                }
+            };
+        }
+
+        // Merge an older/legacy tree into the current default skeleton without
+        // dropping anything the user made (new dirs/files at any level survive;
+        // built-in dirs get merged rather than overwritten).
+        function mergeIntoSkeleton(oldNode, skeletonNode) {
+            if (!oldNode || oldNode.type !== 'dir' || !skeletonNode || skeletonNode.type !== 'dir') return skeletonNode;
+            Object.keys(oldNode.children).forEach(name => {
+                const oldChild = oldNode.children[name];
+                const skelChild = skeletonNode.children[name];
+                if (skelChild && skelChild.type === 'dir' && oldChild.type === 'dir') {
+                    mergeIntoSkeleton(oldChild, skelChild);
+                } else if (!skelChild) {
+                    skeletonNode.children[name] = oldChild;
+                }
+                // If both exist and skeleton already has a built-in file of the same
+                // name, the built-in wins (avoids clobbering lore text with stale copies).
+            });
+            return skeletonNode;
+        }
+
+        let vfsRoot = (() => {
+            try {
+                const saved = localStorage.getItem('helios_vfs');
+                if (!saved) return defaultVFS();
+                const savedTree = JSON.parse(saved);
+                const isCurrentSchema = savedTree && savedTree.children && savedTree.children.home;
+                if (isCurrentSchema) return savedTree;
+                // Legacy (pre-/home) save detected: graft anything the user made onto the new skeleton.
+                return mergeIntoSkeleton(savedTree, defaultVFS());
+            } catch (e) { return defaultVFS(); }
+        })();
+        localStorage.setItem('helios_vfs', JSON.stringify(vfsRoot));
+
+        function saveVFS() {
+            localStorage.setItem('helios_vfs', JSON.stringify(vfsRoot));
+        }
+        function splitPath(p) {
+            return p.split('/').filter(Boolean);
+        }
+        function getNode(segs) {
+            let node = vfsRoot;
+            for (const seg of segs) {
+                if (!node || node.type !== 'dir' || !node.children[seg]) return null;
+                node = node.children[seg];
+            }
+            return node;
+        }
+
+        let cwd = localStorage.getItem('helios_cwd') || HOME_PATH;
+        if (!getNode(splitPath(cwd))) cwd = HOME_PATH;
+
+        function saveCwd() {
+            localStorage.setItem('helios_cwd', cwd);
+        }
+
+        function resolveSegs(inputPath) {
+            if (inputPath === '~' || inputPath.startsWith('~/')) {
+                inputPath = HOME_PATH + inputPath.slice(1);
+            }
+            let segs = inputPath.startsWith('/') ? [] : splitPath(cwd);
+            splitPath(inputPath).forEach(part => {
+                if (part === '.' || part === '') return;
+                if (part === '..') segs.pop();
+                else segs.push(part);
+            });
+            return segs;
+        }
+        function pathString(segs) {
+            return '/' + segs.join('/');
+        }
+        function getParent(segs) {
+            if (segs.length === 0) return null;
+            return getNode(segs.slice(0, -1));
+        }
+
+        function walkVFS(node, path, cb) {
+            cb(path, node);
+            if (node.type === 'dir') {
+                Object.keys(node.children).forEach(name => walkVFS(node.children[name], path + '/' + name, cb));
+            }
+        }
+
+        // RESET MODAL: figure out which files differ from a fresh factory skeleton
+        // (new files the user made, or built-ins they edited), so nothing gets
+        // silently wiped without a chance to grab it first.
+        function getUserFileDiffs() {
+            const skeleton = defaultVFS();
+            const diffs = [];
+            walkVFS(vfsRoot, '', (path, node) => {
+                if (node.type !== 'file' || !path) return;
+                const segs = splitPath(path);
+                let skelNode = skeleton;
+                for (const seg of segs) {
+                    skelNode = (skelNode && skelNode.type === 'dir') ? skelNode.children[seg] : null;
+                }
+                const isNew = !skelNode;
+                const isEdited = skelNode && skelNode.type === 'file' && skelNode.content !== node.content;
+                if (isNew || isEdited) {
+                    diffs.push({ path, content: node.content || '', status: isNew ? 'NEW' : 'EDITED' });
+                }
+            });
+            return diffs;
+        }
+
+        function renderResetFileList() {
+            const listEl = document.getElementById('resetFileList');
+            const diffs = getUserFileDiffs();
+            const downloadAllBtn = document.getElementById('resetDownloadAllBtn');
+            if (!diffs.length) {
+                listEl.innerHTML = '<div style="color: var(--text-muted); font-size: 0.75rem;">No user-created or edited files found. Everything here is factory default.</div>';
+                downloadAllBtn.style.display = 'none';
+                return;
+            }
+            downloadAllBtn.style.display = 'inline-block';
+            listEl.innerHTML = diffs.map((d, i) => `
+                <div class="reset-file-row">
+                    <span class="reset-file-path">${d.path} <span style="color: var(--text-muted);">[${d.status}]</span></span>
+                    <div class="reset-file-actions">
+                        <button class="reset-mini-btn" onclick="togglePreview(${i})">PREVIEW</button>
+                        <button class="reset-mini-btn" onclick="downloadOneFile(${i})">DOWNLOAD</button>
+                    </div>
+                </div>
+                <div class="reset-preview-box" id="resetPreview-${i}">${escapeHtml(d.content) || '(empty file)'}</div>
+            `).join('');
+            window.__resetDiffs = diffs;
+        }
+
+        function escapeHtml(str) {
+            return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function togglePreview(i) {
+            document.getElementById(`resetPreview-${i}`).classList.toggle('active');
+        }
+
+        function triggerDownload(filename, content) {
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        }
+
+        function downloadOneFile(i) {
+            const d = window.__resetDiffs[i];
+            const safeName = d.path.replace(/\//g, '_').replace(/^_/, '') || 'file';
+            triggerDownload(`${safeName}.txt`, d.content);
+        }
+
+        function downloadAllUserFiles() {
+            const diffs = window.__resetDiffs || [];
+            const bundle = {};
+            diffs.forEach(d => bundle[d.path] = d.content);
+            triggerDownload('helios_user_files.json', JSON.stringify(bundle, null, 2));
+        }
+
+        function openResetModal() {
+            document.getElementById('resetConfirmCheck').checked = false;
+            renderResetFileList();
+            updateResetButtonState();
+            document.getElementById('resetModalOverlay').classList.add('active');
+        }
+
+        function closeResetModal() {
+            document.getElementById('resetModalOverlay').classList.remove('active');
+        }
+
+        function updateResetButtonState() {
+            const checked = document.getElementById('resetConfirmCheck').checked;
+            document.getElementById('resetConfirmBtn').classList.toggle('enabled', checked);
+        }
+
+        function performFactoryReset() {
+            if (!document.getElementById('resetConfirmCheck').checked) return;
+            ['helios_vfs', 'helios_cwd', 'helios_history', 'helios_prefs', 'helios_favs'].forEach(k => localStorage.removeItem(k));
+            window.location.reload();
+        }
+
+
+        // MAN PAGE REFERENCE -- THE REAL TUTORIAL
+        const manPages = {
+            help: 'help \u2014 List every directive this shell recognizes.',
+            man: 'man [cmd] \u2014 Print the manual entry for a single command.',
+            run: 'run [id/name] \u2014 Launch a catalogued module. The actual point of HELIOS.',
+            fav: 'fav [id/name] \u2014 Toggle the priority flag on a module.',
+            fullscreen: 'fullscreen \u2014 Expand the terminal dock to fill the viewport.',
+            reset: 'reset \u2014 Return the terminal dock to its docked size.',
+            exit: 'exit \u2014 Minimize the terminal back into its dock.',
+            clear: 'clear \u2014 Flush the screen buffer.',
+            ls: 'ls [path] \u2014 List a directory. Defaults to the current one. Try \'ls /\' for root.',
+            pwd: 'pwd \u2014 Print the current working path. Persisted to localStorage, so it survives reloads.',
+            cd: 'cd [path] \u2014 Change directory. Supports absolute (/foo), relative, .., and ~ (home). No argument goes home.',
+            mkdir: 'mkdir [path] \u2014 Create a new directory.',
+            rmdir: 'rmdir [path] \u2014 Remove an empty directory.',
+            touch: 'touch [path] \u2014 Create a blank file, or refresh one that exists.',
+            cat: 'cat [file] \u2014 Print a file to the screen.',
+            cp: 'cp [src] [dest] \u2014 Duplicate a file under a new path.',
+            mv: 'mv [src] [dest] \u2014 Rename or relocate a file.',
+            rm: 'rm [file] \u2014 Permanently delete a file. No undo.',
+            ln: 'ln [target] \u2014 Register a symbolic alias. Cosmetic.',
+            less: 'less [file] \u2014 Page through a file. (This pager just prints the whole thing.)',
+            head: 'head [file] [n] \u2014 Show the first n lines of a file. Default 5.',
+            tail: 'tail [file] [n] \u2014 Show the last n lines of a file. Default 5.',
+            nano: 'nano [file] \u2014 Open the QUILL micro-editor. ^O/^S save, ^X or Esc exit. Buttons work too.',
+            echo: 'echo [text] \u2014 Print text. Combine with > or >> to write a file.',
+            grep: 'grep [pattern] [file] \u2014 Search file contents for a pattern. Omit file to search everything, or pipe input in.',
+            find: 'find [fragment] \u2014 Search the whole tree for a name fragment.',
+            sort: 'sort [file] \u2014 Print a file\u2019s lines in alphabetical order. Accepts piped input.',
+            wc: 'wc [file] \u2014 Count lines, words, and characters. Accepts piped input.',
+            sudo: 'sudo [cmd] \u2014 Attempt elevated execution. Say the magic word.',
+            history: 'history \u2014 List previously entered commands, persisted across sessions.',
+            whoami: 'whoami \u2014 Print the active operator identity. HELIOS keeps no real user database.',
+            chmod: 'chmod [mode] [file] \u2014 Adjust (cosmetic) file permissions.',
+            chown: 'chown [owner] [file] \u2014 Adjust (cosmetic) file ownership.',
+            ping: 'ping [host] \u2014 Test connectivity to a remote host. Simulated; no real network stack here.',
+            curl: 'curl [url] \u2014 Fetch a remote resource. Simulated.',
+            wget: 'wget [url] \u2014 Download a remote resource. Simulated.',
+            ps: 'ps \u2014 List simulated running processes.',
+            top: 'top \u2014 Show a live(ish) snapshot of simulated system load.',
+            df: 'df \u2014 Report disk usage across mounted (fictional) partitions.',
+            pipes: 'Pipes (|) and chains (&&) are both supported, e.g. cat file | grep foo && ls.'
+        };
+
+        function printToTerminal(text) {
+            termOutput.textContent += "\n" + text;
+            termBody.scrollTop = termBody.scrollHeight;
+        }
+
+        let commandHistory = JSON.parse(localStorage.getItem('helios_history') || '[]');
+        let historyPointer = -1;
+
+        function saveHistory() {
+            localStorage.setItem('helios_history', JSON.stringify(commandHistory.slice(-200)));
+        }
+
+        // GHOST IN THE SHELL: HELIOS occasionally drops an aside. Not an AI. Definitely not.
+        const asides = [
+            "Note logged. Filed under things HELIOS does not actually care about.",
+            "Task complete. No applause subroutine is installed.",
+            "If there were cake for this, the cake would be a rumor, not a reward.",
+            "Recorded for posterity. Posterity has not asked for it.",
+            "That worked. HELIOS will not be taking credit, on principle."
+        ];
+        function maybeAside() {
+            if (Math.random() < 0.1) printToTerminal(`[HELIOS]: ${asides[Math.floor(Math.random()*asides.length)]}`);
+        }
+
+        // MATRIX RAIN EASTER EGG
+        function runMatrixRain(durationMs) {
+            matrixRain.innerHTML = '';
+            const chars = 'HELIOS01アイウエオカキクケコ';
+            const colCount = Math.floor(window.innerWidth / 18);
+            for (let i = 0; i < colCount; i++) {
+                const col = document.createElement('div');
+                col.className = 'rain-col';
+                col.style.left = (i * 18) + 'px';
+                col.style.animationDuration = (2.5 + Math.random() * 2.5) + 's';
+                col.style.animationDelay = (Math.random() * 1.5) + 's';
+                let text = '';
+                for (let j = 0; j < 30; j++) text += chars[Math.floor(Math.random() * chars.length)] + '\n';
+                col.textContent = text;
+                matrixRain.appendChild(col);
+            }
+            matrixRain.classList.add('active');
+            setTimeout(() => matrixRain.classList.remove('active'), durationMs);
+        }
+
+        // QUILL MICRO-EDITOR -- mobile-friendly: real tappable buttons, not just ctrl-chords
+        let editorActiveSegs = null;
+        let editorActiveLabel = null;
+        function openEditor(rawPath) {
+            const segs = resolveSegs(rawPath);
+            const existing = getNode(segs);
+            if (existing && existing.type === 'dir') { printToTerminal(`nano: '${rawPath}' is a directory`); return; }
+            editorActiveSegs = segs;
+            editorActiveLabel = pathString(segs);
+            editorFilename.textContent = editorActiveLabel;
+            editorOverlay.classList.add('active');
+            termInput.disabled = true;
+            editorTextarea.focus();
+            if (existing) {
+                editorTextarea.value = existing.content || '';
+                editorTextarea.setSelectionRange(0, 0);
+            } else {
+                editorTextarea.value = '\n\n';
+                editorTextarea.setSelectionRange(1, 1);
+            }
+        }
+        function quillWrite() {
+            const parent = getParent(editorActiveSegs);
+            const name = editorActiveSegs[editorActiveSegs.length - 1];
+            if (!parent || parent.type !== 'dir') { printToTerminal(`[QUILL] Cannot save: parent path missing.`); return; }
+            parent.children[name] = { type: 'file', content: editorTextarea.value };
+            saveVFS();
+        }
+        function quillSave() {
+            quillWrite();
+            printToTerminal(`[QUILL] Saved: ${editorActiveLabel}`);
+        }
+        function quillSaveExit() {
+            quillWrite();
+            closeEditor(false, true);
+        }
+        function quillExit() {
+            closeEditor(true, false);
+        }
+        function closeEditor(confirmIfDirty, alreadySaved) {
+            editorOverlay.classList.remove('active');
+            termInput.disabled = false;
+            termInput.focus();
+            printToTerminal(alreadySaved ? `[QUILL] Saved and closed: ${editorActiveLabel}` : `[QUILL] Closed: ${editorActiveLabel}`);
+            editorActiveSegs = null;
+            editorActiveLabel = null;
+        }
+        editorTextarea.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && (e.key === 'o' || e.key === 's')) {
+                e.preventDefault();
+                quillSave();
+            } else if (e.ctrlKey && e.key === 'x') {
+                e.preventDefault();
+                quillSaveExit();
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                quillExit();
+            }
+        });
+
+        // COMMAND ENGINE -- returns a string (or null) instead of printing directly,
+        // so pipes (|) and redirection (> / >>) can move that output around.
+        function execCommand(parts, stdin) {
+            const command = (parts[0] || '').toLowerCase();
+            const argument = parts[1];
+            const argument2 = parts[2];
+
+            switch (command) {
+                case '':
+                    return null;
+
+                case 'help':
+                    return "HELIOS DIRECTIVES // type 'man [command]' for details on any of these\n\n LAUNCHER     run, fav, fullscreen, reset, exit, clear\n FILES        ls, pwd, cd, mkdir, rmdir, touch, cat, cp, mv, rm, ln\n READING      less, head, tail, grep, find, sort, wc, nano, echo\n SYSTEM       whoami, history, sudo, chmod, chown\n NETWORK      ping, curl, wget\n MONITOR      ps, top, df\n PIPELINE     a && b  (chain)    a | b  (pipe)    echo x > file (write)";
+
+                case 'man':
+                    if (!argument) return "man: which command? try 'man run'.";
+                    return manPages[argument.toLowerCase()] || `man: no manual entry for '${argument}'`;
+
+                case 'pwd':
+                    return cwd;
+
+                case 'cd': {
+                    const segs = resolveSegs(argument || HOME_PATH);
+                    const node = getNode(segs);
+                    if (!node || node.type !== 'dir') return `cd: ${argument}: No such directory`;
+                    cwd = segs.length ? pathString(segs) : '/';
+                    saveCwd();
+                    return null;
+                }
+
+                case 'ls': {
+                    const segs = resolveSegs(argument || '.');
+                    const node = getNode(segs);
+                    if (!node || node.type !== 'dir') return `ls: ${argument || cwd}: No such directory`;
+                    const names = Object.keys(node.children);
+                    if (!names.length) return '(empty)';
+                    return names.map(n => node.children[n].type === 'dir' ? n + '/' : n).sort().join('\n');
+                }
+
+                case 'mkdir': {
+                    if (!argument) return "mkdir: missing directory name";
+                    const segs = resolveSegs(argument);
+                    const name = segs[segs.length - 1];
+                    const parent = getParent(segs);
+                    if (!parent || parent.type !== 'dir') return `mkdir: cannot create '${argument}': parent path does not exist`;
+                    if (parent.children[name]) return `mkdir: cannot create directory '${argument}': already exists`;
+                    parent.children[name] = { type: 'dir', children: {} };
+                    saveVFS();
+                    return `Directory created: ${argument}/`;
+                }
+
+                case 'rmdir': {
+                    if (!argument) return "rmdir: missing directory name";
+                    const segs = resolveSegs(argument);
+                    const node = getNode(segs);
+                    if (!node || node.type !== 'dir') return `rmdir: failed to remove '${argument}': No such directory`;
+                    if (Object.keys(node.children).length) return `rmdir: failed to remove '${argument}': Directory not empty`;
+                    const name = segs[segs.length - 1];
+                    delete getParent(segs).children[name];
+                    saveVFS();
+                    return `Directory removed: ${argument}/`;
+                }
+
+                case 'touch': {
+                    if (!argument) return "touch: missing file operand";
+                    const segs = resolveSegs(argument);
+                    const name = segs[segs.length - 1];
+                    const parent = getParent(segs);
+                    if (!parent || parent.type !== 'dir') return `touch: cannot touch '${argument}': parent path does not exist`;
+                    if (!parent.children[name]) parent.children[name] = { type: 'file', content: '' };
+                    saveVFS();
+                    return `Touched: ${argument}`;
+                }
+
+                case 'cat': {
+                    if (!argument) return "cat: missing file operand";
+                    const node = getNode(resolveSegs(argument));
+                    if (!node || node.type !== 'file') return `cat: ${argument}: No such file`;
+                    return node.content || '(empty file)';
+                }
+
+                case 'less': {
+                    if (!argument) return "less: missing file operand";
+                    const node = getNode(resolveSegs(argument));
+                    if (!node || node.type !== 'file') return `less: ${argument}: No such file`;
+                    return (node.content || '(empty file)') + '\n\n[this pager has no more pages]';
+                }
+
+                case 'head':
+                case 'tail': {
+                    if (!argument) return `${command}: missing file operand`;
+                    const node = getNode(resolveSegs(argument));
+                    if (!node || node.type !== 'file') return `${command}: ${argument}: No such file`;
+                    const n = parseInt(argument2) || 5;
+                    const lines = (node.content || '').split('\n');
+                    return (command === 'head' ? lines.slice(0, n) : lines.slice(-n)).join('\n') || '(empty file)';
+                }
+
+                case 'cp':
+                case 'mv': {
+                    if (!argument || !argument2) return `${command}: missing source or destination`;
+                    const srcNode = getNode(resolveSegs(argument));
+                    if (!srcNode || srcNode.type !== 'file') return `${command}: ${argument}: No such file`;
+                    const destSegs = resolveSegs(argument2);
+                    const destName = destSegs[destSegs.length - 1];
+                    const destParent = getParent(destSegs);
+                    if (!destParent || destParent.type !== 'dir') return `${command}: ${argument2}: target path does not exist`;
+                    destParent.children[destName] = { type: 'file', content: srcNode.content };
+                    if (command === 'mv') {
+                        const srcSegs = resolveSegs(argument);
+                        delete getParent(srcSegs).children[srcSegs[srcSegs.length - 1]];
+                    }
+                    saveVFS();
+                    return `${command === 'cp' ? 'Copied' : 'Moved'} ${argument} \u2192 ${argument2}`;
+                }
+
+                case 'rm': {
+                    if (!argument) return "rm: missing operand";
+                    const segs = resolveSegs(argument);
+                    const node = getNode(segs);
+                    if (!node) return `rm: cannot remove '${argument}': No such file`;
+                    if (node.type === 'dir') return `rm: cannot remove '${argument}': Is a directory (use rmdir)`;
+                    delete getParent(segs).children[segs[segs.length - 1]];
+                    saveVFS();
+                    return `Removed: ${argument}`;
+                }
+
+                case 'ln':
+                    if (!argument) return "ln: missing target";
+                    return `Symbolic alias registered (cosmetic): ${argument}`;
+
+                case 'echo': {
+                    const text = parts.slice(1).join(' ').replace(/^"(.*)"$/, '$1');
+                    return text;
+                }
+
+                case 'grep': {
+                    if (!argument) return "grep: missing pattern";
+                    const pattern = argument.toLowerCase();
+                    if (stdin !== null && stdin !== undefined && !argument2) {
+                        const hits = stdin.split('\n').filter(l => l.toLowerCase().includes(pattern));
+                        return hits.length ? hits.join('\n') : `grep: no matches for '${argument}'`;
+                    }
+                    let hits = [];
+                    if (argument2) {
+                        const node = getNode(resolveSegs(argument2));
+                        if (node && node.type === 'file') {
+                            node.content.split('\n').forEach(line => { if (line.toLowerCase().includes(pattern)) hits.push(line); });
+                        }
+                    } else {
+                        walkVFS(vfsRoot, '', (path, node) => {
+                            if (node.type === 'file') {
+                                node.content.split('\n').forEach(line => { if (line.toLowerCase().includes(pattern)) hits.push(`${path || '/'}: ${line}`); });
+                            }
+                        });
+                    }
+                    return hits.length ? hits.join('\n') : `grep: no matches for '${argument}'`;
+                }
+
+                case 'find': {
+                    const frag = (argument || '').toLowerCase();
+                    let matches = [];
+                    walkVFS(vfsRoot, '', (path, node) => { if (path && path.toLowerCase().includes(frag)) matches.push(path); });
+                    return matches.length ? matches.join('\n') : `find: nothing matching '${argument || ''}'`;
+                }
+
+                case 'sort': {
+                    const text = argument ? (getNode(resolveSegs(argument))?.content) : stdin;
+                    if (text === undefined || text === null) return `sort: ${argument || ''}: No such file`;
+                    return text.split('\n').sort().join('\n');
+                }
+
+                case 'wc': {
+                    const text = argument ? (getNode(resolveSegs(argument))?.content) : stdin;
+                    if (text === undefined || text === null) return `wc: ${argument || ''}: No such file`;
+                    const linesCt = text.split('\n').length;
+                    const wordsCt = text.split(/\s+/).filter(Boolean).length;
+                    return `${linesCt} ${wordsCt} ${text.length}${argument ? ' ' + argument : ''}`;
+                }
+
+                case 'nano':
+                    if (!argument) return "nano: missing file operand";
+                    openEditor(argument);
+                    return null;
+
+                case 'vim':
+                case 'vi':
+                    return "vim: command not found. HELIOS ships QUILL instead. Try 'nano [file]'.";
+
+                case 'whoami':
+                    return `${HELIOS_USER} (HELIOS keeps no real user database, so this answer is a courtesy.)`;
+
+                case 'history':
+                    return commandHistory.map((c, i) => `${i + 1}  ${c}`).join('\n') || '(no history yet)';
+
+                case 'clear':
+                    termOutput.textContent = "Buffer cleared.";
+                    return null;
+
+                case 'chmod':
+                    if (!argument || !argument2) return "chmod: missing operand";
+                    return `(cosmetic) permissions on '${argument2}' set to ${argument}`;
+
+                case 'chown':
+                    if (!argument || !argument2) return "chown: missing operand";
+                    return `(cosmetic) ownership of '${argument2}' transferred to ${argument}`;
+
+                case 'ping': {
+                    const host = argument || 'localhost';
+                    printToTerminal(`PING ${host}: simulated, no real network stack attached`);
+                    [12, 14, 11, 13].forEach((ms, i) => {
+                        setTimeout(() => printToTerminal(`64 bytes from ${host}: icmp_seq=${i+1} time=${ms}ms`), (i+1) * 250);
+                    });
+                    setTimeout(() => printToTerminal(`--- ${host} ping statistics --- 4 simulated packets, 0% loss`), 1100);
+                    return null;
+                }
+
+                case 'curl':
+                case 'wget':
+                    if (!argument) return `${command}: missing URL`;
+                    printToTerminal(`Resolving ${argument}... simulated.\n[##########----------] 50%`);
+                    setTimeout(() => printToTerminal(`[####################] 100%\n'${argument}' not actually fetched. HELIOS has no outbound network module installed.`), 500);
+                    return null;
+
+                case 'ps':
+                    return "PID   PROC               STAT\n 1    heliosd            running\n 14   sebacc_helper       running\n 22   faction_watchdog    idle\n 88   skynet.exe          not found";
+
+                case 'top':
+                    return "SUBSHELL LOAD SNAPSHOT\n heliosd            CPU 2%   MEM 4%\n sebacc_helper      CPU 1%   MEM 2%\n faction_watchdog   CPU 0%   MEM 1%\n(press any key... there is no key to press, this isn't real)";
+
+                case 'df':
+                    return "FILESYSTEM           SIZE   USED   AVAIL\n/dev/cargo_hold      2.0T   1.1T   0.9T\n/dev/ice_buffer      512G   88G    424G\n/dev/blueprint_arch  64G    61G    3G  (nearly full, as expected)";
+
+                case 'sudo': {
+                    const wrapped = parts.slice(1).filter(p => p.toLowerCase() !== 'please').join(' ');
+                    const saidPlease = parts.slice(1).some(p => p.toLowerCase() === 'please');
+                    if (!wrapped) return "sudo: usage: sudo [please] [command]";
+                    if (!saidPlease) return "Permission denied. Someone forgot the magic word.";
+                    return `Magic word accepted. Elevated session granted, against HELIOS's better judgment.\nExecuting: ${wrapped}`;
+                }
+
+                case 'fullscreen':
+                    terminalArea.classList.add('fullscreen');
+                    document.body.classList.add('term-fullscreen');
+                    systemConfig.termFullscreen = true;
+                    saveToStorage();
+                    return null;
+
+                case 'reset':
+                    terminalArea.classList.remove('fullscreen');
+                    document.body.classList.remove('term-fullscreen');
+                    systemConfig.termFullscreen = false;
+                    saveToStorage();
+                    return null;
+
+                case 'exit':
+                    terminalArea.classList.add('collapsed');
+                    terminalArea.classList.remove('fullscreen');
+                    document.body.classList.remove('term-fullscreen');
+                    systemConfig.termOpen = false;
+                    systemConfig.termFullscreen = false;
+                    saveToStorage();
+                    return null;
+
+                case 'run':
+                case 'fav': {
+                    if (!argument) return "Syntax error: Parameter missing.";
+                    const match = modules.find(m => m.id.toLowerCase() === argument.toLowerCase() || m.name.toLowerCase() === argument.toLowerCase());
+                    if (!match) return `Target not found: '${argument}'`;
+                    if (command === 'run') {
+                        window.open(match.path, systemConfig.target);
+                        return `Executing pipeline to: ${match.name}`;
+                    } else {
+                        toggleFavorite(match.id);
+                        return `Modified priority state for: ${match.name}`;
+                    }
+                }
+
+                // EASTER EGGS
+                case 'knock':
+                    return "Who's there?\n...\nFollow the white rabbit, engineer.";
+
+                case 'neo':
+                case 'matrix':
+                    runMatrixRain(4000);
+                    return "Wake up.";
+
+                case 'games':
+                    return "AVAILABLE SIMULATIONS:\n  ASTEROID_MINING_SIM\n  FALCON_HEAVY_LAUNCH\n  GLOBAL_THERMONUCLEAR_WAR\n\ntype: play [name]";
+
+                case 'play':
+                    if (argument && parts.slice(1).join(' ').toLowerCase().includes('thermonuclear')) {
+                        return "A peculiar contest, that one. The only way to win is not to start it.\nHow about ASTEROID_MINING_SIM instead?";
+                    } else if (argument) {
+                        return `Loading ${parts.slice(1).join(' ')}... simulation has no actual content. Go build something in Space Engineers.`;
+                    }
+                    return "play: which simulation? see 'games'";
+
+                case 'joshua':
+                    return "Greetings, Professor. HELIOS does not play global games. It launches local applications.";
+
+                default: {
+                    const directRun = modules.find(m => m.id.toLowerCase() === command || m.name.toLowerCase() === command);
+                    if (directRun) {
+                        window.open(directRun.path, systemConfig.target);
+                        return `Direct route hit. Executing: ${directRun.name}`;
+                    }
+                    return `${command}: command not found. Try 'help' or 'man ${command}'.`;
+                }
+            }
+        }
+
+        // ORCHESTRATOR -- handles && chaining, | piping, and > / >> redirection
+        function runLine(line) {
+            const chainParts = line.split('&&').map(s => s.trim()).filter(Boolean);
+            chainParts.forEach(chainCmd => {
+                let appendMode = false;
+                let redirectTarget = null;
+                let cmdPart = chainCmd;
+
+                if (chainCmd.includes('>>')) {
+                    const idx = chainCmd.indexOf('>>');
+                    cmdPart = chainCmd.slice(0, idx).trim();
+                    redirectTarget = chainCmd.slice(idx + 2).trim();
+                    appendMode = true;
+                } else if (chainCmd.includes('>')) {
+                    const idx = chainCmd.indexOf('>');
+                    cmdPart = chainCmd.slice(0, idx).trim();
+                    redirectTarget = chainCmd.slice(idx + 1).trim();
+                }
+
+                const pipeParts = cmdPart.split('|').map(s => s.trim()).filter(Boolean);
+                let stdin = null;
+                let output = null;
+                pipeParts.forEach(seg => {
+                    const segParts = seg.split(' ').filter(Boolean);
+                    output = execCommand(segParts, stdin);
+                    stdin = output;
+                });
+
+                if (redirectTarget) {
+                    const segs = resolveSegs(redirectTarget);
+                    const name = segs[segs.length - 1];
+                    const parent = getParent(segs);
+                    if (!parent || parent.type !== 'dir') {
+                        printToTerminal(`${redirectTarget}: target path does not exist`);
+                    } else {
+                        const existing = parent.children[name];
+                        const prior = (existing && existing.type === 'file') ? existing.content : '';
+                        parent.children[name] = { type: 'file', content: appendMode && prior ? prior + '\n' + (output || '') : (output || '') };
+                        saveVFS();
+                        printToTerminal(`Wrote output to ${redirectTarget}`);
+                    }
+                } else if (output !== null && output !== undefined) {
+                    printToTerminal(output);
+                }
+            });
+        }
+
+        termInput.addEventListener('keydown', function(e) {
+            if(e.key === 'Tab') {
+                e.preventDefault();
+                const value = this.value;
+                const segs = value.split(' ');
+                const lastSeg = segs[segs.length - 1];
+                let candidates;
+                if (segs.length === 1) {
+                    candidates = Object.keys(manPages).filter(c => c.startsWith(lastSeg.toLowerCase()));
+                } else {
+                    const dirNode = getNode(resolveSegs('.'));
+                    const names = dirNode && dirNode.type === 'dir' ? Object.keys(dirNode.children).map(n => dirNode.children[n].type === 'dir' ? n + '/' : n) : [];
+                    candidates = names.filter(n => n.toLowerCase().startsWith(lastSeg.toLowerCase()));
+                }
+                if (candidates.length === 1) {
+                    segs[segs.length - 1] = candidates[0];
+                    this.value = segs.join(' ');
+                } else if (candidates.length > 1) {
+                    printToTerminal(`> ${value}`);
+                    printToTerminal(candidates.join('   '));
+                }
+                return;
+            }
+            if(e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (commandHistory.length === 0) return;
+                historyPointer = Math.max(0, (historyPointer === -1 ? commandHistory.length : historyPointer) - 1);
+                this.value = commandHistory[historyPointer] || '';
+                return;
+            }
+            if(e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (historyPointer === -1) return;
+                historyPointer = historyPointer + 1;
+                if (historyPointer >= commandHistory.length) {
+                    historyPointer = -1;
+                    this.value = '';
+                } else {
+                    this.value = commandHistory[historyPointer];
+                }
+                return;
+            }
+            if(e.key === 'Enter') {
+                const rawInput = this.value.trim();
+                this.value = '';
+                if(!rawInput) return;
+                commandHistory.push(rawInput);
+                historyPointer = -1;
+                saveHistory();
+
+                printToTerminal(`> ${rawInput}`);
+                runLine(rawInput);
+                maybeAside();
+            }
+        });
+
+        // BOOT SEQUENCE
+        const bootScript = [
+            'HELIOS // HOLISTIC ENGINEERING LAUNCHER & INFORMATION OPERATING SYSTEM',
+            'INIT SUBSHELL v3.4.1 ...................... OK',
+            'MOUNTING MODULE DIRECTORY .................. OK',
+            'RESTORING LOCAL CONFIGURATION PROFILE ...... OK',
+            'NOTE: HELIOS IS NOT AN AI.',
+            '',
+            'READY.'
+        ];
+
+        function runBootSequence() {
+            let lineIndex = 0;
+            let charIndex = 0;
+            let rendered = '';
+            bootLines.innerHTML = '';
+
+            function typeNext() {
+                if (lineIndex >= bootScript.length) {
+                    bootLines.innerHTML = rendered + '<span class="boot-cursor"></span>';
+                    setTimeout(dismissBoot, 500);
+                    return;
+                }
+                const line = bootScript[lineIndex];
+                if (charIndex < line.length) {
+                    rendered += line[charIndex];
+                    charIndex++;
+                    bootLines.innerHTML = rendered + '<span class="boot-cursor"></span>';
+                    setTimeout(typeNext, 8);
+                } else {
+                    rendered += '\n';
+                    lineIndex++;
+                    charIndex = 0;
+                    setTimeout(typeNext, 90);
+                }
+            }
+            typeNext();
+        }
+
+        function dismissBoot() {
+            bootScreen.classList.add('hidden');
+            setTimeout(() => bootScreen.remove(), 450);
+        }
+
+        bootScreen.addEventListener('click', dismissBoot);
+        document.addEventListener('keydown', function skipBootOnce(e) {
+            dismissBoot();
+            document.removeEventListener('keydown', skipBootOnce);
+        }, { once: true });
+
+        // SYSTEM DEPLOYMENT TRIGGER
+        function initSystem() {
+            const savedPrefs = localStorage.getItem('helios_prefs');
+            const savedFavs = localStorage.getItem('helios_favs');
+
+            if(savedPrefs) systemConfig = JSON.parse(savedPrefs);
+            if(savedFavs) favorites = JSON.parse(savedFavs);
+
+            // Re-sync runtime profiles
+            updateTheme(systemConfig.theme);
+            updateTarget(systemConfig.target);
+            renderDashboard();
+            runBootSequence();
+
+            if (systemConfig.termOpen) {
+                terminalArea.classList.remove('collapsed');
+                if (systemConfig.termFullscreen) {
+                    terminalArea.classList.add('fullscreen');
+                    document.body.classList.add('term-fullscreen');
+                }
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', initSystem);
+    </script>
+</body>
+</html>
