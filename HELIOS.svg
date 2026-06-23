@@ -1,0 +1,127 @@
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 512 512"
+    width="256"
+    height="256"
+    style="--accent:#00f0ff;"
+>
+
+<defs>
+
+<filter id="cyanGlow">
+    <feGaussianBlur stdDeviation="3" result="blur"/>
+    <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+    </feMerge>
+</filter>
+
+<filter id="orangeGlow">
+    <feGaussianBlur stdDeviation="3.5" result="blur"/>
+    <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+    </feMerge>
+</filter>
+
+</defs>
+
+<!-- OUTER SHIELD -->
+<path
+    d="M256 24 L448 160 L448 352 L256 488 L64 352 L64 160 Z"
+    fill="none"
+    stroke="var(--accent)"
+    stroke-width="12"
+    filter="url(#cyanGlow)"
+/>
+
+<!-- INNER SHIELD -->
+<path
+    d="M256 70 L400 175 L400 337 L256 442 L112 337 L112 175 Z"
+    fill="none"
+    stroke="var(--accent)"
+    stroke-width="6"
+/>
+
+<!-- ORBIT RINGS -->
+<ellipse cx="256" cy="256" rx="140" ry="58" fill="none" stroke="var(--accent)" stroke-width="8"/>
+<ellipse cx="256" cy="256" rx="58" ry="140" fill="none" stroke="var(--accent)" stroke-width="8"/>
+
+<!-- OUTER CIRCLES -->
+<circle cx="256" cy="256" r="120" fill="none" stroke="var(--accent)" stroke-width="5" stroke-dasharray="14 10"/>
+<circle cx="256" cy="256" r="82" fill="none" stroke="var(--accent)" stroke-width="8"/>
+
+<!-- REACTOR CORE -->
+<circle cx="256" cy="256" r="42" fill="var(--accent)"/>
+<circle cx="256" cy="256" r="55" fill="none" stroke="var(--accent)" stroke-width="10"/>
+
+<!-- SOLAR SPIKES -->
+<polygon points="256,120 242,210 270,210" fill="#ff8c00" filter="url(#orangeGlow)"/>
+<polygon points="392,256 302,242 302,270" fill="#ff8c00"/>
+<polygon points="256,392 242,302 270,302" fill="#ff8c00"/>
+<polygon points="120,256 210,242 210,270" fill="#ff8c00"/>
+
+<!-- SMALL RAYS -->
+<polygon points="192,180 214,200 198,220" fill="#ff8c00"/>
+<polygon points="320,180 298,200 314,220" fill="#ff8c00"/>
+<polygon points="320,332 298,312 314,292" fill="#ff8c00"/>
+<polygon points="192,332 214,312 198,292" fill="#ff8c00"/>
+
+<!-- ORBITAL NODES -->
+<circle cx="256" cy="118" r="18" fill="#111" stroke="var(--accent)" stroke-width="6"/>
+<circle cx="256" cy="118" r="6" fill="#ff8c00"/>
+
+<circle cx="118" cy="330" r="18" fill="#111" stroke="var(--accent)" stroke-width="6"/>
+<circle cx="118" cy="330" r="6" fill="#ff8c00"/>
+
+<circle cx="394" cy="330" r="18" fill="#111" stroke="var(--accent)" stroke-width="6"/>
+<circle cx="394" cy="330" r="6" fill="#ff8c00"/>
+
+<!-- FRONT-MOST LAYER: H (STATIC CORE + ORANGE PULSING GLOW) -->
+<g>
+
+    <!-- PULSING ORANGE GLOW -->
+    <path
+        d="
+        M220 205 L242 205 L242 244 L270 244 L270 205 L292 205
+        L292 307 L270 307 L270 266 L242 266 L242 307
+        L220 307 Z
+        "
+        fill="none"
+        stroke="#ff8c00"
+        stroke-width="12"
+        opacity="0.35"
+        filter="url(#orangeGlow)"
+    >
+        <animate
+            attributeName="opacity"
+            values="0.15;0.9;0.15"
+            dur="3.5s"
+            repeatCount="indefinite"
+        />
+
+        <animate
+            attributeName="stroke-width"
+            values="8;18;8"
+            dur="3.5s"
+            repeatCount="indefinite"
+        />
+    </path>
+
+    <!-- STATIC H CORE -->
+    <path
+        d="
+        M220 205 L242 205 L242 244 L270 244 L270 205 L292 205
+        L292 307 L270 307 L270 266 L242 266 L242 307
+        L220 307 Z
+        "
+        fill="var(--accent)"
+        stroke="#0a0a0a"
+        stroke-width="2"
+        stroke-linejoin="round"
+        opacity="0.95"
+    />
+
+</g>
+
+</svg>
