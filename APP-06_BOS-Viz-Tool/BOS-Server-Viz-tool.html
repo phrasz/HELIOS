@@ -1,0 +1,1819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BOS · SE Solar System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #03060f;
+      --pane:     #060f1f;
+      --border:   #1a3060;
+      --text:     #94b0d4;
+      --gold:     #f0b429;
+      --cyan:     #00e5f8;
+      --btn-bg:   #0a1428;
+      --btn-hov:  #1a3060;
+      --danger:   #c0392b;
+      --ui-fs:    10px;
+    }
+
+    html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); }
+    body { font-family: 'Share Tech Mono', monospace; color: var(--text); user-select: none; }
+
+    /* ── Canvas ── */
+    #app { position: fixed; inset: 0; }
+    #app canvas { position: absolute; top: 0; left: 0; }
+    #label-container { position: absolute; top: 0; left: 0; pointer-events: none; width: 100%; height: 100%; }
+
+    /* ── Top bar ── */
+    #topbar {
+      position: fixed; top: 0; left: 0; right: 0; height: 42px;
+      background: rgba(6,15,31,0.88); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 6px; padding: 0 12px;
+      z-index: 30; backdrop-filter: blur(6px);
+    }
+    #topbar-title { font-family: 'Orbitron', monospace; font-size: var(--ui-fs); color: var(--gold); margin-right: 8px; white-space: nowrap; }
+    .divider { width: 1px; height: 22px; background: var(--border); margin: 0 4px; }
+    .btn {
+      background: var(--btn-bg); color: var(--gold); border: 1px solid var(--border);
+      cursor: pointer; font-family: 'Share Tech Mono', monospace; font-size: var(--ui-fs);
+      padding: 4px 11px; white-space: nowrap; transition: background .12s, border-color .12s; line-height: 1.4;
+    }
+    .btn:hover { background: var(--btn-hov); border-color: var(--cyan); }
+    .btn.active { color: var(--cyan); border-color: var(--cyan); }
+    .btn-danger { color: var(--danger); border-color: var(--danger); }
+    .btn-danger:hover { background: #2a0a08; }
+
+    /* ── Shortcut legend ── */
+    #legend {
+      position: fixed; bottom: 8px; left: 10px;
+      font-size: var(--ui-fs); color: #6a8ab4; z-index: 20; pointer-events: none;
+      line-height: 1.7; letter-spacing: .02em;
+    }
+
+    /* ── Hover tooltip ── */
+    #tooltip {
+      position: fixed; display: none; z-index: 25; pointer-events: none;
+      background: rgba(6,15,31,0.92); border: 1px solid var(--border);
+      padding: 8px 12px; font-size: var(--ui-fs); line-height: 1.7; min-width: 300px; max-width: 380px;
+    }
+    #tooltip .tt-name { font-family: 'Orbitron', monospace; font-size: var(--ui-fs); color: var(--gold); margin-bottom: 4px; }
+    #tt-hint { font-size: var(--ui-fs); color: #4a6a94; margin-top: 5px; border-top: 1px solid rgba(26,48,96,0.6); padding-top: 4px; }
+    .label-3d {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      pointer-events: none; white-space: nowrap;
+      text-shadow: 0 0 4px rgba(0,0,0,0.9); padding-left: 6px;
+    }
+    .dist-3d {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      pointer-events: none; opacity: 0.85;
+      text-shadow: 0 0 4px rgba(0,0,0,0.9);
+    }
+
+    /* ── Settings panel ── */
+    #settings {
+      position: fixed; top: 0; right: 0; bottom: 0; width: 460px;
+      background: var(--pane); border-left: 1px solid var(--border);
+      z-index: 40; transform: translateX(460px); transition: transform .28s ease;
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    #settings.open { transform: translateX(0); }
+
+    #settings-header {
+      padding: 12px 14px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      font-family: 'Orbitron', monospace; font-size: var(--ui-fs); color: var(--gold);
+      flex-shrink: 0;
+    }
+    #settings-close { background: none; border: none; color: var(--text); cursor: pointer; font-size: 16px; line-height: 1; }
+    #settings-close:hover { color: var(--gold); }
+
+    #settings-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+    #settings-body::-webkit-scrollbar { width: 5px; }
+    #settings-body::-webkit-scrollbar-track { background: transparent; }
+    #settings-body::-webkit-scrollbar-thumb { background: var(--border); }
+
+    .s-section { margin-bottom: 18px; }
+    .s-section-title {
+      font-size: var(--ui-fs); color: var(--cyan); letter-spacing: .08em;
+      border-bottom: 1px solid var(--border); padding-bottom: 5px; margin-bottom: 8px;
+    }
+
+    /* Object cards */
+    .obj-card { border: 1px solid var(--border); margin-bottom: 6px; }
+    .obj-card-head {
+      display: flex; align-items: center; gap: 8px; padding: 7px 8px;
+      cursor: pointer; background: rgba(10,20,40,0.5);
+    }
+    .obj-card-head:hover { background: var(--btn-hov); }
+    .obj-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.3); }
+    .obj-head-name { flex: 1; font-size: var(--ui-fs); color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .obj-toggle-arrow { font-size: 9px; color: #4a6a94; margin-left: auto; }
+
+    .obj-card-body { display: none; padding: 8px 10px; border-top: 1px solid var(--border); }
+    .obj-card-body.open { display: block; }
+
+    .field-row { display: flex; gap: 6px; margin-bottom: 6px; align-items: center; flex-wrap: wrap; }
+    .field-row label { font-size: var(--ui-fs); color: #6a8ab4; white-space: nowrap; }
+    .field-row input[type=text], .field-row input[type=number] {
+      background: var(--bg); color: var(--text); border: 1px solid var(--border);
+      font-family: 'Share Tech Mono', monospace; font-size: var(--ui-fs); padding: 3px 6px;
+    }
+    .field-row input[type=text] { flex: 1; min-width: 0; }
+    .field-row input[type=number] { width: 90px; }
+    .field-row input[type=color] { width: 36px; height: 24px; padding: 1px; cursor: pointer; background: var(--bg); border: 1px solid var(--border); }
+    .field-row input:focus { outline: none; border-color: var(--cyan); }
+
+    .obj-delete-btn { background: none; border: 1px solid var(--danger); color: var(--danger); cursor: pointer; font-family: 'Share Tech Mono', monospace; font-size: var(--ui-fs); padding: 3px 8px; margin-top: 4px; }
+    .obj-delete-btn:hover { background: #2a0a08; }
+
+    /* Sliders */
+    .slider-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .slider-row label { font-size: var(--ui-fs); color: #6a8ab4; width: 160px; flex-shrink: 0; }
+    .slider-row input[type=range] { flex: 1; accent-color: var(--cyan); }
+    .slider-row .slider-val { font-size: var(--ui-fs); width: 30px; text-align: right; color: var(--cyan); }
+
+    /* Checkboxes */
+    .check-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; font-size: var(--ui-fs); cursor: pointer; }
+    .check-row input[type=checkbox] { accent-color: var(--cyan); cursor: pointer; }
+
+    /* Radio */
+    .radio-group { display: flex; gap: 14px; font-size: var(--ui-fs); margin-bottom: 8px; }
+    .radio-group label { display: flex; align-items: center; gap: 5px; cursor: pointer; }
+    .radio-group input[type=radio] { accent-color: var(--cyan); cursor: pointer; }
+
+    /* GPS paste */
+    #gps-paste {
+      width: 100%; height: 70px; background: var(--bg); color: var(--text);
+      border: 1px solid var(--border); font-family: 'Share Tech Mono', monospace;
+      font-size: var(--ui-fs); padding: 5px; resize: vertical; margin-bottom: 6px;
+    }
+    #gps-paste:focus { outline: none; border-color: var(--cyan); }
+    #gps-error { color: #ff7777; font-size: var(--ui-fs); min-height: 12px; }
+
+    /* Data section */
+    .data-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    /* Centroid selector */
+    #centroid-select {
+      background: var(--btn-bg); color: var(--gold); border: 1px solid var(--border);
+      font-family: 'Share Tech Mono', monospace; font-size: var(--ui-fs);
+      padding: 3px 8px; cursor: pointer; max-width: 220px;
+    }
+    #centroid-select:focus { outline: none; border-color: var(--cyan); }
+    #centroid-select option { background: var(--pane); }
+
+    /* Help button (bottom-right) */
+    #btn-help {
+      position: fixed; bottom: 10px; right: 12px; z-index: 25;
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--btn-bg); border: 1px solid var(--border);
+      color: var(--gold); font-family: 'Orbitron', monospace; font-size: 11px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background .12s, border-color .12s;
+    }
+    #btn-help:hover { background: var(--btn-hov); border-color: var(--cyan); }
+
+    /* Help overlay */
+    #help-overlay {
+      position: fixed; bottom: 50px; right: 12px; z-index: 35;
+      display: none; min-width: 320px;
+    }
+    #help-overlay.visible { display: block; }
+    #help-box {
+      background: rgba(6,15,31,0.96); border: 1px solid var(--border);
+      font-size: var(--ui-fs);
+    }
+    #help-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 12px; border-bottom: 1px solid var(--border);
+      font-family: 'Orbitron', monospace; font-size: var(--ui-fs); color: var(--gold);
+    }
+    #help-close { background: none; border: none; color: var(--text); cursor: pointer; font-size: var(--ui-fs); }
+    #help-close:hover { color: var(--gold); }
+    #help-content { padding: 10px 12px; }
+    .help-row { display: flex; gap: 12px; margin-bottom: 5px; line-height: 1.4; }
+    .help-row span:first-child { color: var(--cyan); width: 60px; flex-shrink: 0; }
+    .help-row span:last-child { color: var(--text); }
+
+    /* ── MOSES tooltip section ── */
+    .tt-sep { height: 1px; background: rgba(26,48,96,0.8); margin: 5px 0; }
+    .tt-moses-hdr { font-size: var(--ui-fs); color: var(--cyan); letter-spacing: .06em; margin-bottom: 3px; }
+    .tt-atm-grid { display: grid; grid-template-columns: auto 1fr; gap: 1px 8px; margin-bottom: 4px; }
+    .tt-atm-key { color: #6a8ab4; }
+    .tt-ore-row { display: flex; align-items: center; gap: 4px; margin-bottom: 2px; }
+    .tt-ore-lbl { width: 28px; flex-shrink: 0; text-align: right; }
+    .tt-ore-bar-bg { flex: 1; height: 5px; background: rgba(26,48,96,0.5); border-radius: 1px; }
+    .tt-ore-bar { height: 100%; border-radius: 1px; }
+    .tt-ore-pct { width: 38px; text-align: right; color: #94b0d4; flex-shrink: 0; }
+
+    /* ── Faction badge ── */
+    .tt-faction { display:flex; align-items:center; gap:6px; margin-top:4px; }
+    .tt-faction-tag { font-family:'Orbitron',monospace; font-size:var(--ui-fs); font-weight:600; padding:1px 6px; border:1px solid; }
+    .tt-desc { font-size:var(--ui-fs); line-height:1.7; color:var(--text); }
+
+    /* ── Description modal ── */
+    #desc-modal { position:fixed; inset:0; z-index:100; display:flex; align-items:center; justify-content:center; }
+    #desc-modal-backdrop { position:absolute; inset:0; background:rgba(0,0,0,0.75); }
+    #desc-modal-box { position:relative; z-index:101; background:var(--pane); border:1px solid var(--border); width:580px; max-width:95vw; max-height:82vh; display:flex; flex-direction:column; }
+    #desc-modal-header { padding:10px 14px; border-bottom:1px solid var(--border); font-family:'Orbitron',monospace; font-size:var(--ui-fs); color:var(--gold); display:flex; justify-content:space-between; align-items:center; flex-shrink:0; }
+    #desc-modal-toolbar { display:flex; gap:4px; padding:6px 10px; border-bottom:1px solid var(--border); flex-wrap:wrap; flex-shrink:0; align-items:center; }
+    .desc-tb-btn { background:var(--btn-bg); color:var(--text); border:1px solid var(--border); cursor:pointer; font-family:'Share Tech Mono',monospace; font-size:var(--ui-fs); padding:2px 8px; min-width:28px; }
+    .desc-tb-btn:hover { background:var(--btn-hov); border-color:var(--cyan); }
+    #desc-editor { flex:1; overflow-y:auto; padding:10px 12px; outline:none; background:var(--bg); color:var(--text); font-family:'Share Tech Mono',monospace; font-size:var(--ui-fs); line-height:1.7; min-height:150px; }
+    #desc-modal-footer { display:flex; justify-content:flex-end; gap:8px; padding:8px 12px; border-top:1px solid var(--border); flex-shrink:0; }
+    #centroid-select option { background: #060f1f; }
+
+    /* ── Export reminder bar ─────────────────────────────────────────────── */
+    #exportContainer { position: fixed; bottom: 0; left: 0; right: 0; z-index: 50; }
+    #exportStatusBar {
+      display: flex; align-items: center; gap: 10px;
+      padding: 6px 14px;
+      background: rgba(3, 8, 20, 0.97); border-top: 1px solid #7a5200;
+      color: #ffa040; font-family: 'Share Tech Mono', monospace; font-size: var(--ui-fs);
+      flex-wrap: wrap;
+    }
+    #exportStatusBar.export-warn-high {
+      border-top-color: #cc4400; color: #ff7030;
+      animation: backup-pulse 2.5s ease-in-out infinite;
+    }
+    #exportStatusText { flex: 1; min-width: 0; }
+    .export-status-actions { display: flex; gap: 6px; flex-shrink: 0; flex-wrap: wrap; }
+    #exportNowBtn {
+      background: #b87800; color: #fff; border: none; cursor: pointer;
+      font-family: 'Share Tech Mono', monospace; font-size: var(--ui-fs); padding: 3px 10px;
+    }
+    #exportNowBtn:hover { background: #d49000; }
+    #exportSnoozeBtn, #exportDismissBtn {
+      background: transparent; color: #888; border: 1px solid var(--border);
+      cursor: pointer; font-family: 'Share Tech Mono', monospace; font-size: var(--ui-fs); padding: 3px 8px;
+    }
+    #exportSnoozeBtn:hover, #exportDismissBtn:hover { color: var(--text); border-color: #6a8ab4; }
+    @keyframes backup-pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.65; }
+    }
+
+    /* ── Toast notifications ─────────────────────────────────────────────── */
+    #bos-toast-container {
+      position: fixed; bottom: 55px; right: 16px;
+      display: flex; flex-direction: column-reverse; gap: 6px;
+      z-index: 9999; pointer-events: none;
+    }
+    .bos-toast {
+      background: rgba(6, 15, 31, 0.96); color: var(--text);
+      padding: 6px 12px; border-left: 3px solid var(--border);
+      font-family: 'Share Tech Mono', monospace; font-size: var(--ui-fs);
+      max-width: 260px; opacity: 0; transform: translateX(20px);
+      transition: opacity .2s ease, transform .2s ease;
+    }
+    .bos-toast.show { opacity: 1; transform: translateX(0); }
+    .bos-toast-success { border-left-color: #00c853; }
+    .bos-toast-warning { border-left-color: var(--gold); }
+    .bos-toast-error   { border-left-color: var(--danger); }
+    .bos-toast-info    { border-left-color: var(--cyan); }
+
+    /* ── Mobile topbar ───────────────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      #topbar { overflow-x: auto; flex-wrap: nowrap; padding: 0 8px; gap: 3px; }
+      #topbar::-webkit-scrollbar { display: none; }
+      #topbar-title { font-size: 9px; margin-right: 4px; }
+      #topbar .btn  { padding: 4px 7px; font-size: 9px; }
+      #centroid-select { max-width: 110px; font-size: 9px; padding: 2px 4px; }
+      #legend { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <div id="label-container"></div>
+</div>
+
+<!-- Top bar -->
+<div id="topbar">
+  <span id="topbar-title">BOS · SE Solar System</span>
+  <div class="divider"></div>
+  <select id="centroid-select" title="Centroid reference point"></select>
+  <div class="divider"></div>
+  <button class="btn" id="btn-screenshot">📷 Screenshot</button>
+  <button class="btn" id="btn-reset">Reset [H]</button>
+  <button class="btn" id="btn-free">Free Rotate [F]</button>
+  <button class="btn" id="btn-fullscreen">&#x26F6; Fullscreen</button>
+  <button class="btn" id="btn-settings" style="margin-left:auto;">⚙ Settings</button>
+</div>
+
+<!-- Shortcut legend -->
+<div id="legend">
+  [T] Centroid lines &nbsp; [L] Labels &nbsp; [W] Gravity wells &nbsp; [P] Planet bodies &nbsp; [S] Starfield &nbsp; [G] Well wireframe &nbsp; [F] Free rotate &nbsp; [H/R] Reset view
+</div>
+
+<!-- Hover tooltip -->
+<div id="tooltip">
+  <div class="tt-name" id="tt-name"></div>
+  <div id="tt-body"></div>
+  <div id="tt-moses"></div>
+  <div id="tt-hint">dbl-click: set centroid &nbsp;·&nbsp; right-click: copy GPS</div>
+</div>
+
+<!-- Help button & overlay -->
+<div id="btn-help" title="Keyboard shortcuts">?</div>
+<div id="help-overlay">
+  <div id="help-box">
+    <div id="help-header">Keyboard Shortcuts <button id="help-close">✕</button></div>
+    <div id="help-content">
+      <div class="help-row"><span>[T]</span><span>Toggle centroid lines</span></div>
+      <div class="help-row"><span>[L]</span><span>Toggle labels</span></div>
+      <div class="help-row"><span>[W]</span><span>Toggle gravity wells</span></div>
+      <div class="help-row"><span>[P]</span><span>Toggle planet bodies</span></div>
+      <div class="help-row"><span>[S]</span><span>Toggle starfield</span></div>
+      <div class="help-row"><span>[G]</span><span>Cycle well wireframe opacity</span></div>
+      <div class="help-row"><span>[F]</span><span>Toggle free rotate</span></div>
+      <div class="help-row"><span>[H / R]</span><span>Reset camera</span></div>
+      <div class="help-row" style="color:#6a8ab4;font-size:9px;margin-top:8px">
+        <span>Mouse</span><span>Left-drag: rotate · Scroll: zoom · Right-drag: pan</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Settings panel -->
+<div id="settings">
+  <div id="settings-header">
+    ⚙ Settings
+    <button id="settings-close">✕</button>
+  </div>
+  <div id="settings-body">
+
+    <!-- OBJECTS -->
+    <div class="s-section">
+      <div class="s-section-title">OBJECTS</div>
+      <div id="objects-list"></div>
+      <button class="btn" id="btn-add-obj" style="width:100%;margin-top:4px;">+ Add Object</button>
+    </div>
+
+    <!-- GPS PASTE -->
+    <div class="s-section">
+      <div class="s-section-title">GPS PASTE &nbsp;<span style="color:#6a8ab4;font-size:9px">GPS:Name:X:Y:Z:#Color:</span></div>
+      <textarea id="gps-paste" placeholder="GPS:My Base:12345:67890:-11111:#FF8800:&#10;GPS:Outpost:..."></textarea>
+      <div id="gps-error"></div>
+      <button class="btn" id="btn-gps-import" style="width:100%;">Import GPS Strings</button>
+    </div>
+
+    <!-- VISUAL SETTINGS -->
+    <div class="s-section">
+      <div class="s-section-title">VISUAL SETTINGS</div>
+
+      <div class="slider-row">
+        <label>Planet body opacity</label>
+        <input type="range" id="sl-body-opacity" min="0" max="1" step="0.01" value="0.5">
+        <span class="slider-val" id="sv-body-opacity">0.50</span>
+      </div>
+      <div class="slider-row">
+        <label>Gravity well opacity</label>
+        <input type="range" id="sl-well-opacity" min="0" max="0.6" step="0.01" value="0.15">
+        <span class="slider-val" id="sv-well-opacity">0.15</span>
+      </div>
+      <div class="slider-row">
+        <label>Well wireframe opacity</label>
+        <input type="range" id="sl-wire-opacity" min="0" max="0.6" step="0.01" value="0.20">
+        <span class="slider-val" id="sv-wire-opacity">0.20</span>
+      </div>
+      <div class="slider-row">
+        <label>GUI font size (px)</label>
+        <input type="range" id="sl-label-size" min="7" max="22" step="1" value="10">
+        <span class="slider-val" id="sv-label-size">10</span>
+      </div>
+      <div class="slider-row">
+        <label>3D label font size (px)</label>
+        <input type="range" id="sl-3d-label-size" min="6" max="32" step="1" value="10">
+        <span class="slider-val" id="sv-3d-label-size">10</span>
+      </div>
+
+      <div class="check-row"><input type="checkbox" id="ck-bodies"><label for="ck-bodies">Show planet bodies [P]</label></div>
+      <div class="check-row"><input type="checkbox" id="ck-wells"><label for="ck-wells">Show gravity wells [W]</label></div>
+      <div class="check-row"><input type="checkbox" id="ck-labels"><label for="ck-labels">Show labels [L]</label></div>
+      <div class="check-row"><input type="checkbox" id="ck-lines"><label for="ck-lines">Show centroid lines [T]</label></div>
+      <div class="check-row" style="padding-left:16px;"><input type="checkbox" id="ck-dist-labels"><label for="ck-dist-labels">&#x2514; Show distance labels</label></div>
+      <div class="check-row"><input type="checkbox" id="ck-axes"><label for="ck-axes">Show orientation axes</label></div>
+      <div class="check-row"><input type="checkbox" id="ck-stars"><label for="ck-stars">Starfield background [S]</label></div>
+      <div class="check-row"><input type="checkbox" id="ck-help"><label for="ck-help">Show Help button</label></div>
+
+      <div style="font-size:9px;color:#6a8ab4;margin:6px 0 4px">Distance label units</div>
+      <div class="radio-group">
+        <label><input type="radio" name="dist-unit" value="km" id="r-km"> km</label>
+        <label><input type="radio" name="dist-unit" value="m"  id="r-m"> m</label>
+      </div>
+    </div>
+
+    <!-- DATA -->
+    <div class="s-section">
+      <div class="s-section-title">DATA</div>
+      <div class="data-row">
+        <button class="btn" id="btn-export">⬇ Export JSON</button>
+        <button class="btn" id="btn-import">⬆ Import JSON</button>
+        <button class="btn btn-danger" id="btn-reset-data">↺ Reset Defaults</button>
+      </div>
+      <input type="file" id="import-file" accept=".json" style="display:none">
+    </div>
+
+  </div><!-- /settings-body -->
+</div>
+
+<!-- Description Editor Modal -->
+<div id="desc-modal" style="display:none">
+  <div id="desc-modal-backdrop"></div>
+  <div id="desc-modal-box">
+    <div id="desc-modal-header">
+      ✏ Edit Description
+      <button id="desc-modal-close" style="background:none;border:none;color:var(--text);cursor:pointer;font-size:16px;line-height:1;">&#x2715;</button>
+    </div>
+    <div id="desc-modal-toolbar">
+      <button class="desc-tb-btn" id="dtb-bold" title="Bold"><b>B</b></button>
+      <button class="desc-tb-btn" id="dtb-italic" title="Italic"><i>I</i></button>
+      <button class="desc-tb-btn" id="dtb-underline" title="Underline"><u>U</u></button>
+      <button class="desc-tb-btn" id="dtb-strike" title="Strikethrough"><s>S</s></button>
+      <span style="width:1px;height:20px;background:var(--border);margin:0 4px;display:inline-block;"></span>
+      <label style="font-size:9px;color:#6a8ab4;display:flex;align-items:center;gap:3px;cursor:pointer;" title="Text color">
+        A <input type="color" id="desc-fgcolor" value="#f0b429" style="width:24px;height:20px;padding:1px;cursor:pointer;background:var(--bg);border:1px solid var(--border);">
+      </label>
+      <label style="font-size:9px;color:#6a8ab4;display:flex;align-items:center;gap:3px;cursor:pointer;" title="Highlight color">
+        HL <input type="color" id="desc-hlcolor" value="#1a3060" style="width:24px;height:20px;padding:1px;cursor:pointer;background:var(--bg);border:1px solid var(--border);">
+      </label>
+      <span style="width:1px;height:20px;background:var(--border);margin:0 4px;display:inline-block;"></span>
+      <select id="desc-fontsize" style="background:var(--btn-bg);color:var(--text);border:1px solid var(--border);font-family:'Share Tech Mono',monospace;font-size:9px;padding:2px 4px;cursor:pointer;">
+        <option value="1">Tiny</option>
+        <option value="2">Small</option>
+        <option value="3" selected>Normal</option>
+        <option value="4">Large</option>
+        <option value="5">Larger</option>
+        <option value="6">Big</option>
+      </select>
+      <button class="desc-tb-btn" id="dtb-clear" title="Clear formatting">&#x2715; fmt</button>
+    </div>
+    <div id="desc-editor" contenteditable="true"></div>
+    <div id="desc-modal-footer">
+      <button class="btn" id="desc-modal-save">&#x2713; Save</button>
+      <button class="btn" id="desc-modal-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Three.js -->
+<script type="importmap">
+{
+  "imports": {
+    "three":         "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls }              from 'three/addons/controls/OrbitControls.js';
+import { TrackballControls }          from 'three/addons/controls/TrackballControls.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+// ═══════════════════════════════════════════════════════════════════
+// DEFAULT DATA
+// ═══════════════════════════════════════════════════════════════════
+
+const PLANET_DEFAULTS = [
+  { name: 'Earth',  x: 0,           y: 0,          z: 0,          color: '#3FA9F5', diameter: 120000, gravityRange: 41800 },
+  { name: 'Moon',   x: 16384,       y: 136384,     z: -113616,    color: '#D9D9D9', diameter: 19000,  gravityRange: 2900  },
+  { name: 'Mars',   x: 1031072,     y: 131072,     z: 1631072,    color: '#C1440E', diameter: 120000, gravityRange: 38500 },
+  { name: 'Europa', x: 916384,      y: 16384,      z: 1616384,    color: '#7FFFD4', diameter: 19000,  gravityRange: 3200  },
+  { name: 'Alien',  x: 131072,      y: 131072,     z: 5731072,    color: '#FF2D95', diameter: 120000, gravityRange: 42700 },
+  { name: 'Titan',  x: 36384,       y: 226384,     z: 5796384,    color: '#FFB000', diameter: 19000,  gravityRange: 3000  },
+  { name: 'Triton', x: -284464,     y: -2434464,   z: 365537,     color: '#008B8B', diameter: 80250,  gravityRange: 35800 },
+  { name: 'Pertam', x: -3967231,    y: -32231,     z: -767231,    color: '#CC7722', diameter: 60000,  gravityRange: 18250 },
+  { name: 'Bazar Oasis Station <BOS> v5',
+                    x: -265049.875, y: -228174.875, z: 1782450.25, color: '#00FF00', diameter: 0,      gravityRange: 0     },
+];
+
+const VISUAL_DEFAULTS = {
+  bodyOpacity:   0.50,
+  wellOpacity:   0.15,
+  wireOpacity:   0.20,
+  labelFontSize: 10,
+  label3dSize:   10,
+  showBodies:    true,
+  showWells:     true,
+  showLabels:    true,
+  showLines:     false,
+  showStars:     true,
+  showHelp:       true,
+  showDistLabels: true,
+  showAxes:       true,
+  linesUnit:      'km',
+  centroidId:     null,
+};
+
+// ── MOSES planetary data (Source: Phrasz / AhCrapItsYou's Maps) ──
+const ORE_COLORS = {
+  Fe:'#ff2a2a', Ni:'#ff8c00', Si:'#00ff44', Co:'#cc00ff',
+  Mg:'#00b7ff', Ag:'#e8e8e8', Au:'#ffd400', Pt:'#666666', Ice:'#8fd3ff',
+};
+const MOSES_DATA = {
+  Earth:  { oxygen:'High', atmosphere:'Dense and thick',       gravity:1.0,  maxRange:41800, decRange:6000,
+    ores:[{n:'Si',p:28.0},{n:'Mg',p:16.8},{n:'Fe',p:15.3},{n:'Co',p:12.1},{n:'Ni',p:12.1},{n:'Au',p:8.1},{n:'Ag',p:6.8},{n:'Ice',p:0.6},{n:'Pt',p:0.0}] },
+  Moon:   { oxygen:'None', atmosphere:'No atmosphere',         gravity:0.25, maxRange:2900,  decRange:400,
+    ores:[{n:'Ni',p:22.4},{n:'Fe',p:18.5},{n:'Si',p:10.9},{n:'Mg',p:7.8},{n:'Pt',p:7.5},{n:'Au',p:7.0},{n:'Co',p:6.2},{n:'Ice',p:5.8},{n:'Ag',p:5.5}] },
+  Mars:   { oxygen:'None', atmosphere:'Thin',                  gravity:0.9,  maxRange:38500, decRange:4100,
+    ores:[{n:'Ice',p:21.0},{n:'Si',p:19.0},{n:'Mg',p:16.3},{n:'Fe',p:15.8},{n:'Ni',p:10.7},{n:'Au',p:8.1},{n:'Ag',p:6.8},{n:'Co',p:5.2},{n:'Pt',p:0.0}] },
+  Europa: { oxygen:'None', atmosphere:'Very dense, very thin', gravity:0.25, maxRange:3200,  decRange:670,
+    ores:[{n:'Ice',p:21.0},{n:'Si',p:19.0},{n:'Ni',p:10.4},{n:'Mg',p:7.9},{n:'Pt',p:7.5},{n:'Au',p:7.3},{n:'Co',p:6.2},{n:'Ag',p:5.5}] },
+  Alien:  { oxygen:'Low',  atmosphere:'Very dense, thick',     gravity:1.1,  maxRange:42700, decRange:5650,
+    ores:[{n:'Si',p:28.0},{n:'Mg',p:15.3},{n:'Fe',p:15.3},{n:'Ice',p:12.5},{n:'Ni',p:10.1},{n:'Au',p:8.1},{n:'Ag',p:6.8},{n:'Co',p:5.6},{n:'Pt',p:0.0}] },
+  Titan:  { oxygen:'None', atmosphere:'Very dense, very thin', gravity:0.25, maxRange:3000,  decRange:590,
+    ores:[{n:'Ni',p:22.0},{n:'Si',p:19.0},{n:'Ice',p:12.5},{n:'Mg',p:7.9},{n:'Pt',p:7.5},{n:'Au',p:7.3},{n:'Co',p:6.2},{n:'Ag',p:5.5}] },
+  Triton: { oxygen:'High', atmosphere:'Dense and thick',       gravity:1.0,  maxRange:35800, decRange:10800,
+    ores:[{n:'Si',p:28.0},{n:'Fe',p:20.7},{n:'Ni',p:20.3},{n:'Mg',p:15.8},{n:'Au',p:8.1},{n:'Ag',p:6.8},{n:'Co',p:6.4},{n:'Ice',p:0.0},{n:'Pt',p:0.0}] },
+  Pertam: { oxygen:'Low',  atmosphere:'Dense, very thick',     gravity:1.2,  maxRange:18250, decRange:550,
+    ores:[{n:'Fe',p:38.1},{n:'Ni',p:16.9},{n:'Si',p:15.1},{n:'Ice',p:12.3},{n:'Co',p:8.7},{n:'Mg',p:1.7},{n:'Ag',p:1.5},{n:'Au',p:0.5},{n:'Pt',p:0.0}] },
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// STATE (localStorage)
+// ═══════════════════════════════════════════════════════════════════
+
+const LS_OBJ = 'bos_viz_objects';
+const LS_VIS = 'bos_viz_visual';
+
+function freshObjects() {
+  return PLANET_DEFAULTS.map(p => ({ ...p, id: crypto.randomUUID(), enabled: true }));
+}
+
+function loadState() {
+  try {
+    const objs = localStorage.getItem(LS_OBJ);
+    const vis  = localStorage.getItem(LS_VIS);
+    return {
+      objects: objs ? JSON.parse(objs) : freshObjects(),
+      visual:  vis  ? { ...VISUAL_DEFAULTS, ...JSON.parse(vis) } : { ...VISUAL_DEFAULTS },
+    };
+  } catch (_) {
+    return { objects: freshObjects(), visual: { ...VISUAL_DEFAULTS } };
+  }
+}
+
+function saveState() {
+  localStorage.setItem(LS_OBJ, JSON.stringify(state.objects));
+  localStorage.setItem(LS_VIS, JSON.stringify(state.visual));
+  markDataDirty();
+}
+
+// Persist state without triggering the export-change counter
+// (used for hotkey view-toggles that are preferences, not data edits).
+function saveStateQuiet() {
+  localStorage.setItem(LS_OBJ, JSON.stringify(state.objects));
+  localStorage.setItem(LS_VIS, JSON.stringify(state.visual));
+}
+
+let state = loadState();
+
+// ── Export-change tracking ────────────────────────────────────────────────
+const LS_EXPORT_TIME    = 'bos_viz_last_export';
+const LS_CHANGE_COUNT   = 'bos_viz_change_count';
+const TIME_WARN_MINS    = 15;
+let   _exportSnoozeUntil = 0;   // epoch ms; 0 = not snoozed; Infinity = dismissed for session
+let   _exportTimerID     = null;
+
+function getUnexportedChanges() {
+  return localStorage.getItem(LS_CHANGE_COUNT) === '1' ? 1 : 0;
+}
+function getLastExportTime() {
+  return parseInt(localStorage.getItem(LS_EXPORT_TIME) || '0', 10);
+}
+function markDataDirty() {
+  localStorage.setItem(LS_CHANGE_COUNT, '1');
+  if (_exportSnoozeUntil === Infinity) _exportSnoozeUntil = 0;
+  updateExportStatusBar();
+}
+function markDataClean() {
+  localStorage.setItem(LS_EXPORT_TIME, String(Date.now()));
+  localStorage.setItem(LS_CHANGE_COUNT, '0');
+  _exportSnoozeUntil = 0;
+  updateExportStatusBar();
+}
+function updateExportStatusBar() {
+  const changes   = getUnexportedChanges();
+  const lastTs    = getLastExportTime();
+  const container = document.getElementById('exportContainer');
+  const bar       = document.getElementById('exportStatusBar');
+  if (!bar) return;
+  if (changes === 0 || _exportSnoozeUntil > Date.now()) {
+    if (container) container.style.display = 'none';
+    return;
+  }
+  let lastExportText;
+  if (lastTs > 0) {
+    const minsAgo = Math.floor((Date.now() - lastTs) / 60000);
+    lastExportText = minsAgo < 1 ? 'just now' : minsAgo === 1 ? '1 min ago' : minsAgo + ' min ago';
+  } else {
+    lastExportText = 'never';
+  }
+  const warn = lastTs === 0 || (Date.now() - lastTs) / 60000 >= TIME_WARN_MINS;
+  bar.className = warn ? 'export-warn-high' : '';
+  const textEl = document.getElementById('exportStatusText');
+  if (textEl) {
+    textEl.textContent = (warn ? '⚠\u00a0' : '💾\u00a0') + 'Unsaved Changes \u2014 last exported: ' + lastExportText;
+  }
+  if (container) container.style.display = '';
+}
+function snoozeExportWarning() {
+  _exportSnoozeUntil = Date.now() + TIME_WARN_MINS * 60000;
+  updateExportStatusBar();
+}
+function dismissExportWarning() {
+  _exportSnoozeUntil = Infinity;
+  updateExportStatusBar();
+}
+function startExportReminderTimer() {
+  if (_exportTimerID) clearInterval(_exportTimerID);
+  _exportTimerID = setInterval(updateExportStatusBar, 60000);
+  updateExportStatusBar();
+}
+
+// ── Toast notifications ────────────────────────────────────────────────────
+// type: 'info' | 'success' | 'warning' | 'error'
+function showToast(message, type = 'info') {
+  let container = document.getElementById('bos-toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'bos-toast-container';
+    document.body.appendChild(container);
+  }
+  const toast = document.createElement('div');
+  toast.className = 'bos-toast bos-toast-' + type;
+  toast.textContent = message;
+  container.appendChild(toast);
+  requestAnimationFrame(() => toast.classList.add('show'));
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 250);
+  }, 3000);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// THREE.JS SETUP
+// ═══════════════════════════════════════════════════════════════════
+
+const appDiv = document.getElementById('app');
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setClearColor(0x03060f);
+appDiv.insertBefore(renderer.domElement, appDiv.firstChild);
+
+const labelRenderer = new CSS2DRenderer();
+labelRenderer.setSize(window.innerWidth, window.innerHeight);
+labelRenderer.domElement.style.position = 'absolute';
+labelRenderer.domElement.style.top = '0';
+labelRenderer.domElement.style.pointerEvents = 'none';
+appDiv.appendChild(labelRenderer.domElement);
+
+const scene  = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1e9);
+
+const orbitCtrl = new OrbitControls(camera, renderer.domElement);
+orbitCtrl.enableDamping = true;
+orbitCtrl.dampingFactor = 0.07;
+
+const trackCtrl = new TrackballControls(camera, renderer.domElement);
+trackCtrl.rotateSpeed = 3.0;
+trackCtrl.zoomSpeed   = 1.2;
+trackCtrl.panSpeed    = 0.8;
+trackCtrl.enabled     = false;
+
+let activeCtrl  = orbitCtrl;
+let freeRotate  = false;
+
+// Scene groups
+const worldGroup = new THREE.Group();
+const starGroup  = new THREE.Group();
+scene.add(worldGroup, starGroup);
+
+// Per-object refs (rebuilt each time)
+let refs = [];          // { id, bodyMesh, wellMesh, wellWire, nameLabel, hitMesh, line, distLabel, distLabelObj }
+let centroidMarker = null;
+let defaultCamPos  = new THREE.Vector3();
+let defaultTarget  = new THREE.Vector3();
+
+// ═══════════════════════════════════════════════════════════════════
+// STARFIELD
+// ═══════════════════════════════════════════════════════════════════
+
+function buildStarfield(sysRadius) {
+  starGroup.clear();
+  const N = 2000;
+  const r = sysRadius * 6;
+  const pos = new Float32Array(N * 3);
+  const col = new Float32Array(N * 3);
+  for (let i = 0; i < N; i++) {
+    // Random point on sphere surface
+    const theta = Math.random() * Math.PI * 2;
+    const phi   = Math.acos(2 * Math.random() - 1);
+    pos[i*3]   = r * Math.sin(phi) * Math.cos(theta);
+    pos[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
+    pos[i*3+2] = r * Math.cos(phi);
+    const bright = 0.4 + Math.random() * 0.6;
+    col[i*3] = col[i*3+1] = col[i*3+2] = bright;
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute('color',    new THREE.BufferAttribute(col, 3));
+  const mat = new THREE.PointsMaterial({ size: 1.5, vertexColors: true, sizeAttenuation: false });
+  starGroup.add(new THREE.Points(geo, mat));
+  starGroup.visible = state.visual.showStars;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// BUILD SCENE
+// ═══════════════════════════════════════════════════════════════════
+
+function computeMetrics(objects) {
+  const enabled = objects.filter(o => o.enabled);
+  if (!enabled.length) return { cx: 0, cy: 0, cz: 0, sysRadius: 1e6 };
+  const cx = enabled.reduce((s, o) => s + o.x, 0) / enabled.length;
+  const cy = enabled.reduce((s, o) => s + o.y, 0) / enabled.length;
+  const cz = enabled.reduce((s, o) => s + o.z, 0) / enabled.length;
+  const sysRadius = Math.max(
+    ...enabled.map(o => Math.sqrt((o.x-cx)**2 + (o.y-cy)**2 + (o.z-cz)**2)),
+    1000
+  );
+  return { cx, cy, cz, sysRadius };
+}
+
+function getCentroid() {
+  if (state.visual.centroidId) {
+    const obj = state.objects.find(o => o.id === state.visual.centroidId);
+    if (obj) return { cx: obj.x, cy: obj.y, cz: obj.z };
+  }
+  const m = computeMetrics(state.objects);
+  return { cx: m.cx, cy: m.cy, cz: m.cz };
+}
+
+function disposeRef(ref) {
+  [ref.bodyMesh, ref.wellMesh, ref.wellWire, ref.hitMesh].forEach(m => {
+    if (!m) return;
+    m.geometry?.dispose();
+    if (Array.isArray(m.material)) m.material.forEach(mat => mat.dispose());
+    else m.material?.dispose();
+  });
+  [ref.nameLabel, ref.distLabelObj].forEach(lbl => {
+    if (lbl) lbl.element?.remove();
+  });
+}
+
+function buildScene(keepCamera = false) {
+  // Dispose old
+  refs.forEach(disposeRef);
+  refs = [];
+  if (centroidMarker) { centroidMarker.traverse(c => { c.geometry?.dispose(); c.material?.dispose(); }); }
+  worldGroup.clear();
+  centroidMarker = null;
+
+  const enabled  = state.objects.filter(o => o.enabled);
+  if (!enabled.length) return;
+
+  const { sysRadius } = computeMetrics(state.objects);
+  const { cx, cy, cz } = getCentroid();
+  defaultTarget.set(cx, cy, cz);
+
+  // ── Camera setup ──
+  camera.near = sysRadius * 0.0001;
+  camera.far  = sysRadius * 30;
+  camera.updateProjectionMatrix();
+  defaultCamPos.set(cx, cy + sysRadius * 0.4, cz + sysRadius * 2.4);
+  if (!keepCamera) camera.position.copy(defaultCamPos);
+  orbitCtrl.target.set(cx, cy, cz);
+  orbitCtrl.minDistance = sysRadius * 0.005;
+  orbitCtrl.maxDistance = sysRadius * 10;
+  orbitCtrl.update();
+  trackCtrl.target.set(cx, cy, cz);
+  trackCtrl.update();
+
+  buildStarfield(sysRadius);
+
+  // ── Centroid marker (gold cross, shown with lines) ──
+  const arm = sysRadius * 0.02;
+  const crossPts = [
+    new THREE.Vector3(cx-arm,cy,cz), new THREE.Vector3(cx+arm,cy,cz),
+    new THREE.Vector3(cx,cy-arm,cz), new THREE.Vector3(cx,cy+arm,cz),
+    new THREE.Vector3(cx,cy,cz-arm), new THREE.Vector3(cx,cy,cz+arm),
+  ];
+  const crossGeo = new THREE.BufferGeometry().setFromPoints(crossPts);
+  const crossMat = new THREE.LineBasicMaterial({ color: 0xf0b429, transparent: true, opacity: 0.8 });
+  centroidMarker = new THREE.LineSegments(crossGeo, crossMat);
+  centroidMarker.visible = state.visual.showAxes;
+  worldGroup.add(centroidMarker);
+
+  // ── Per-object meshes ──
+  const minHitR = sysRadius * 0.025;
+
+  state.objects.forEach(obj => {
+    if (!obj.enabled) return;
+
+    const c3 = new THREE.Color(obj.color);
+    const isStation = !obj.diameter;
+    const bodyR  = obj.diameter   ? obj.diameter / 2   : Math.max(sysRadius * 0.008, 3000);
+    const wellR  = obj.diameter   ? (obj.diameter / 2 + obj.gravityRange) : 0;
+
+    // ── Body mesh ──
+    const bodyGeo = new THREE.SphereGeometry(bodyR, isStation ? 14 : 32, isStation ? 10 : 20);
+    const bodyMat = new THREE.MeshBasicMaterial({
+      color: c3, transparent: true, depthWrite: false,
+      opacity: isStation ? 1.0 : state.visual.bodyOpacity,
+      side: THREE.DoubleSide,
+    });
+    const bodyMesh = new THREE.Mesh(bodyGeo, bodyMat);
+    bodyMesh.position.set(obj.x, obj.y, obj.z);
+    bodyMesh.visible = state.visual.showBodies;
+    worldGroup.add(bodyMesh);
+
+    // ── Gravity well shell + wireframe ──
+    let wellMesh = null, wellWire = null;
+    if (!isStation && wellR > 0) {
+      const wellGeo = new THREE.SphereGeometry(wellR, 32, 20);
+      const wellMat = new THREE.MeshBasicMaterial({
+        color: c3, transparent: true, depthWrite: false,
+        opacity: state.visual.wellOpacity, side: THREE.DoubleSide,
+      });
+      wellMesh = new THREE.Mesh(wellGeo, wellMat);
+      wellMesh.position.set(obj.x, obj.y, obj.z);
+      wellMesh.visible = state.visual.showWells;
+      worldGroup.add(wellMesh);
+
+      // Wireframe overlay using EdgesGeometry on lower-res sphere
+      const wfGeo  = new THREE.EdgesGeometry(new THREE.SphereGeometry(wellR, 18, 9));
+      const wfMat  = new THREE.LineBasicMaterial({
+        color: c3, transparent: true, opacity: state.visual.wireOpacity, depthWrite: false,
+      });
+      wellWire = new THREE.LineSegments(wfGeo, wfMat);
+      wellWire.position.set(obj.x, obj.y, obj.z);
+      wellWire.visible = state.visual.showWells;
+      worldGroup.add(wellWire);
+    }
+
+    // ── Name label ──
+    const fs3d = state.visual.label3dSize || 10;
+    const lblDiv = document.createElement('div');
+    lblDiv.className = 'label-3d';
+    lblDiv.style.color = obj.color;
+    lblDiv.style.fontSize = fs3d + 'px';
+    lblDiv.style.marginLeft = (obj.labelOffsetX || 0) + 'px';
+    lblDiv.style.marginTop  = -(obj.labelOffsetY || 0) + 'px';
+    let lblHtml = escHtml(obj.name);
+    if (obj.factionTag) {
+      lblHtml += `<span style="font-size:${Math.max(7, fs3d - 2)}px;color:${obj.factionColor || '#fff'};opacity:0.85;margin-left:5px;">[${escHtml(obj.factionTag)}]</span>`;
+    }
+    lblDiv.innerHTML = lblHtml;
+    const nameLabel = new CSS2DObject(lblDiv);
+    nameLabel.position.set(obj.x, obj.y + bodyR * 1.2, obj.z);
+    nameLabel.visible = state.visual.showLabels;
+    worldGroup.add(nameLabel);
+
+    // ── Centroid distance & self-check ──
+    const dist = Math.sqrt((obj.x-cx)**2 + (obj.y-cy)**2 + (obj.z-cz)**2);
+    const isCentroid = dist < 1; // this object IS the centroid — skip line/label
+
+    // ── Centroid line ──
+    const linePts = [
+      new THREE.Vector3(obj.x, obj.y, obj.z),
+      new THREE.Vector3(cx, cy, cz),
+    ];
+    const lineGeo = new THREE.BufferGeometry().setFromPoints(linePts);
+    const lineMat = new THREE.LineDashedMaterial({
+      color: c3, dashSize: sysRadius * 0.012, gapSize: sysRadius * 0.006,
+      transparent: true, opacity: 0.65,
+    });
+    const line = new THREE.Line(lineGeo, lineMat);
+    line.computeLineDistances();
+    line.visible = state.visual.showLines && !isCentroid;
+    worldGroup.add(line);
+
+    // ── Distance label (along line at configurable fraction) ──
+    const distStr = formatDist(dist);
+    const dDiv = document.createElement('div');
+    dDiv.className = 'dist-3d';
+    dDiv.style.color = obj.color;
+    dDiv.style.fontSize = Math.max(6, fs3d - 1) + 'px';
+    dDiv.textContent = distStr;
+    const distLabelObj = new CSS2DObject(dDiv);
+    const dlf = obj.distLabelFrac ?? 0.5;
+    distLabelObj.position.set(
+      obj.x + (cx - obj.x) * dlf,
+      obj.y + (cy - obj.y) * dlf,
+      obj.z + (cz - obj.z) * dlf
+    );
+    distLabelObj.visible = state.visual.showLines && state.visual.showDistLabels && !isCentroid;
+    worldGroup.add(distLabelObj);
+
+    // ── Hit sphere (invisible, for hover) ──
+    const hitGeo = new THREE.SphereGeometry(Math.max(wellR || bodyR, minHitR), 8, 6);
+    const hitMat = new THREE.MeshBasicMaterial({ visible: false, side: THREE.DoubleSide });
+    const hitMesh = new THREE.Mesh(hitGeo, hitMat);
+    hitMesh.position.set(obj.x, obj.y, obj.z);
+    hitMesh.userData = { obj };
+    worldGroup.add(hitMesh);
+
+    refs.push({ id: obj.id, bodyMesh, wellMesh, wellWire, nameLabel, lblDiv,
+                line, distLabelObj, hitMesh,
+                bodyMat, wellMat: wellMesh?.material, wireMat: wellWire?.material,
+                dist, distDiv: dDiv, isCentroid });
+  });
+
+  applyAllVisuals();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// REACTIVE VISUAL UPDATES (no scene rebuild)
+// ═══════════════════════════════════════════════════════════════════
+
+function formatDist(m) {
+  return state.visual.linesUnit === 'km'
+    ? (m / 1000).toLocaleString(undefined, { maximumFractionDigits: 1 }) + ' km'
+    : Math.round(m).toLocaleString() + ' m';
+}
+
+function applyAllVisuals() {
+  const v = state.visual;
+  refs.forEach(r => {
+    if (r.bodyMat && r.bodyMesh && !r.bodyMesh.userData?.isStation) r.bodyMat.opacity = v.bodyOpacity;
+    if (r.wellMat) r.wellMat.opacity = v.wellOpacity;
+    if (r.wireMat) r.wireMat.opacity = v.wireOpacity;
+    if (r.bodyMesh)    r.bodyMesh.visible    = v.showBodies;
+    if (r.wellMesh)    r.wellMesh.visible     = v.showWells;
+    if (r.wellWire)    r.wellWire.visible     = v.showWells;
+    if (r.nameLabel)   r.nameLabel.visible    = v.showLabels;
+    if (r.line)        r.line.visible         = v.showLines && !r.isCentroid;
+    if (r.distLabelObj) r.distLabelObj.visible = v.showLines && v.showDistLabels && !r.isCentroid;
+    if (r.distDiv)     r.distDiv.textContent  = formatDist(r.dist);
+    const fs3d = v.label3dSize || 10;
+    if (r.lblDiv)  r.lblDiv.style.fontSize = fs3d + 'px';
+    if (r.distDiv) r.distDiv.style.fontSize = Math.max(6, fs3d - 1) + 'px';
+  });
+  document.documentElement.style.setProperty('--ui-fs', (v.labelFontSize || 10) + 'px');
+  if (centroidMarker) centroidMarker.visible = v.showAxes;
+  starGroup.visible = v.showStars;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// HOVER DETECTION
+// ═══════════════════════════════════════════════════════════════════
+
+const raycaster   = new THREE.Raycaster();
+const mouseNDC    = new THREE.Vector2();
+const tooltip     = document.getElementById('tooltip');
+const ttName      = document.getElementById('tt-name');
+const ttBody      = document.getElementById('tt-body');
+const ttMoses     = document.getElementById('tt-moses');
+let   lastHovered = null;
+let   mouseX = 0, mouseY = 0;
+
+function buildMosesTooltip(obj) {
+  const name = obj.name;
+  const d = MOSES_DATA[name];
+  const factionHtml = obj.factionTag
+    ? `<div class="tt-sep"></div><div class="tt-faction"><span class="tt-faction-tag" style="color:${obj.factionColor||'#fff'};border-color:${obj.factionColor||'#fff'}">${escHtml(obj.factionTag)}</span><span style="color:${obj.factionColor||'#fff'};font-size:9px;opacity:0.85;"> Faction</span></div>`
+    : '';
+  const descHtml = obj.description
+    ? `<div class="tt-sep"></div><div class="tt-desc">${obj.description}</div>`
+    : '';
+  if (!d) {
+    const noPlanet = obj.description
+      ? ''
+      : `<div class="tt-sep"></div><span style="color:#4a6a94;font-size:9px">No planetary data &middot; Add via Object Settings</span>`;
+    return factionHtml + noPlanet + descHtml;
+  }
+  const o2c = { High:'#5cff5c', Low:'#ffb347', None:'#ff9a9a' };
+  let gc = '#8fd3ff';
+  if      (d.gravity >= 1.2) gc = '#ff2a2a';
+  else if (d.gravity >= 1.0) gc = '#ffb347';
+  else if (d.gravity >= 0.3) gc = '#5cff5c';
+  const ores = d.ores.filter(o => o.p > 0).sort((a, b) => b.p - a.p);
+  const maxP = ores[0]?.p || 1;
+  const bars = ores.map(o => {
+    const col = ORE_COLORS[o.n] || '#94b0d4';
+    const w = Math.round((o.p / maxP) * 100);
+    return `<div class="tt-ore-row"><span class="tt-ore-lbl" style="color:${col}">${o.n}</span><div class="tt-ore-bar-bg"><div class="tt-ore-bar" style="width:${w}%;background:${col}"></div></div><span class="tt-ore-pct">${o.p.toFixed(1)}%</span></div>`;
+  }).join('');
+  return `<div class="tt-sep"></div><div class="tt-moses-hdr">ATMOSPHERE</div><div class="tt-atm-grid"><span class="tt-atm-key">O₂</span><span style="color:${o2c[d.oxygen]||'#94b0d4'}">${d.oxygen}</span><span class="tt-atm-key">Atm</span><span>${d.atmosphere}</span><span class="tt-atm-key">Gravity</span><span style="color:${gc}">${d.gravity}G</span><span class="tt-atm-key">Well</span><span>${(d.maxRange/1000).toFixed(1)} km (Δ ${(d.decRange/1000).toFixed(1)} km)</span></div><div class="tt-sep"></div><div class="tt-moses-hdr">DEPOSITS</div>${bars}`;
+}
+
+window.addEventListener('mousemove', e => {
+  mouseX = e.clientX; mouseY = e.clientY;
+  mouseNDC.x =  (e.clientX / window.innerWidth)  * 2 - 1;
+  mouseNDC.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+  raycaster.setFromCamera(mouseNDC, camera);
+  const hitMeshes = refs.map(r => r.hitMesh).filter(Boolean);
+  const hits = raycaster.intersectObjects(hitMeshes);
+
+  // Screen-space proximity guard: ignore hits whose projected center is far from the mouse
+  // (prevents false hovers when camera is zoomed inside a large hit sphere)
+  const screenHit = hits.find(h => {
+    const o = h.object.userData.obj;
+    const p = new THREE.Vector3(o.x, o.y, o.z).project(camera);
+    const sx = ( p.x * 0.5 + 0.5) * window.innerWidth;
+    const sy = (-p.y * 0.5 + 0.5) * window.innerHeight;
+    return Math.hypot(sx - mouseX, sy - mouseY) < 80;
+  });
+
+  if (screenHit) {
+    const obj = screenHit.object.userData.obj;
+    if (obj !== lastHovered) {
+      lastHovered = obj;
+      ttName.textContent = obj.name;
+      ttName.style.color = obj.color;
+      const lines = [
+        `X: ${obj.x.toLocaleString()}`,
+        `Y: ${obj.y.toLocaleString()}`,
+        `Z: ${obj.z.toLocaleString()}`,
+      ];
+      if (obj.diameter)     lines.push(`Diameter: ${(obj.diameter/1000).toFixed(2)} km`);
+      if (obj.gravityRange) lines.push(`Gravity well: ${(obj.gravityRange/1000).toFixed(2)} km`);
+      ttBody.innerHTML  = lines.map(l => `<div>${l}</div>`).join('');
+      ttMoses.innerHTML = buildMosesTooltip(obj);
+    }
+    tooltip.style.display = 'block';
+    const ttW = tooltip.offsetWidth  || 320;
+    const ttH = tooltip.offsetHeight || 420;
+    tooltip.style.left = Math.max(4, Math.min(mouseX + 16, window.innerWidth  - ttW - 8)) + 'px';
+    tooltip.style.top  = Math.max(4, Math.min(mouseY + 12, window.innerHeight - ttH - 8)) + 'px';
+  } else {
+    lastHovered = null;
+    tooltip.style.display = 'none';
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// GPS PASTE PARSER
+// ═══════════════════════════════════════════════════════════════════
+
+function parseGPSString(raw) {
+  const s = raw.trim();
+  if (!s.toUpperCase().startsWith('GPS:')) return null;
+  const parts = s.split(':');
+  // trailing colon makes last element empty
+  const trailing = parts[parts.length - 1] === '' ? 1 : 0;
+  const len = parts.length;
+  const colorPart = parts[len - 1 - trailing] || '';
+  const z = parseFloat(parts[len - 2 - trailing]);
+  const y = parseFloat(parts[len - 3 - trailing]);
+  const x = parseFloat(parts[len - 4 - trailing]);
+  const name = parts.slice(1, len - 4 - trailing).join(':').trim();
+  if (!name || isNaN(x) || isNaN(y) || isNaN(z)) return null;
+  let color = '#FFFFFF';
+  if (/^#[0-9A-Fa-f]{8}$/.test(colorPart)) {
+    // AARRGGBB → #RRGGBB (alpha channel AA is ignored)
+    color = '#' + colorPart.slice(3);
+  } else if (/^#[0-9A-Fa-f]{6}$/.test(colorPart)) {
+    color = colorPart;
+  }
+  return { id: crypto.randomUUID(), name, x, y, z, color, diameter: 1000, gravityRange: 100, enabled: true };
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SETTINGS PANEL — OBJECT CARDS
+// ═══════════════════════════════════════════════════════════════════
+
+let rebuildTimer = null;
+function scheduleRebuild() {
+  clearTimeout(rebuildTimer);
+  rebuildTimer = setTimeout(() => { buildScene(true); saveState(); }, 350);
+}
+
+function renderObjectCards() {
+  const list = document.getElementById('objects-list');
+  list.innerHTML = '';
+
+  state.objects.forEach((obj, idx) => {
+    const card = document.createElement('div');
+    card.className = 'obj-card';
+    card.dataset.id = obj.id;
+
+    const head = document.createElement('div');
+    head.className = 'obj-card-head';
+    head.innerHTML = `
+      <input type="checkbox" ${obj.enabled ? 'checked' : ''} title="Enabled">
+      <span class="obj-dot" style="background:${obj.color}"></span>
+      <span class="obj-head-name">${obj.name}</span>
+      <span class="obj-toggle-arrow">▼</span>`;
+
+    const body = document.createElement('div');
+    body.className = 'obj-card-body';
+    body.innerHTML = `
+      <div class="field-row"><label>Name</label><input type="text" class="f-name" value="${escHtml(obj.name)}"></div>
+      <div class="field-row">
+        <label>X</label><input type="number" class="f-x" value="${obj.x}">
+        <label>Y</label><input type="number" class="f-y" value="${obj.y}">
+        <label>Z</label><input type="number" class="f-z" value="${obj.z}">
+      </div>
+      <div class="field-row">
+        <label>Color</label><input type="color" class="f-color" value="${obj.color}">
+        <label>Diam (m)</label><input type="number" class="f-diam" value="${obj.diameter}" min="0">
+        <label>Grav (m)</label><input type="number" class="f-grav" value="${obj.gravityRange}" min="0">
+        <button class="f-dot-btn" title="Clear to simple dot (diam=0, grav=0)" style="background:none;border:1px solid var(--border);color:#6a8ab4;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:9px;padding:2px 6px;white-space:nowrap;flex-shrink:0;">[X] dot</button>
+      </div>
+      <div class="field-row">
+        <label>Label X offset (px)</label><input type="number" class="f-lox" value="${obj.labelOffsetX || 0}" style="width:65px;">
+        <label>Y offset (px)</label><input type="number" class="f-loy" value="${obj.labelOffsetY || 0}" style="width:65px;">
+      </div>
+      <div class="field-row" style="align-items:center;">
+        <label style="white-space:nowrap;">Dist label pos</label>
+        <input type="range" class="f-dlf" min="0" max="1" step="0.05" value="${(obj.distLabelFrac ?? 0.5).toFixed(2)}" style="flex:1;accent-color:var(--cyan);">
+        <span class="f-dlf-val" style="width:30px;text-align:right;color:var(--cyan);font-size:9px;flex-shrink:0;">${Math.round((obj.distLabelFrac ?? 0.5) * 100)}%</span>
+      </div>
+      <div class="field-row">
+        <label>Faction TAG</label><input type="text" class="f-ftag" value="${escHtml(obj.factionTag || '')}" maxlength="5" style="width:55px;text-transform:uppercase;" placeholder="OPL">
+        <label>Faction Color</label><input type="color" class="f-fcolor" value="${obj.factionColor || '#FFFFFF'}">
+      </div>
+      <button class="btn f-desc-btn" style="width:100%;margin-bottom:6px;margin-top:4px;">&#x270F; Edit Description</button>
+      <button class="obj-delete-btn">&#x1F5D1; Delete</button>`;
+
+    // Enable toggle
+    head.querySelector('input[type=checkbox]').addEventListener('change', e => {
+      e.stopPropagation();
+      state.objects[idx].enabled = e.target.checked;
+      populateCentroidSelect();
+      scheduleRebuild();
+    });
+
+    // Expand/collapse
+    head.addEventListener('click', e => {
+      if (e.target.tagName === 'INPUT') return;
+      body.classList.toggle('open');
+      head.querySelector('.obj-toggle-arrow').textContent = body.classList.contains('open') ? '▲' : '▼';
+    });
+
+    // Field changes
+    const sync = () => {
+      state.objects[idx].name         = body.querySelector('.f-name').value;
+      state.objects[idx].x            = parseFloat(body.querySelector('.f-x').value)    || 0;
+      state.objects[idx].y            = parseFloat(body.querySelector('.f-y').value)    || 0;
+      state.objects[idx].z            = parseFloat(body.querySelector('.f-z').value)    || 0;
+      state.objects[idx].color        = body.querySelector('.f-color').value;
+      state.objects[idx].diameter     = parseFloat(body.querySelector('.f-diam').value) || 0;
+      state.objects[idx].gravityRange = parseFloat(body.querySelector('.f-grav').value) || 0;
+      state.objects[idx].labelOffsetX  = parseFloat(body.querySelector('.f-lox').value)  || 0;
+      state.objects[idx].labelOffsetY  = parseFloat(body.querySelector('.f-loy').value)  || 0;
+      const dlfRaw = parseFloat(body.querySelector('.f-dlf').value);
+      state.objects[idx].distLabelFrac = isNaN(dlfRaw) ? 0.5 : dlfRaw;
+      body.querySelector('.f-dlf-val').textContent = Math.round(state.objects[idx].distLabelFrac * 100) + '%';
+      state.objects[idx].factionTag    = body.querySelector('.f-ftag').value.toUpperCase().slice(0, 5);
+      state.objects[idx].factionColor = body.querySelector('.f-fcolor').value;
+      head.querySelector('.obj-head-name').textContent = state.objects[idx].name;
+      head.querySelector('.obj-dot').style.background  = state.objects[idx].color;
+      scheduleRebuild();
+    };
+    body.querySelectorAll('input').forEach(inp => {
+      inp.addEventListener('input', sync);
+      inp.addEventListener('change', sync);
+    });
+
+    // Clear to dot button
+    body.querySelector('.f-dot-btn').addEventListener('click', () => {
+      body.querySelector('.f-diam').value = '0';
+      body.querySelector('.f-grav').value = '0';
+      sync();
+    });
+
+    // Description button
+    body.querySelector('.f-desc-btn').addEventListener('click', () => openDescModal(idx));
+
+    // Delete
+    body.querySelector('.obj-delete-btn').addEventListener('click', () => {
+      state.objects.splice(idx, 1);
+      renderObjectCards();
+      buildScene();
+      saveState();
+    });
+
+    card.appendChild(head);
+    card.appendChild(body);
+    list.appendChild(card);
+  });
+  populateCentroidSelect();
+}
+
+function populateCentroidSelect() {
+  const sel = document.getElementById('centroid-select');
+  if (!sel) return;
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">&#x2295; Centroid (mean)</option>';
+  state.objects.forEach(o => {
+    const opt = document.createElement('option');
+    opt.value = o.id;
+    const label = o.name.length > 26 ? o.name.slice(0, 24) + '…' : o.name;
+    opt.textContent = o.enabled ? label : `[off] ${label}`;
+    opt.style.color = o.color;
+    opt.style.opacity = o.enabled ? '1' : '0.5';
+    sel.appendChild(opt);
+  });
+  if (prev && [...sel.options].some(o => o.value === prev)) sel.value = prev;
+  else { sel.value = ''; state.visual.centroidId = null; }
+  updateCentroidSelectColor();
+}
+
+function updateCentroidSelectColor() {
+  const sel = document.getElementById('centroid-select');
+  if (!sel) return;
+  if (!sel.value) { sel.style.color = ''; return; }
+  const obj = state.objects.find(o => o.id === sel.value);
+  sel.style.color = obj ? obj.color : '';
+}
+
+document.getElementById('centroid-select').addEventListener('change', e => {
+  state.visual.centroidId = e.target.value || null;
+  updateCentroidSelectColor();
+  saveState();
+  buildScene();
+});
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SETTINGS PANEL — VISUAL CONTROLS
+// ═══════════════════════════════════════════════════════════════════
+
+function bindVisualControls() {
+  function attachDblClick(sv, sl, valId, key, applyFn) {
+    sv.style.cursor = 'text'; sv.title = 'Double-click to type';
+    sv.addEventListener('dblclick', () => {
+      const inp = document.createElement('input');
+      inp.type = 'number'; inp.value = sl.value;
+      inp.min = sl.min; inp.max = sl.max; inp.step = sl.step;
+      inp.style.cssText = 'width:52px;background:var(--bg);color:var(--cyan);border:1px solid var(--cyan);font-family:"Share Tech Mono",monospace;font-size:9px;padding:1px 3px;';
+      sv.replaceWith(inp); inp.focus(); inp.select();
+      const commit = () => {
+        const raw = parseFloat(inp.value);
+        const v = isNaN(raw) ? parseFloat(sl.value)
+          : Math.min(parseFloat(sl.max), Math.max(parseFloat(sl.min), raw));
+        sl.value = v; state.visual[key] = v; applyFn(v); saveState();
+        const newSv = document.createElement('span');
+        newSv.className = 'slider-val'; newSv.id = valId;
+        newSv.textContent = v.toFixed(parseFloat(sl.step) < 1 ? 2 : 0);
+        inp.replaceWith(newSv);
+        attachDblClick(newSv, sl, valId, key, applyFn);
+      };
+      inp.addEventListener('blur', commit);
+      inp.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); inp.blur(); }
+        else if (e.key === 'Escape') inp.replaceWith(sv);
+      });
+    });
+  }
+
+  function sliderBind(slId, valId, key, applyFn) {
+    const sl = document.getElementById(slId);
+    const sv = document.getElementById(valId);
+    // Always sync current value; only wire listener once
+    sl.value = state.visual[key];
+    sv.textContent = parseFloat(state.visual[key]).toFixed(parseFloat(sl.step) < 1 ? 2 : 0);
+    if (!sl.dataset.bound) {
+      sl.dataset.bound = '1';
+      sl.addEventListener('input', () => {
+        const v = parseFloat(sl.value);
+        sv.textContent = v.toFixed(parseFloat(sl.step) < 1 ? 2 : 0);
+        state.visual[key] = v;
+        applyFn(v);
+        saveState();
+      });
+    }
+    attachDblClick(sv, sl, valId, key, applyFn);
+  }
+
+  sliderBind('sl-body-opacity', 'sv-body-opacity', 'bodyOpacity', v => {
+    refs.forEach(r => { if (r.bodyMat) r.bodyMat.opacity = v; });
+  });
+  sliderBind('sl-well-opacity', 'sv-well-opacity', 'wellOpacity', v => {
+    refs.forEach(r => { if (r.wellMat) r.wellMat.opacity = v; });
+  });
+  sliderBind('sl-wire-opacity', 'sv-wire-opacity', 'wireOpacity', v => {
+    refs.forEach(r => { if (r.wireMat) r.wireMat.opacity = v; });
+  });
+  sliderBind('sl-label-size', 'sv-label-size', 'labelFontSize', v => {
+    document.documentElement.style.setProperty('--ui-fs', v + 'px');
+  });
+  sliderBind('sl-3d-label-size', 'sv-3d-label-size', 'label3dSize', v => {
+    refs.forEach(r => {
+      if (r.lblDiv)  r.lblDiv.style.fontSize = v + 'px';
+      if (r.distDiv) r.distDiv.style.fontSize = Math.max(6, v - 1) + 'px';
+    });
+  });
+
+  function ckBind(ckId, key, applyFn) {
+    const ck = document.getElementById(ckId);
+    // Always sync current value; only wire listener once to prevent counter doubling on re-bind
+    ck.checked = state.visual[key];
+    if (!ck.dataset.bound) {
+      ck.dataset.bound = '1';
+      ck.addEventListener('change', () => {
+        state.visual[key] = ck.checked;
+        applyFn(ck.checked);
+        saveState();
+      });
+    }
+  }
+
+  ckBind('ck-bodies', 'showBodies', v => {
+    refs.forEach(r => { if (r.bodyMesh) r.bodyMesh.visible = v; });
+  });
+  ckBind('ck-wells', 'showWells', v => {
+    refs.forEach(r => { if (r.wellMesh) r.wellMesh.visible = v; if (r.wellWire) r.wellWire.visible = v; });
+  });
+  ckBind('ck-labels', 'showLabels', v => {
+    refs.forEach(r => { if (r.nameLabel) r.nameLabel.visible = v; });
+    syncSettingsCheckboxes();
+  });
+  ckBind('ck-lines', 'showLines', v => {
+    refs.forEach(r => {
+      if (r.line) r.line.visible = v && !r.isCentroid;
+      if (r.distLabelObj) r.distLabelObj.visible = v && state.visual.showDistLabels && !r.isCentroid;
+    });
+    syncSettingsCheckboxes();
+  });
+  ckBind('ck-dist-labels', 'showDistLabels', v => {
+    refs.forEach(r => {
+      if (r.distLabelObj) r.distLabelObj.visible = state.visual.showLines && v && !r.isCentroid;
+    });
+  });
+  ckBind('ck-axes', 'showAxes', v => {
+    if (centroidMarker) centroidMarker.visible = v;
+  });
+  ckBind('ck-stars', 'showStars', v => {
+    starGroup.visible = v;
+    syncSettingsCheckboxes();
+  });
+  ckBind('ck-help', 'showHelp', v => {
+    const hb = document.getElementById('btn-help');
+    if (hb) hb.style.display = v ? '' : 'none';
+  });
+
+  // Distance unit radio — sync value always; listener only once
+  document.getElementById('r-km').checked = state.visual.linesUnit === 'km';
+  document.getElementById('r-m').checked  = state.visual.linesUnit === 'm';
+  document.querySelectorAll('input[name=dist-unit]').forEach(r => {
+    if (!r.dataset.bound) {
+      r.dataset.bound = '1';
+      r.addEventListener('change', () => {
+        state.visual.linesUnit = r.value;
+        refs.forEach(ref => { if (ref.distDiv) ref.distDiv.textContent = formatDist(ref.dist); });
+        saveState();
+      });
+    }
+  });
+}
+
+function syncSettingsCheckboxes() {
+  const v = state.visual;
+  document.getElementById('ck-labels').checked      = v.showLabels;
+  document.getElementById('ck-lines').checked       = v.showLines;
+  document.getElementById('ck-dist-labels').checked = v.showDistLabels;
+  document.getElementById('ck-axes').checked        = v.showAxes;
+  document.getElementById('ck-stars').checked       = v.showStars;
+  const ckHelp = document.getElementById('ck-help');
+  if (ckHelp) ckHelp.checked = v.showHelp;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SETTINGS PANEL — BUTTONS & DATA I/O
+// ═══════════════════════════════════════════════════════════════════
+
+function openSettings()  { document.getElementById('settings').classList.add('open'); }
+function closeSettings() { document.getElementById('settings').classList.remove('open'); }
+
+document.getElementById('btn-settings').addEventListener('click', openSettings);
+document.getElementById('settings-close').addEventListener('click', closeSettings);
+document.getElementById('btn-add-obj').addEventListener('click', () => {
+  state.objects.push({ id: crypto.randomUUID(), name: 'New Object', x: 0, y: 0, z: 0, color: '#FFFFFF', diameter: 1000, gravityRange: 100, enabled: true });
+  renderObjectCards();
+  buildScene(true);
+  saveState();
+});
+
+// GPS paste
+document.getElementById('btn-gps-import').addEventListener('click', () => {
+  const raw = document.getElementById('gps-paste').value;
+  const errEl = document.getElementById('gps-error');
+  errEl.textContent = '';
+  let added = 0, failed = 0;
+  raw.split('\n').forEach(line => {
+    line = line.trim();
+    if (!line) return;
+    const parsed = parseGPSString(line);
+    if (parsed) { state.objects.push(parsed); added++; }
+    else if (line) failed++;
+  });
+  if (added) {
+    document.getElementById('gps-paste').value = '';
+    renderObjectCards();
+    buildScene();
+    saveState();
+    errEl.style.color = '#00e5f8';
+    errEl.textContent = `✓ Added ${added} object(s).`;
+    showToast(`Added ${added} GPS object(s).`, 'success');
+  }
+  if (failed) {
+    errEl.style.color = '#ff7777';
+    errEl.textContent += ` ✗ ${failed} line(s) failed to parse.`;
+  }
+});
+
+// JSON export
+document.getElementById('btn-export').addEventListener('click', () => {
+  const data = JSON.stringify({ objects: state.objects, visual: state.visual }, null, 2);
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
+  a.download = `bos-viz-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  markDataClean();
+  showToast('JSON exported.', 'success');
+});
+
+// JSON import
+document.getElementById('btn-import').addEventListener('click', () => document.getElementById('import-file').click());
+document.getElementById('import-file').addEventListener('change', e => {
+  const file = e.target.files[0]; if (!file) return;
+  const fr = new FileReader();
+  fr.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (data.objects) state.objects = data.objects;
+      if (data.visual)  state.visual  = { ...VISUAL_DEFAULTS, ...data.visual };
+      // Write directly to avoid marking dirty — imported data matches what was exported
+      localStorage.setItem(LS_OBJ, JSON.stringify(state.objects));
+      localStorage.setItem(LS_VIS, JSON.stringify(state.visual));
+      markDataClean();
+      renderObjectCards();
+      bindVisualControls();
+      buildScene();
+      showToast('JSON imported.', 'success');
+    } catch (_) { alert('Invalid JSON file.'); }
+  };
+  fr.readAsText(file);
+  e.target.value = '';
+});
+
+// Reset defaults
+document.getElementById('btn-reset-data').addEventListener('click', () => {
+  if (!confirm('Reset all objects and settings to defaults?')) return;
+  state = { objects: freshObjects(), visual: { ...VISUAL_DEFAULTS } };
+  saveState();
+  renderObjectCards();
+  bindVisualControls();
+  buildScene();
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// SCREENSHOT
+// ═══════════════════════════════════════════════════════════════════
+
+function takeScreenshot() {
+  const ui = ['topbar', 'legend', 'settings', 'tooltip', 'btn-help', 'help-overlay'];
+  ui.forEach(id => { const el = document.getElementById(id); if (el) el.style.visibility = 'hidden'; });
+  renderer.render(scene, camera);
+  const dataURL = renderer.domElement.toDataURL('image/png');
+  ui.forEach(id => { const el = document.getElementById(id); if (el) el.style.visibility = ''; });
+  const a = document.createElement('a');
+  a.href = dataURL;
+  a.download = `SE-map-${new Date().toISOString().replace(/[:.]/g,'-').slice(0,19)}.png`;
+  a.click();
+}
+
+document.getElementById('btn-screenshot').addEventListener('click', takeScreenshot);
+
+// ═══════════════════════════════════════════════════════════════════
+// CAMERA CONTROLS
+// ═══════════════════════════════════════════════════════════════════
+
+function resetCamera() {
+  camera.position.copy(defaultCamPos);
+  orbitCtrl.target.copy(defaultTarget);
+  orbitCtrl.update();
+  trackCtrl.target.copy(defaultTarget);
+  trackCtrl.update();
+}
+
+function toggleFreeRotate() {
+  freeRotate = !freeRotate;
+  if (freeRotate) {
+    orbitCtrl.enabled = false;
+    trackCtrl.target.copy(orbitCtrl.target);
+    trackCtrl.enabled = true;
+    activeCtrl = trackCtrl;
+  } else {
+    trackCtrl.enabled = false;
+    orbitCtrl.target.copy(trackCtrl.target);
+    orbitCtrl.enabled = true;
+    activeCtrl = orbitCtrl;
+  }
+  const btn = document.getElementById('btn-free');
+  if (btn) { btn.textContent = freeRotate ? 'Orbit Mode [F]' : 'Free Rotate [F]'; btn.classList.toggle('active', freeRotate); }
+}
+
+document.getElementById('btn-free')?.addEventListener('click', toggleFreeRotate);
+document.getElementById('btn-reset').addEventListener('click', resetCamera);
+
+// Fullscreen
+document.getElementById('btn-fullscreen').addEventListener('click', () => {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen();
+  } else {
+    document.exitFullscreen();
+  }
+});
+document.addEventListener('fullscreenchange', () => {
+  const btn = document.getElementById('btn-fullscreen');
+  if (btn) btn.textContent = document.fullscreenElement ? '⛶ Exit Full' : '⛶ Fullscreen';
+});
+
+// Double-click on 3D canvas → set hovered object as centroid
+renderer.domElement.addEventListener('dblclick', e => {
+  if (!lastHovered) return;
+  e.preventDefault();
+  const sel = document.getElementById('centroid-select');
+  sel.value = lastHovered.id;
+  sel.dispatchEvent(new Event('change'));
+});
+
+// Right-click on 3D canvas → copy GPS string to clipboard
+function showCopyFeedback(name) {
+  const fb = document.createElement('div');
+  fb.textContent = `✓ GPS copied: ${name}`;
+  fb.style.cssText = 'position:fixed;bottom:50px;left:50%;transform:translateX(-50%);background:rgba(6,15,31,0.92);border:1px solid #f0b429;color:#f0b429;font-family:"Share Tech Mono",monospace;font-size:11px;padding:6px 16px;z-index:9999;pointer-events:none;opacity:1;transition:opacity .5s;';
+  document.body.appendChild(fb);
+  setTimeout(() => { fb.style.opacity = '0'; setTimeout(() => fb.remove(), 550); }, 1800);
+}
+
+renderer.domElement.addEventListener('contextmenu', e => {
+  e.preventDefault();
+  if (!lastHovered) return;
+  const o = lastHovered;
+  const gps = `GPS:${o.name}:${o.x}:${o.y}:${o.z}:${o.color}:`;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(gps).then(() => showCopyFeedback(o.name)).catch(() => {});
+  } else {
+    try {
+      const ta = Object.assign(document.createElement('textarea'), { value: gps });
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+      showCopyFeedback(o.name);
+    } catch (_) {}
+  }
+});
+
+// ── Long-press on canvas → open Settings (mobile) ──────────────────────────
+// Fires after ~550 ms of stationary touch; cancels on any movement ≥ 12 px.
+{
+  let _lpTimer = null, _lpX = 0, _lpY = 0;
+  const _LP_MS = 550, _LP_MOVE = 12;
+
+  renderer.domElement.addEventListener('touchstart', e => {
+    if (e.touches.length !== 1) return;
+    _lpX = e.touches[0].clientX;
+    _lpY = e.touches[0].clientY;
+    _lpTimer = setTimeout(() => {
+      _lpTimer = null;
+      openSettings();
+      showToast('Settings opened (long-press)', 'info');
+    }, _LP_MS);
+  }, { passive: true });
+
+  renderer.domElement.addEventListener('touchmove', e => {
+    if (!_lpTimer || !e.touches.length) return;
+    if (Math.hypot(e.touches[0].clientX - _lpX, e.touches[0].clientY - _lpY) > _LP_MOVE) {
+      clearTimeout(_lpTimer); _lpTimer = null;
+    }
+  }, { passive: true });
+
+  const _lpEnd = () => { if (_lpTimer) { clearTimeout(_lpTimer); _lpTimer = null; } };
+  renderer.domElement.addEventListener('touchend',    _lpEnd, { passive: true });
+  renderer.domElement.addEventListener('touchcancel', _lpEnd, { passive: true });
+}
+
+// Help button
+const helpBtnEl = document.getElementById('btn-help');
+if (helpBtnEl) {
+  helpBtnEl.style.display = state.visual.showHelp ? '' : 'none';
+  helpBtnEl.addEventListener('click', () => {
+    document.getElementById('help-overlay').classList.toggle('visible');
+  });
+}
+document.getElementById('help-close')?.addEventListener('click', () => {
+  document.getElementById('help-overlay').classList.remove('visible');
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// KEYBOARD SHORTCUTS
+// ═══════════════════════════════════════════════════════════════════
+
+const ROLL_SPEED = THREE.MathUtils.degToRad(1); // 1° per frame
+const keysHeld   = new Set();
+
+window.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  keysHeld.add(e.key.toLowerCase());
+
+  const k = e.key.toLowerCase();
+
+  if (k === 't') {
+    state.visual.showLines = !state.visual.showLines;
+    refs.forEach(r => {
+      if (r.line)         r.line.visible         = state.visual.showLines && !r.isCentroid;
+      if (r.distLabelObj) r.distLabelObj.visible  = state.visual.showLines && state.visual.showDistLabels && !r.isCentroid;
+    });
+    syncSettingsCheckboxes();
+    saveStateQuiet();
+  }
+  else if (k === 'l') {
+    state.visual.showLabels = !state.visual.showLabels;
+    refs.forEach(r => { if (r.nameLabel) r.nameLabel.visible = state.visual.showLabels; });
+    syncSettingsCheckboxes();
+    saveStateQuiet();
+  }
+  else if (k === 'w') {
+    state.visual.showWells = !state.visual.showWells;
+    refs.forEach(r => {
+      if (r.wellMesh) r.wellMesh.visible = state.visual.showWells;
+      if (r.wellWire) r.wellWire.visible = state.visual.showWells;
+    });
+    syncSettingsCheckboxes();
+    saveStateQuiet();
+  }
+  else if (k === 'p') {
+    state.visual.showBodies = !state.visual.showBodies;
+    refs.forEach(r => {
+      if (r.bodyMesh) r.bodyMesh.visible = state.visual.showBodies;
+    });
+    syncSettingsCheckboxes();
+    saveStateQuiet();
+  }
+  else if (k === 's') {
+    state.visual.showStars = !state.visual.showStars;
+    starGroup.visible = state.visual.showStars;
+    syncSettingsCheckboxes();
+    saveStateQuiet();
+  }
+  else if (k === 'g') {
+    // Cycle well wireframe opacity: 0.20 → 0.40 → 0.05 → 0.20
+    const steps = [0.05, 0.20, 0.40];
+    const cur = state.visual.wireOpacity;
+    const next = steps[(steps.findIndex(v => Math.abs(v - cur) < 0.01) + 1) % steps.length];
+    state.visual.wireOpacity = next;
+    refs.forEach(r => { if (r.wireMat) r.wireMat.opacity = next; });
+    const sv = document.getElementById('sv-wire-opacity');
+    const sl = document.getElementById('sl-wire-opacity');
+    if (sv) sv.textContent = next.toFixed(2);
+    if (sl) sl.value = next;
+    saveStateQuiet();
+  }
+  else if (k === 'f') { toggleFreeRotate(); }
+  else if (k === 'h' || k === 'r') { resetCamera(); }
+});
+
+window.addEventListener('keyup', e => {
+  keysHeld.delete(e.key.toLowerCase());
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// RESIZE
+// ═══════════════════════════════════════════════════════════════════
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  labelRenderer.setSize(window.innerWidth, window.innerHeight);
+  trackCtrl.handleResize();
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// DESCRIPTION MODAL
+// ═══════════════════════════════════════════════════════════════════
+
+let descModalTargetIdx = null;
+
+function openDescModal(idx) {
+  descModalTargetIdx = idx;
+  const obj = state.objects[idx];
+  const editor = document.getElementById('desc-editor');
+  editor.innerHTML = obj.description || '';
+  document.getElementById('desc-modal').style.display = 'flex';
+  editor.focus();
+}
+
+function closeDescModal() {
+  document.getElementById('desc-modal').style.display = 'none';
+  descModalTargetIdx = null;
+}
+
+document.getElementById('desc-modal-close').addEventListener('click', closeDescModal);
+document.getElementById('desc-modal-cancel').addEventListener('click', closeDescModal);
+document.getElementById('desc-modal-backdrop').addEventListener('click', closeDescModal);
+
+document.getElementById('desc-modal-save').addEventListener('click', () => {
+  if (descModalTargetIdx === null) return;
+  state.objects[descModalTargetIdx].description = document.getElementById('desc-editor').innerHTML;
+  saveState();
+  closeDescModal();
+});
+
+// Toolbar buttons – re-focus editor before execCommand so selection is preserved
+function descCmd(cmd, val) {
+  const ed = document.getElementById('desc-editor');
+  ed.focus();
+  document.execCommand(cmd, false, val ?? null);
+}
+document.getElementById('dtb-bold').addEventListener('click',      () => descCmd('bold'));
+document.getElementById('dtb-italic').addEventListener('click',    () => descCmd('italic'));
+document.getElementById('dtb-underline').addEventListener('click', () => descCmd('underline'));
+document.getElementById('dtb-strike').addEventListener('click',    () => descCmd('strikeThrough'));
+document.getElementById('dtb-clear').addEventListener('click',     () => descCmd('removeFormat'));
+document.getElementById('desc-fgcolor').addEventListener('input',  e => descCmd('foreColor', e.target.value));
+document.getElementById('desc-hlcolor').addEventListener('input',  e => descCmd('hiliteColor', e.target.value));
+document.getElementById('desc-fontsize').addEventListener('change', e => descCmd('fontSize', e.target.value));
+
+// Block modal keystrokes from reaching the map shortcuts
+document.getElementById('desc-modal').addEventListener('keydown',  e => e.stopPropagation());
+document.getElementById('desc-modal').addEventListener('mousedown', e => e.stopPropagation());
+
+// ═══════════════════════════════════════════════════════════════════
+// RENDER LOOP
+// ═══════════════════════════════════════════════════════════════════
+
+// TO-BE
+const _rollAxis = new THREE.Vector3(); // reused each frame, no allocation
+
+function animate() {
+  requestAnimationFrame(animate);
+
+  // ── Camera roll (Q = CCW, E = CW) ──────────────────────────────
+  const rolling = keysHeld.has('q') || keysHeld.has('e');
+  if (rolling) {
+    const angle = keysHeld.has('q') ? ROLL_SPEED : -ROLL_SPEED;
+
+    // Look-direction vector (camera local -Z in world space)
+    _rollAxis.set(0, 0, -1).applyQuaternion(camera.quaternion).normalize();
+
+    // Rotate camera quaternion around its own look axis
+    const rollQ = new THREE.Quaternion().setFromAxisAngle(_rollAxis, angle);
+    camera.quaternion.premultiply(rollQ);
+    camera.quaternion.normalize();
+
+    // Keep OrbitControls / TrackballControls from fighting the roll:
+    // re-sync their internal "up" so damping doesn't snap back.
+    if (activeCtrl === orbitCtrl) {
+      orbitCtrl.object.up.set(0, 1, 0).applyQuaternion(camera.quaternion);
+    }
+  }
+
+  activeCtrl.update();
+  renderer.render(scene, camera);
+  labelRenderer.render(scene, camera);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════
+
+// Wire export reminder bar buttons
+document.getElementById('exportNowBtn').addEventListener('click',    () => document.getElementById('btn-export').click());
+document.getElementById('exportSnoozeBtn').addEventListener('click', snoozeExportWarning);
+document.getElementById('exportDismissBtn').addEventListener('click', dismissExportWarning);
+
+renderObjectCards();
+bindVisualControls();
+buildScene();
+animate();
+startExportReminderTimer();   // check for leftover unsaved changes from previous session
+
+</script>
+
+<!-- ── Export reminder bar ──────────────────────────────────────────────────
+     Shown/hidden entirely via JS (updateExportStatusBar). -->
+<div id="exportContainer" style="display:none;">
+  <div id="exportStatusBar">
+    <span id="exportStatusText"></span>
+    <div class="export-status-actions">
+      <button id="exportNowBtn">Export Now</button>
+      <button id="exportSnoozeBtn">Snooze 15&nbsp;min</button>
+      <button id="exportDismissBtn">Dismiss</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
