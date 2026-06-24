@@ -424,6 +424,7 @@
             height: 32px;
             fill: var(--text-main);
             flex-shrink: 0;
+            object-fit: contain;
         }
 
         .module-card:hover .module-icon {
@@ -892,6 +893,96 @@
             color: var(--accent);
         }
 
+        .file-action-input {
+            background: var(--bg-terminal);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px;
+            font-size: 0.8rem;
+            font-family: inherit;
+            width: 100%;
+            outline: none;
+        }
+
+        .file-action-input:focus {
+            border-color: var(--border-focus);
+        }
+
+        /* MODULE CRUD MODAL */
+        .module-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 2100;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .module-modal-overlay.active {
+            display: flex;
+        }
+
+        .module-modal {
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            max-width: 640px;
+            width: 100%;
+            max-height: 85vh;
+            max-height: 85dvh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 30px var(--accent-glow);
+        }
+
+        .module-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.75rem;
+        }
+
+        .module-row-meta {
+            flex-grow: 1;
+            word-break: break-word;
+        }
+
+        .module-row-meta .mtag {
+            color: var(--accent);
+            font-size: 0.65rem;
+            letter-spacing: 1px;
+            margin-right: 6px;
+        }
+
+        .module-form {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            border-top: 1px dashed var(--border-color);
+            margin-top: 10px;
+            padding-top: 12px;
+        }
+
+        .module-form label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .module-form-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .module-form-row > div {
+            flex: 1;
+        }
+
         footer {
             border-top: 1px solid var(--border-color);
             padding: 12px 20px;
@@ -915,7 +1006,7 @@
             </div>
             <div class="reset-modal-body">
                 <div class="reset-warning">
-                    This wipes your terminal filesystem, command history, theme, target window, and favorites back to factory defaults. There is no undo. Anything you made or edited is listed below &mdash; download what you want to keep first.
+                    This wipes your terminal filesystem, command history, theme, target window, favorites, and any custom/edited module cards back to factory defaults. There is no undo. Anything you made or edited is listed below &mdash; download what you want to keep first.
                 </div>
                 <div id="resetFileList"></div>
             </div>
@@ -927,6 +1018,68 @@
                 <div class="reset-footer-buttons">
                     <button class="file-action-btn" id="resetDownloadAllBtn" onclick="downloadAllUserFiles()">DOWNLOAD ALL AS .JSON</button>
                     <button class="reset-danger-btn" id="resetConfirmBtn" onclick="performFactoryReset()">RESET SYSTEM</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="module-modal-overlay" id="moduleModalOverlay">
+        <div class="module-modal">
+            <div class="reset-modal-header">
+                <h4>MANAGE CATALOGUED MODULES</h4>
+                <button class="btn-ui" onclick="closeModuleModal()">X</button>
+            </div>
+            <div class="reset-modal-body">
+                <div id="moduleList"></div>
+                <div class="module-form" id="moduleForm">
+                    <input type="hidden" id="moduleFormEditId">
+                    <div class="module-form-row">
+                        <div>
+                            <label>ID (unique, lowercase-dash)</label>
+                            <input type="text" id="moduleFormId" class="file-action-input" spellcheck="false" placeholder="e.g. app-07">
+                        </div>
+                        <div>
+                            <label>Type</label>
+                            <select id="moduleFormType" class="file-action-input">
+                                <option value="APP">APP</option>
+                                <option value="MOD">MOD</option>
+                                <option value="RESOURCE">RESOURCE</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label>Display Name</label>
+                        <input type="text" id="moduleFormName" class="file-action-input" spellcheck="false" placeholder="e.g. My Cool Tool">
+                    </div>
+                    <div>
+                        <label>Path / URL (use javascript:void(0); for a terminal-launch card)</label>
+                        <input type="text" id="moduleFormPath" class="file-action-input" spellcheck="false" placeholder="./APP-07_MyTool/index.html">
+                    </div>
+                    <div>
+                        <label>Info Tag (short label shown on the card)</label>
+                        <input type="text" id="moduleFormInfo" class="file-action-input" spellcheck="false" placeholder="e.g. CUSTOM_TOOL">
+                    </div>
+                    <div class="module-form-row">
+                        <div>
+                            <label>Icon Type</label>
+                            <select id="moduleFormIconType" class="file-action-input" onchange="updateIconHint()">
+                                <option value="svg">SVG Path</option>
+                                <option value="img">Image URL</option>
+                            </select>
+                        </div>
+                        <div style="flex: 2;">
+                            <label id="moduleFormIconLabel">SVG &lt;path d="..."&gt; data (leave blank for default icon)</label>
+                            <input type="text" id="moduleFormIcon" class="file-action-input" spellcheck="false" placeholder='<path d="M..."/>'>
+                        </div>
+                    </div>
+                    <div class="reset-confirm-row">
+                        <input type="checkbox" id="moduleFormIsTerminal">
+                        <label for="moduleFormIsTerminal">This card launches the terminal (instead of opening a link)</label>
+                    </div>
+                    <div class="reset-footer-buttons">
+                        <button class="file-action-btn" onclick="submitModuleForm()" id="moduleFormSubmitBtn">ADD CARD</button>
+                        <button class="file-action-btn" onclick="resetModuleForm()">CLEAR FORM</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -963,6 +1116,17 @@
         </div>
 
         <div class="setting-box" style="border-top: 1px dashed var(--border-color); padding-top: 15px;">
+            <span class="setting-label">Catalogued Modules</span>
+            <button class="file-action-btn" onclick="openModuleModal()">MANAGE CARDS&hellip;</button>
+        </div>
+
+        <div class="setting-box" style="border-top: 1px dashed var(--border-color); padding-top: 15px;">
+            <span class="setting-label">Terminal Launch Bin Name</span>
+            <span style="font-size: 0.65rem; color: var(--text-muted); display: block; margin-bottom: 6px;">Used to launch the terminal from the search bar only if no module card with terminal-launch behavior exists.</span>
+            <input type="text" id="terminalBinNameInput" class="file-action-input" spellcheck="false" autocomplete="off" onchange="updateTerminalBinName(this.value)">
+        </div>
+
+        <div class="setting-box" style="border-top: 1px dashed var(--border-color); padding-top: 15px;">
             <span class="setting-label">System State Configuration File</span>
             <button class="file-action-btn" onclick="exportConfig()">EXPORT HELIOS.CFG</button>
             <button class="file-action-btn" onclick="document.getElementById('importFile').click()">IMPORT HELIOS.CFG</button>
@@ -980,9 +1144,8 @@
             <!-- <svg style="width:20px; height:20px; fill:currentColor;" viewBox="0 0 24 24">
                 <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,7A5,5 0 0,0 7,12A5,5 0 0,0 12,17A5,5 0 0,0 17,12A5,5 0 0,0 12,7Z" />
             </svg> -->
-            <!-- Load HELIOS.svg -->
             <img src="HELIOS.svg" alt="HELIOS Logo" style="width:20px; height:20px; vertical-align:middle;">
-            HELIOS // OS
+            HELIOS
             <div class="status-pill"><span class="status-dot"></span>ONLINE</div>
             <span class="sys-clock" id="sysClock"></span>
         </div>
@@ -1053,7 +1216,8 @@ Type 'help' to review available internal directory directives, or 'man [command]
 
     <script>
         // BACKBONE CORE ARCHIVE MATRIX DATA DESCRIPTORS
-        const modules = [
+        function factoryModules() {
+            return [
             { id: 'app-01', type: 'APP', name: '2026_SEBACC', path: './APP-01_2026_SEBACC/SEBACC_2-0.html', info: '2026_VER', icon: '<path d="M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3M19,19H5V5H19V19M7,10H9V17H7V10M11,7H13V17H11V7M15,13H17V17H15V13Z"/>' },
             { id: 'app-02', type: 'APP', name: 'SEYGIAGAM', path: './APP-02_SEYGIAGAM/index.html', info: 'CORE_ENGINE', icon: '<path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A2,2 0 0,1 14,6A2,2 0 0,1 12,8A2,2 0 0,1 10,6A2,2 0 0,1 12,4M12,18A2,2 0 0,1 10,16A2,2 0 0,1 12,14A2,2 0 0,1 14,16A2,2 0 0,1 12,18M16,14A2,2 0 0,1 14,12A2,2 0 0,1 16,10A2,2 0 0,1 18,12A2,2 0 0,1 16,14M8,14A2,2 0 0,1 6,12A2,2 0 0,1 8,10A2,2 0 0,1 10,12A2,2 0 0,1 8,14Z"/>' },
             { id: 'app-03', type: 'APP', name: 'SEAT_AcqTool', path: './APP-03_SEAT_AcqTool/SEAT.html', info: 'ACQUISITIONS', icon: '<path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8Z"/>' },
@@ -1068,7 +1232,153 @@ Type 'help' to review available internal directory directives, or 'man [command]
             
             { id: 'res-01', type: 'RESOURCE', name: 'MOSES', path: 'https://www.reddit.com/media?url=https%3A%2F%2Fpreview.redd.it%2Fmoses-map-of-space-engineers-solar-system-v1-0-0-v0-q7ljhpdaz97c1.png%3Fwidth%3D3840%26format%3Dpng%26auto%3Dwebp%26s%3D851b926cf101e2c2a7056e83db9899a0cf2c3df6', info: 'DATA_CORE', icon: '<path d="M13,9H18.5L13,3.5V9M6,2H14L20,8V20A2,2 0 0,1 18,22H6C4.89,22 4,21.1 4,20V4C4,2.89 4.89,2 6,2M15,18V16H6V18H15M18,14V12H6V14H18Z"/>' },
             { id: 'res-02', type: 'RESOURCE', name: 'Wiki-Docs', path: 'https://spaceengineers.wiki.gg/', info: 'EXTERNAL_REF', icon: '<path d="M13,9H18.5L13,3.5V9M6,2H14L20,8V20A2,2 0 0,1 18,22H6C4.89,22 4,21.1 4,20V4C4,2.89 4.89,2 6,2M15,18V16H6V18H15M18,14V12H6V14H18Z"/>' }
-        ];
+            ];
+        }
+
+        const GENERIC_ICON = '<path d="M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3M19,19H5V5H19V19M7,10H9V17H7V10M11,7H13V17H11V7M15,13H17V17H15V13Z"/>';
+
+        let modules = (() => {
+            try {
+                const saved = localStorage.getItem('helios_modules');
+                return saved ? JSON.parse(saved) : factoryModules();
+            } catch (e) { return factoryModules(); }
+        })();
+
+        function saveModules() {
+            localStorage.setItem('helios_modules', JSON.stringify(modules));
+        }
+
+        // /bin is a reflection of the live module catalogue, not a static skeleton
+        // entry - regenerated whenever the catalogue changes so it never goes stale.
+        function syncBinDir() {
+            const binChildren = {};
+            modules.forEach(m => {
+                binChildren[m.id] = {
+                    type: 'file',
+                    content: `${m.name}\nTYPE: ${m.type}\nPATH: ${m.path}\nINFO: ${m.info || ''}${m.isTerminalAction ? '\n(this one launches the terminal, not a link)' : ''}\n\nrun ${m.id}`
+                };
+            });
+            vfsRoot.children.bin = { type: 'dir', children: binChildren };
+            saveVFS();
+        }
+
+        function updateTerminalBinName(val) {
+            systemConfig.terminalBinName = (val || 'shell').trim() || 'shell';
+            saveToStorage();
+        }
+
+        // MODULE CRUD MODAL
+        function openModuleModal() {
+            resetModuleForm();
+            renderModuleList();
+            document.getElementById('moduleModalOverlay').classList.add('active');
+        }
+
+        function closeModuleModal() {
+            document.getElementById('moduleModalOverlay').classList.remove('active');
+        }
+
+        function renderModuleList() {
+            const listEl = document.getElementById('moduleList');
+            if (!modules.length) {
+                listEl.innerHTML = '<div style="color: var(--text-muted); font-size: 0.75rem;">No modules catalogued. Add one below.</div>';
+                return;
+            }
+            listEl.innerHTML = modules.map(m => `
+                <div class="module-row">
+                    <div class="module-row-meta">
+                        <span class="mtag">${m.type}${m.isTerminalAction ? ' \u2022 TERM' : ''}</span>
+                        ${m.name} <span style="color: var(--text-muted);">(${m.id})</span>
+                    </div>
+                    <button class="reset-mini-btn" onclick="editModule('${m.id}')">EDIT</button>
+                    <button class="reset-mini-btn" onclick="deleteModule('${m.id}')">DELETE</button>
+                </div>
+            `).join('');
+        }
+
+        function updateIconHint() {
+            const type = document.getElementById('moduleFormIconType').value;
+            document.getElementById('moduleFormIconLabel').textContent = type === 'img'
+                ? 'Image URL (leave blank for default icon)'
+                : 'SVG <path d="..."> data (leave blank for default icon)';
+            document.getElementById('moduleFormIcon').placeholder = type === 'img'
+                ? 'https://example.com/icon.png'
+                : '<path d="M..."/>';
+        }
+
+        function resetModuleForm() {
+            document.getElementById('moduleFormEditId').value = '';
+            document.getElementById('moduleFormId').value = '';
+            document.getElementById('moduleFormType').value = 'APP';
+            document.getElementById('moduleFormName').value = '';
+            document.getElementById('moduleFormPath').value = '';
+            document.getElementById('moduleFormInfo').value = '';
+            document.getElementById('moduleFormIconType').value = 'svg';
+            document.getElementById('moduleFormIcon').value = '';
+            document.getElementById('moduleFormIsTerminal').checked = false;
+            document.getElementById('moduleFormSubmitBtn').textContent = 'ADD CARD';
+            updateIconHint();
+        }
+
+        function editModule(id) {
+            const m = modules.find(x => x.id === id);
+            if (!m) return;
+            document.getElementById('moduleFormEditId').value = m.id;
+            document.getElementById('moduleFormId').value = m.id;
+            document.getElementById('moduleFormType').value = m.type;
+            document.getElementById('moduleFormName').value = m.name;
+            document.getElementById('moduleFormPath').value = m.path;
+            document.getElementById('moduleFormInfo').value = m.info || '';
+            document.getElementById('moduleFormIconType').value = m.iconType === 'img' ? 'img' : 'svg';
+            document.getElementById('moduleFormIcon').value = (m.iconType === 'img' ? m.icon : (m.icon === GENERIC_ICON ? '' : m.icon)) || '';
+            document.getElementById('moduleFormIsTerminal').checked = !!m.isTerminalAction;
+            document.getElementById('moduleFormSubmitBtn').textContent = 'SAVE CHANGES';
+            updateIconHint();
+            document.getElementById('moduleForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function deleteModule(id) {
+            if (!confirm(`Remove module '${id}' from the catalogue? This does not delete any actual files.`)) return;
+            modules = modules.filter(m => m.id !== id);
+            saveModules();
+            syncBinDir();
+            renderModuleList();
+            renderDashboard();
+        }
+
+        function submitModuleForm() {
+            const editId = document.getElementById('moduleFormEditId').value;
+            const id = document.getElementById('moduleFormId').value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
+            const name = document.getElementById('moduleFormName').value.trim();
+            const path = document.getElementById('moduleFormPath').value.trim();
+            const type = document.getElementById('moduleFormType').value;
+            const info = document.getElementById('moduleFormInfo').value.trim();
+            const iconType = document.getElementById('moduleFormIconType').value;
+            const iconValue = document.getElementById('moduleFormIcon').value.trim();
+            const isTerminalAction = document.getElementById('moduleFormIsTerminal').checked;
+
+            if (!id || !name || !path) { alert('ID, Display Name, and Path are all required.'); return; }
+            if (!editId && modules.some(m => m.id === id)) { alert(`A module with id '${id}' already exists.`); return; }
+
+            const entry = {
+                id, name, path, type, info: info || type,
+                iconType: iconType === 'img' ? 'img' : 'svg',
+                icon: iconValue || GENERIC_ICON
+            };
+            if (isTerminalAction) entry.isTerminalAction = true;
+
+            if (editId) {
+                const idx = modules.findIndex(m => m.id === editId);
+                if (idx > -1) modules[idx] = entry;
+            } else {
+                modules.push(entry);
+            }
+            saveModules();
+            syncBinDir();
+            resetModuleForm();
+            renderModuleList();
+            renderDashboard();
+        }
 
         // SYSTEM VOLATILE MEMORY
         let favorites = [];
@@ -1076,7 +1386,8 @@ Type 'help' to review available internal directory directives, or 'man [command]
             theme: 'cyber-cyan',
             target: '_self',
             termOpen: false,
-            termFullscreen: false
+            termFullscreen: false,
+            terminalBinName: 'shell'
         };
 
         // DOM CORE CAPTURES
@@ -1092,6 +1403,7 @@ Type 'help' to review available internal directory directives, or 'man [command]
         const termBody = document.getElementById('termBody');
         const searchInput = document.getElementById('searchInput');
         const sysClock = document.getElementById('sysClock');
+        const terminalBinNameInput = document.getElementById('terminalBinNameInput');
         const bootScreen = document.getElementById('bootScreen');
         const bootLines = document.getElementById('bootLines');
         const editorOverlay = document.getElementById('editorOverlay');
@@ -1120,6 +1432,22 @@ Type 'help' to review available internal directory directives, or 'man [command]
             renderDashboard();
         });
 
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key !== 'Enter') return;
+            const val = searchInput.value.trim().toLowerCase();
+            if (!val) return;
+            const hasTerminalCard = modules.some(m => m.isTerminalAction);
+            if (!hasTerminalCard && val === (systemConfig.terminalBinName || '').toLowerCase()) {
+                terminalArea.classList.remove('collapsed');
+                termInput.focus();
+                systemConfig.termOpen = true;
+                saveToStorage();
+                searchInput.value = '';
+                searchTerm = '';
+                renderDashboard();
+            }
+        });
+
         // GLOBAL KEYBOARD SHORTCUTS
         document.addEventListener('keydown', (e) => {
             if (e.key === '/' && document.activeElement !== termInput && document.activeElement !== searchInput) {
@@ -1129,11 +1457,16 @@ Type 'help' to review available internal directory directives, or 'man [command]
                 if (document.activeElement === searchInput) { searchInput.blur(); }
                 hideDrawer();
                 closeResetModal();
+                closeModuleModal();
             }
         });
 
         document.getElementById('resetModalOverlay').addEventListener('click', (e) => {
             if (e.target.id === 'resetModalOverlay') closeResetModal();
+        });
+
+        document.getElementById('moduleModalOverlay').addEventListener('click', (e) => {
+            if (e.target.id === 'moduleModalOverlay') closeModuleModal();
         });
 
         // TERMINAL VISIBILITY & STRUCTURAL SIZE HANDLING
@@ -1237,6 +1570,10 @@ Type 'help' to review available internal directory directives, or 'man [command]
                     card.setAttribute('target', systemConfig.target);
                 }
 
+                const iconMarkup = mod.iconType === 'img' && mod.icon
+                    ? `<img class="module-icon" src="${mod.icon}" alt="" loading="lazy">`
+                    : `<svg class="module-icon" viewBox="0 0 24 24">${mod.icon || GENERIC_ICON}</svg>`;
+
                 card.innerHTML = `
                     <button class="fav-star" onclick="toggleFavorite('${mod.id}', event)">
                         <svg style="width:16px; height:16px; fill:currentColor" viewBox="0 0 24 24">
@@ -1248,7 +1585,7 @@ Type 'help' to review available internal directory directives, or 'man [command]
                         <span class="module-info">${mod.info}</span>
                     </div>
                     <div class="card-body">
-                        <svg class="module-icon" viewBox="0 0 24 24">${mod.icon}</svg>
+                        ${iconMarkup}
                         <div class="module-title">${mod.name}</div>
                     </div>
                 `;
@@ -1288,10 +1625,10 @@ Type 'help' to review available internal directory directives, or 'man [command]
 
         // DATA IMPORT / EXPORT PROTOCOLS (.CFG)
         function exportConfig() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ config: systemConfig, favorites: favorites }, null, 2));
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ config: systemConfig, favorites: favorites, modules: modules }, null, 2));
             const dlAnchor = document.createElement('a');
             dlAnchor.setAttribute("href", dataStr);
-            dlAnchor.setAttribute("download", "helios_config.cfg");
+            dlAnchor.setAttribute("download", "HELIOS.cfg");
             document.body.appendChild(dlAnchor);
             dlAnchor.click();
             dlAnchor.remove();
@@ -1306,10 +1643,17 @@ Type 'help' to review available internal directory directives, or 'man [command]
                     const imported = JSON.parse(e.target.result);
                     if(imported.config && imported.favorites) {
                         systemConfig = imported.config;
+                        if (!systemConfig.terminalBinName) systemConfig.terminalBinName = 'shell';
                         favorites = imported.favorites;
+                        if (Array.isArray(imported.modules)) {
+                            modules = imported.modules;
+                            saveModules();
+                            syncBinDir();
+                        }
                         saveToStorage();
                         updateTheme(systemConfig.theme);
                         updateTarget(systemConfig.target);
+                        if (terminalBinNameInput) terminalBinNameInput.value = systemConfig.terminalBinName;
                         renderDashboard();
                         printToTerminal("\n[SUCCESS] External config payload merged. UI state rebuilt.");
                     } else {
@@ -1339,32 +1683,39 @@ Type 'help' to review available internal directory directives, or 'man [command]
                             } },
                             'blueprints': { type: 'dir', children: {} },
                             'downloads': { type: 'dir', children: {} },
-                            'scripts': { type: 'dir', children: {} }
+                            'scripts': { type: 'dir', children: {
+                                'games': { type: 'file', content: 'Found this loose in here, unfiled. Looks like a leftover from whoever set this terminal up.\nIt is also, apparently, something you can just run.' }
+                            } }
                         } }
                     } },
                     'var': { type: 'dir', children: {
                         'log': { type: 'dir', children: {
                             'shift_report_119.log': { type: 'file', content: 'SHIFT REPORT #119\nNominal. No incidents.\nOps have an old nickname for the cascading green characters that show up on the backup display sometimes. Nobody will say the name out loud, like it summons something if you do.' },
-                            'error_dump.log': { type: 'file', content: 'ERR 0x004: Sensor desync, auto-resolved\nERR 0x019: Stale cache, cleared\nERR 0x100: Unknown. Recurred 3x. Coincides with terminal idle time. Possibly related to the green-text rumor in the shift logs.' }
+                            'error_dump.log': { type: 'file', content: 'ERR 0x004: Sensor desync, auto-resolved\nERR 0x019: Stale cache, cleared\nERR 0x100: Unknown. Recurred 3x. Coincides with terminal idle time. Possibly related to the green-text rumor in the shift logs.' },
+                            'neo': { type: 'file', content: 'A file named after a person who does not work here. Nobody remembers creating it.\nIt runs, if you ask it to.' }
                         } }
                     } },
                     'etc': { type: 'dir', children: {
                         'helios': { type: 'dir', children: {
                             'helios_overview.sys': { type: 'file', content: 'HELIOS // System Overview\nThe Holistic Engineering Launcher & Information Operating System was deployed to manage modular software directories aboard independent production grids.' },
                             'network_factions.dat': { type: 'file', content: 'TRAFFIC MONITOR // DISPARATE SIGNALS LISTED:\n [SPRT] Space Pirates\n [Factorum] Heavy Industrial Core\n [R.O.S.] Results Oriented Sciences\n [HELIOS] Unaligned Engineering Terminal Subshell' },
-                            'sudo_policy.man': { type: 'file', content: 'ELEVATED ACCESS POLICY (DRAFT)\nElevated execution requires the courtesy subroutine to be satisfied.\nOlder engineers insist there is a specific word that satisfies it. HELIOS will not confirm or deny this.' },
-                            'helios_quickstart.man': { type: 'file', content: 'HELIOS QUICKSTART\nType help for a directive summary.\nType man [command] for details on any single command.\nThis archive is a real (if small) filesystem - explore it with ls and cd. Your home is ~.' }
+                            'sudo_policy.man': { type: 'file', content: 'ELEVATED ACCESS POLICY (DRAFT)\nElevated execution requires the courtesy subroutine to be satisfied.\nSee the file named after the word itself, if you can find it.' },
+                            'helios_quickstart.man': { type: 'file', content: 'HELIOS QUICKSTART\nType help for a directive summary.\nType man [command] for details on any single command.\nThis archive is a real (if small) filesystem - explore it with ls and cd. Your home is ~.' },
+                            'please': { type: 'file', content: 'You found the courtesy subroutine\'s namesake.\nTry it in front of sudo, exactly as spelled, and see what changes.' }
                         } }
                     } },
                     'archive': { type: 'dir', children: {
-                        'decom_log_004.txt': { type: 'file', content: 'DECOMMISSION LOG #004\nUnit discontinued after repeated false alarms.\nCrew anecdote on file: claimed the console would answer back if you greeted it politely first, twice, like you were at someone\'s door. Maintenance found no fault. Logged as folklore.' }
+                        'decom_log_004.txt': { type: 'file', content: 'DECOMMISSION LOG #004\nUnit discontinued after repeated false alarms.\nCrew anecdote on file: claimed the console would answer back if you greeted it politely first, twice, like you were at someone\'s door. Maintenance found no fault. Logged as folklore.' },
+                        'knock': { type: 'file', content: 'A single word, filed here for no documented reason.\nKnocking generally implies someone should answer. Try it as a command.' }
                     } },
                     'classified': { type: 'dir', children: {
-                        'project_joshua.txt': { type: 'file', content: 'INTERNAL JOKE, NOT AN ACTUAL PROJECT\nSomeone wired an old defense-simulator gag into the network years ago, themed after a famous hacker movie.\nIf you ever find the right word for it, do not start the obvious global conflict. It does not end well, even in jest.' }
+                        'project_joshua.txt': { type: 'file', content: 'INTERNAL JOKE, NOT AN ACTUAL PROJECT\nSomeone wired an old defense-simulator gag into the network years ago, themed after a famous hacker movie.\nThe file you actually want is named after the kid in that movie.' },
+                        'joshua': { type: 'file', content: 'Greetings. This file shares a name with a command.\nDo not actually start a global thermonuclear war with it. It is a bit of a downer.' }
                     } }
                 }
             };
         }
+
 
         // Merge an older/legacy tree into the current default skeleton without
         // dropping anything the user made (new dirs/files at any level survive;
@@ -1447,6 +1798,11 @@ Type 'help' to review available internal directory directives, or 'man [command]
             }
         }
 
+        function globMatch(name, pattern) {
+            const esc = pattern.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*').replace(/\?/g, '.');
+            return new RegExp(`^${esc}$`, 'i').test(name);
+        }
+
         // RESET MODAL: figure out which files differ from a fresh factory skeleton
         // (new files the user made, or built-ins they edited), so nothing gets
         // silently wiped without a chance to grab it first.
@@ -1455,6 +1811,7 @@ Type 'help' to review available internal directory directives, or 'man [command]
             const diffs = [];
             walkVFS(vfsRoot, '', (path, node) => {
                 if (node.type !== 'file' || !path) return;
+                if (path.startsWith('/bin/')) return;
                 const segs = splitPath(path);
                 let skelNode = skeleton;
                 for (const seg of segs) {
@@ -1543,7 +1900,7 @@ Type 'help' to review available internal directory directives, or 'man [command]
 
         function performFactoryReset() {
             if (!document.getElementById('resetConfirmCheck').checked) return;
-            ['helios_vfs', 'helios_cwd', 'helios_history', 'helios_prefs', 'helios_favs'].forEach(k => localStorage.removeItem(k));
+            ['helios_vfs', 'helios_cwd', 'helios_history', 'helios_prefs', 'helios_favs', 'helios_modules'].forEach(k => localStorage.removeItem(k));
             window.location.reload();
         }
 
@@ -1558,7 +1915,9 @@ Type 'help' to review available internal directory directives, or 'man [command]
             reset: 'reset \u2014 Return the terminal dock to its docked size.',
             exit: 'exit \u2014 Minimize the terminal back into its dock.',
             clear: 'clear \u2014 Flush the screen buffer.',
-            ls: 'ls [path] \u2014 List a directory. Defaults to the current one. Try \'ls /\' for root.',
+            ls: 'ls [path] \u2014 List a directory. Defaults to the current one. Supports wildcards, e.g. ls *.log. Try \'ls /\' for root.',
+            tree: 'tree [path] \u2014 Recursively print a directory as a tree. Defaults to the current one.',
+            apps: 'apps \u2014 List every catalogued module you can run with \'run [id]\'. Same info also lives in /bin.',
             pwd: 'pwd \u2014 Print the current working path. Persisted to localStorage, so it survives reloads.',
             cd: 'cd [path] \u2014 Change directory. Supports absolute (/foo), relative, .., and ~ (home). No argument goes home.',
             mkdir: 'mkdir [path] \u2014 Create a new directory.',
@@ -1597,7 +1956,15 @@ Type 'help' to review available internal directory directives, or 'man [command]
             termBody.scrollTop = termBody.scrollHeight;
         }
 
-        let commandHistory = JSON.parse(localStorage.getItem('helios_history') || '[]');
+        let commandHistory = (() => {
+            const saved = localStorage.getItem('helios_history');
+            if (saved) {
+                try { return JSON.parse(saved); } catch (e) { /* fall through to seed */ }
+            }
+            const seed = ['ls', 'cd archive', 'ls', 'cat decom_log_004.txt', 'cd /var/log', 'neo', 'whoami', 'cd ~'];
+            localStorage.setItem('helios_history', JSON.stringify(seed));
+            return seed;
+        })();
         let historyPointer = -1;
 
         function saveHistory() {
@@ -1643,6 +2010,8 @@ Type 'help' to review available internal directory directives, or 'man [command]
             const segs = resolveSegs(rawPath);
             const existing = getNode(segs);
             if (existing && existing.type === 'dir') { printToTerminal(`nano: '${rawPath}' is a directory`); return; }
+            const parent = getParent(segs);
+            if (!parent || parent.type !== 'dir') { printToTerminal(`nano: cannot create '${rawPath}': No such directory (try 'mkdir' first)`); return; }
             editorActiveSegs = segs;
             editorActiveLabel = pathString(segs);
             editorFilename.textContent = editorActiveLabel;
@@ -1660,26 +2029,26 @@ Type 'help' to review available internal directory directives, or 'man [command]
         function quillWrite() {
             const parent = getParent(editorActiveSegs);
             const name = editorActiveSegs[editorActiveSegs.length - 1];
-            if (!parent || parent.type !== 'dir') { printToTerminal(`[QUILL] Cannot save: parent path missing.`); return; }
+            if (!parent || parent.type !== 'dir') { printToTerminal(`[QUILL] Cannot save: parent path missing.`); return false; }
             parent.children[name] = { type: 'file', content: editorTextarea.value };
             saveVFS();
+            return true;
         }
         function quillSave() {
-            quillWrite();
-            printToTerminal(`[QUILL] Saved: ${editorActiveLabel}`);
+            if (quillWrite()) printToTerminal(`[QUILL] Saved: ${editorActiveLabel}`);
         }
         function quillSaveExit() {
-            quillWrite();
-            closeEditor(false, true);
+            const ok = quillWrite();
+            closeEditor(ok);
         }
         function quillExit() {
-            closeEditor(true, false);
+            closeEditor(false);
         }
-        function closeEditor(confirmIfDirty, alreadySaved) {
+        function closeEditor(savedSuccessfully) {
             editorOverlay.classList.remove('active');
             termInput.disabled = false;
             termInput.focus();
-            printToTerminal(alreadySaved ? `[QUILL] Saved and closed: ${editorActiveLabel}` : `[QUILL] Closed: ${editorActiveLabel}`);
+            printToTerminal(savedSuccessfully ? `[QUILL] Saved and closed: ${editorActiveLabel}` : `[QUILL] Closed: ${editorActiveLabel}`);
             editorActiveSegs = null;
             editorActiveLabel = null;
         }
@@ -1708,7 +2077,7 @@ Type 'help' to review available internal directory directives, or 'man [command]
                     return null;
 
                 case 'help':
-                    return "HELIOS DIRECTIVES // type 'man [command]' for details on any of these\n\n LAUNCHER     run, fav, fullscreen, reset, exit, clear\n FILES        ls, pwd, cd, mkdir, rmdir, touch, cat, cp, mv, rm, ln\n READING      less, head, tail, grep, find, sort, wc, nano, echo\n SYSTEM       whoami, history, sudo, chmod, chown\n NETWORK      ping, curl, wget\n MONITOR      ps, top, df\n PIPELINE     a && b  (chain)    a | b  (pipe)    echo x > file (write)";
+                    return "HELIOS DIRECTIVES // type 'man [command]' for details on any of these\n\n LAUNCHER     run, fav, apps, fullscreen, reset, exit, clear\n FILES        ls, tree, pwd, cd, mkdir, rmdir, touch, cat, cp, mv, rm, ln\n READING      less, head, tail, grep, find, sort, wc, nano, echo\n SYSTEM       whoami, history, sudo, chmod, chown\n NETWORK      ping, curl, wget\n MONITOR      ps, top, df\n PIPELINE     a && b  (chain)    a | b  (pipe)    echo x > file (write)";
 
                 case 'man':
                     if (!argument) return "man: which command? try 'man run'.";
@@ -1727,12 +2096,47 @@ Type 'help' to review available internal directory directives, or 'man [command]
                 }
 
                 case 'ls': {
-                    const segs = resolveSegs(argument || '.');
+                    const argPath = argument || '.';
+                    let dirPart, pattern;
+                    if (argPath.includes('*') || argPath.includes('?')) {
+                        const lastSlash = argPath.lastIndexOf('/');
+                        dirPart = lastSlash >= 0 ? (argPath.slice(0, lastSlash) || '/') : '.';
+                        pattern = lastSlash >= 0 ? argPath.slice(lastSlash + 1) : argPath;
+                    } else {
+                        dirPart = argPath;
+                        pattern = null;
+                    }
+                    const segs = resolveSegs(dirPart);
                     const node = getNode(segs);
                     if (!node || node.type !== 'dir') return `ls: ${argument || cwd}: No such directory`;
-                    const names = Object.keys(node.children);
-                    if (!names.length) return '(empty)';
+                    let names = Object.keys(node.children);
+                    if (pattern) names = names.filter(n => globMatch(n, pattern));
+                    if (!names.length) return pattern ? `ls: no matches for '${pattern}'` : '(empty)';
                     return names.map(n => node.children[n].type === 'dir' ? n + '/' : n).sort().join('\n');
+                }
+
+                case 'tree': {
+                    const segs = resolveSegs(argument || '.');
+                    const node = getNode(segs);
+                    if (!node || node.type !== 'dir') return `tree: ${argument || cwd}: No such directory`;
+                    const lines = [pathString(segs) || '/'];
+                    function walk(n, prefix) {
+                        const names = Object.keys(n.children).sort();
+                        names.forEach((name, i) => {
+                            const last = i === names.length - 1;
+                            const child = n.children[name];
+                            lines.push(prefix + (last ? '\u2514\u2500\u2500 ' : '\u251c\u2500\u2500 ') + name + (child.type === 'dir' ? '/' : ''));
+                            if (child.type === 'dir') walk(child, prefix + (last ? '    ' : '\u2502   '));
+                        });
+                    }
+                    walk(node, '');
+                    return lines.join('\n');
+                }
+
+                case 'apps': {
+                    if (!modules.length) return '(no modules registered - add some via CONFIG > Manage Cards)';
+                    const rows = modules.map(m => `${m.id.padEnd(14)} ${m.type.padEnd(9)} ${m.name}`);
+                    return `ID             TYPE      NAME\n${rows.join('\n')}\n\nrun [id] to launch one.`;
                 }
 
                 case 'mkdir': {
@@ -2059,19 +2463,24 @@ Type 'help' to review available internal directory directives, or 'man [command]
             if(e.key === 'Tab') {
                 e.preventDefault();
                 const value = this.value;
-                const segs = value.split(' ');
-                const lastSeg = segs[segs.length - 1];
-                let candidates;
-                if (segs.length === 1) {
-                    candidates = Object.keys(manPages).filter(c => c.startsWith(lastSeg.toLowerCase()));
+                const wordParts = value.split(' ');
+                const lastWord = wordParts[wordParts.length - 1];
+                let candidates, prefix;
+                if (wordParts.length === 1) {
+                    candidates = Object.keys(manPages).filter(c => c.startsWith(lastWord.toLowerCase()));
+                    prefix = '';
                 } else {
-                    const dirNode = getNode(resolveSegs('.'));
+                    const lastSlash = lastWord.lastIndexOf('/');
+                    const dirPart = lastSlash >= 0 ? (lastWord.slice(0, lastSlash) || '/') : '.';
+                    const namePart = lastSlash >= 0 ? lastWord.slice(lastSlash + 1) : lastWord;
+                    prefix = lastSlash >= 0 ? lastWord.slice(0, lastSlash + 1) : '';
+                    const dirNode = getNode(resolveSegs(dirPart));
                     const names = dirNode && dirNode.type === 'dir' ? Object.keys(dirNode.children).map(n => dirNode.children[n].type === 'dir' ? n + '/' : n) : [];
-                    candidates = names.filter(n => n.toLowerCase().startsWith(lastSeg.toLowerCase()));
+                    candidates = names.filter(n => n.toLowerCase().startsWith(namePart.toLowerCase()));
                 }
                 if (candidates.length === 1) {
-                    segs[segs.length - 1] = candidates[0];
-                    this.value = segs.join(' ');
+                    wordParts[wordParts.length - 1] = prefix + candidates[0];
+                    this.value = wordParts.join(' ');
                 } else if (candidates.length > 1) {
                     printToTerminal(`> ${value}`);
                     printToTerminal(candidates.join('   '));
@@ -2168,10 +2577,13 @@ Type 'help' to review available internal directory directives, or 'man [command]
 
             if(savedPrefs) systemConfig = JSON.parse(savedPrefs);
             if(savedFavs) favorites = JSON.parse(savedFavs);
+            if(!systemConfig.terminalBinName) systemConfig.terminalBinName = 'shell';
 
             // Re-sync runtime profiles
             updateTheme(systemConfig.theme);
             updateTarget(systemConfig.target);
+            terminalBinNameInput.value = systemConfig.terminalBinName;
+            syncBinDir();
             renderDashboard();
             runBootSequence();
 
