@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Engineers GPS Laboratory</title>
+    <style>
+        :root {
+            --bg-main: #0c1116;
+            --bg-sidebar: #141a22;
+            --bg-control: #1b242f;
+            --bg-control-hover: #243140;
+            --border-color: #2d3c4f;
+            --text-main: #e2e8f0;
+            --text-muted: #7f95ad;
+            --accent-blue: #00b0ff;
+            --se-hud-green: #00ffaa;
+            --transition-speed: 0.25s;
+            --se-font: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: var(--se-font);
+        }
+
+        #app-container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* --- SIDEBAR TERMINAL LAYOUT --- */
+        #sidebar {
+            width: 420px;
+            height: 100%;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            transition: transform var(--transition-speed) cubic-bezier(0.25, 1, 0.5, 1);
+            z-index: 10;
+            overflow-y: auto;
+            box-shadow: 5px 0 25px rgba(0,0,0,0.5);
+        }
+
+        .sidebar-hidden #sidebar {
+            transform: translateX(-100%);
+            position: absolute;
+        }
+
+        .panel-header {
+            padding: 20px;
+            background-color: rgba(0,0,0,0.2);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .panel-header h1 {
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent-blue);
+            font-weight: 700;
+        }
+
+        .panel-section {
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color var(--transition-speed);
+        }
+
+        .collapsible-header {
+            padding: 15px 20px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-main);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            background-color: rgba(0,0,0,0.05);
+        }
+
+        .collapsible-header:hover {
+            background-color: rgba(255,255,255,0.02);
+        }
+
+        .collapse-icon {
+            font-size: 0.7rem;
+            transition: transform var(--transition-speed);
+            color: var(--text-muted);
+        }
+
+        .section-content {
+            padding: 0 20px 20px 20px;
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height var(--transition-speed) ease-in-out, padding var(--transition-speed) ease-in-out;
+        }
+
+        .panel-section.collapsed .section-content {
+            max-height: 0 !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+        }
+
+        .panel-section.collapsed .collapse-icon {
+            transform: rotate(-90deg);
+        }
+
+        .control-group {
+            margin-top: 14px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            background-color: var(--bg-control);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 10px 12px;
+            font-size: 0.9rem;
+            border-radius: 4px;
+            outline: none;
+            transition: border-color var(--transition-speed);
+            font-family: monospace;
+        }
+
+        input[type="text"]:focus, select:focus {
+            border-color: var(--accent-blue);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn {
+            background-color: var(--bg-control);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 10px 14px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+
+        .btn:hover {
+            background-color: var(--bg-control-hover);
+            border-color: var(--accent-blue);
+        }
+
+        .btn-primary {
+            background-color: #005f9e;
+            border-color: #0077c2;
+        }
+
+        .btn-primary:hover {
+            background-color: #0077c2;
+            border-color: var(--accent-blue);
+        }
+
+        .color-block-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: rgba(0,0,0,0.15);
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px dashed var(--border-color);
+        }
+
+        .color-preview-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 4px;
+            border: 2px solid var(--border-color);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .color-preview-box input[type="color"] {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            width: 80px;
+            height: 80px;
+            cursor: pointer;
+            opacity: 0;
+        }
+
+        .hash-visualization {
+            font-family: monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            background: rgba(0,0,0,0.3);
+            padding: 8px;
+            border-radius: 4px;
+            margin-top: 12px;
+            white-space: pre-line;
+            border-left: 2px solid var(--accent-blue);
+        }
+
+        /* --- LOCAL INVENTORY REGISTRY LAYOUT --- */
+        .library-wrapper {
+            border: 1px solid var(--border-color);
+            background: rgba(0,0,0,0.2);
+            border-radius: 4px;
+            margin-top: 12px;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+
+        .library-item-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            gap: 10px;
+        }
+
+        .library-item-row:last-child {
+            border-bottom: none;
+        }
+
+        .lib-meta-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            overflow: hidden;
+            flex-grow: 1;
+        }
+
+        .lib-text-node {
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .lib-text-node:hover {
+            text-decoration: underline;
+        }
+
+        .lib-delete-trigger {
+            color: #ff5252;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            padding: 0 4px;
+        }
+
+        .lib-delete-trigger:hover {
+            color: #ff8585;
+        }
+
+        /* --- ENGINE VIEWPORT CANVAS --- */
+        #viewport-wrapper {
+            flex-grow: 1;
+            height: 100%;
+            position: relative;
+            cursor: grab;
+        }
+
+        #viewport-wrapper:active {
+            cursor: grabbing;
+        }
+
+        #space-render-engine {
+            width: 100%;
+            height: 100%;
+            display: block;
+            background: radial-gradient(circle at center, #070b10 0%, #020305 100%);
+        }
+
+        /* --- DYNAMIC VISUAL HUD OVERLAY CONTROLLER --- */
+        #hud-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .hud-element {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.9), 0px 2px 8px rgba(0, 0, 0, 0.9);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .hud-icon-wrapper {
+            position: relative;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 2px 0;
+        }
+
+        .hud-arrow {
+            position: absolute;
+            font-size: 1.1rem;
+            line-height: 1;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        .hud-svg-slot {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hud-text-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .hud-distance {
+            font-size: 0.85rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        /* --- CONFIGURATION DROPDOWN INTERFACE --- */
+        #settings-panel {
+            display: none;
+            background-color: rgba(12, 17, 22, 0.96);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            position: absolute;
+            top: 65px;
+            right: 20px;
+            width: 340px;
+            z-index: 100;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            backdrop-filter: blur(10px);
+        }
+
+        #settings-panel.active {
+            display: block;
+        }
+
+        .settings-toggle-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 50;
+            background-color: rgba(20, 26, 34, 0.7);
+            backdrop-filter: blur(5px);
+        }
+
+        .slider-group {
+            margin-bottom: 15px;
+        }
+        .slider-group div {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+        .slider-group input[type="range"] {
+            width: 100%;
+            accent-color: var(--accent-blue);
+            background: var(--bg-control);
+            height: 6px;
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .checkbox-group input {
+            accent-color: var(--accent-blue);
+            width: 16px;
+            height: 16px;
+        }
+
+        @media (max-width: 900px) {
+            #app-container {
+                flex-direction: column-reverse;
+            }
+            #sidebar {
+                width: 100%;
+                height: 50%;
+            }
+            .sidebar-hidden #sidebar {
+                transform: translateY(100%);
+                position: absolute;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+
+    <aside id="sidebar">
+        <div class="panel-header">
+            <h1>GPS Laboratory</h1>
+        </div>
+
+        <section class="panel-section" id="sec-faction">
+            <h2 class="collapsible-header"><span>🎨 Faction Identity</span><span class="collapse-icon">▼</span></h2>
+            <div class="section-content">
+                <div class="control-group">
+                    <label for="faction-input">Faction Code</label>
+                    <input type="text" id="faction-input" placeholder="e.g. JUNK, KTG, ORE" maxlength="10" value="JUNK">
+                </div>
+
+                <div class="control-group">
+                    <label>Signature Mapping Override</label>
+                    <div class="color-block-container">
+                        <div class="color-preview-box" id="color-preview-wrapper">
+                            <input type="color" id="color-override-picker">
+                        </div>
+                        <div style="flex-grow:1;">
+                            <input type="text" id="hex-output-box" placeholder="#FFFFFF" style="text-transform: uppercase;">
+                        </div>
+                        <button class="btn" id="btn-reset-color" title="Reset to hash value">Reset</button>
+                    </div>
+                </div>
+
+                <div class="hash-visualization" id="hash-vis-log">
+                    Initializing tactical array...
+                </div>
+            </div>
+        </section>
+
+        <section class="panel-section" id="sec-stream">
+            <h2 class="collapsible-header"><span>🛰 Navigation Stream & Input</span><span class="collapse-icon">▼</span></h2>
+            <div class="section-content">
+                <div class="control-group">
+                    <label for="gps-input-raw">Raw Input Stream</label>
+                    <input type="text" id="gps-input-raw" placeholder="GPS:XYZA.Waypoint:X:Y:Z:#COLOR:">
+                </div>
+                <div class="control-group">
+                    <label for="src-observer-select">Source (Observer Frame Origin)</label>
+                    <select id="src-observer-select"></select>
+                </div>
+                <div class="control-group grid-2">
+                    <button class="btn btn-primary" id="btn-append-library">➕ Add to Catalog</button>
+                    <button class="btn" id="btn-generate-station">🎲 Random Orbital</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel-section" id="sec-library">
+            <h2 class="collapsible-header"><span>📍 Signal Inventory Catalog</span><span class="collapse-icon">▼</span></h2>
+            <div class="section-content">
+                <div class="library-wrapper" id="inventory-list-node"></div>
+            </div>
+        </section>
+
+        <section class="panel-section" style="flex-grow:1; border-bottom:none;" id="sec-output">
+            <h2 class="collapsible-header"><span>💾 Compiled Matrix Output</span><span class="collapse-icon">▼</span></h2>
+            <div class="section-content">
+                <div class="control-group">
+                    <input type="text" id="gps-output-raw" readonly style="background-color: rgba(0,0,0,0.4); color: var(--se-hud-green); font-weight:bold;">
+                </div>
+                <div class="control-group">
+                    <button class="btn btn-primary" id="btn-copy-gps" style="width: 100%; padding: 12px;">Copy Vector to Clipboard</button>
+                </div>
+            </div>
+        </section>
+    </aside>
+
+    <main id="viewport-wrapper">
+        <button class="btn settings-toggle-btn" id="btn-toggle-settings">⚙ Settings</button>
+        
+        <div id="settings-panel">
+            <button id="btn-reset-view" style="width:100%; margin-top:15px; background:var(--accent-blue); color:#000; font-weight:bold;">Snap View to Horizon</button>
+            <button id="btn-reset-defaults" style="width:100%; margin-top:8px;">Reset Defaults</button>
+
+            <h3 style="font-size:0.9rem; text-transform:uppercase; margin-bottom:15px; color:var(--accent-blue);">Laboratory Configuration</h3>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="setting-entropy-toggle">
+                <label for="setting-entropy-toggle" style="margin:0; cursor:pointer;">Enable Planetary Entropy (Option C)</label>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="setting-invert-pitch-toggle">
+                <label for="setting-invert-pitch-toggle" style="margin:0; cursor:pointer;">Invert Y-Axis (Drag Up to Look Up)</label>
+            </div>
+
+            <div class="slider-group">
+                <div><span>Field of View</span><span id="val-fov">75°</span></div>
+                <input type="range" id="setting-fov" min="45" max="110" value="75">
+            </div>
+
+            <div class="slider-group">
+                <div><span>Minimum Saturation</span><span id="val-sat">70%</span></div>
+                <input type="range" id="setting-min-sat" min="0" max="100" value="70">
+            </div>
+
+            <div class="slider-group">
+                <div><span>Minimum Brightness</span><span id="val-light">45%</span></div>
+                <input type="range" id="setting-min-light" min="0" max="100" value="45">
+            </div>
+
+            <div class="slider-group">
+                <div><span>Celestial Star Quantities</span><span id="val-stars">1200</span></div>
+                <input type="range" id="setting-stars" min="200" max="3000" step="100" value="1200">
+            </div>
+
+            <div style="border-top: 1px solid var(--border-color); margin-top:15px; padding-top:15px;">
+                <label style="margin-bottom:8px;">Data Management Protocols</label>
+                <div class="grid-2">
+                    <button class="btn" id="btn-export-json" style="font-size:0.7rem;">📤 Export Data</button>
+                    <button class="btn" id="btn-import-trigger" style="font-size:0.7rem;">📥 Import Data</button>
+                </div>
+                <input type="file" id="input-json-file" accept=".json" style="display:none;">
+            </div>
+
+            <button class="btn" id="btn-reset-defaults" style="width:100%; margin-top:15px;">Restore Factory Defaults</button>
+        </div>
+
+        <svg id="space-render-engine" xmlns="http://www.w3.org/2000/svg">
+            <defs id="svg-defs-pipe"></defs>
+            <g id="starfield-plane"></g>
+            <g id="planetary-projection-plane"></g>
+        </svg>
+
+        <div id="hud-overlay"></div>
+    </main>
+</div>
+
+<script>
+const PLANETS = [
+    { name: "Earth", center: [0, 0, 0], radius: 60000, atmosphere: 8000, color: "#3FA9F5", nightColor: "#0b1a30" },
+    { name: "Moon", center: [16384, 136384, -113616], radius: 9500, atmosphere: 0, color: "#D9D9D9", nightColor: "#1c1c1f" },
+    { name: "Alien", center: [131072, 131072, 5731072], radius: 60000, atmosphere: 8000, color: "#FF2D95", nightColor: "#2d0518" },
+    { name: "Titan", center: [36384, 226384, 5796384], radius: 9500, atmosphere: 3500, color: "#FFB000", nightColor: "#2b1e00" },
+    { name: "Triton", center: [-284464, -2434464, 365537], radius: 60000, atmosphere: 7000, color: "#008B8B", nightColor: "#001f1f" },
+    { name: "Mars", center: [1031072, 131072, 1631072], radius: 60000, atmosphere: 6000, color: "#C1440E", nightColor: "#260b00" },
+    { name: "Europa", center: [916384, 16384, 1616384], radius: 9500, atmosphere: 0, color: "#7FFFD4", nightColor: "#0f2e24" },
+    { name: "Pertam", center: [-3967231, -32231, -767231], radius: 60000, atmosphere: 5000, color: "#CC7722", nightColor: "#241302" }
+];
+
+const SVG_ICONS = {
+    standardPin: `<svg viewBox="0 0 24 24" width="24" height="24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 2.5-2.5a2.5 2.5 0 0 1-2.5 2.5z" fill="currentColor"/></svg>`,
+    cornerWrappedPin: `<svg viewBox="0 0 24 24" width="36" height="36"><path d="M4 8V4h4M16 4h4v4M20 16v4h-4M8 20H4v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 5c-2.48 0-4.5 2.02-4.5 4.5 0 3.38 4.5 8.36 4.5 8.36s4.5-4.98 4.5-8.36C16.5 7.02 14.48 5 12 5zm0 6.1a1.6 1.6 0 1 1 1.6-1.6 1.6 1.6 0 0 1-1.6 1.6z" fill="currentColor"/></svg>`,
+    emptyCorners: `<svg viewBox="0 0 24 24" width="40" height="40"><path d="M5 9V5h4M15 5h4v4M19 15v4h-4M9 19H5v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+};
+
+const CRC32_TABLE = (() => {
+    let c, table = [];
+    for (let n = 0; n < 256; n++) {
+        c = n;
+        for (let k = 0; k < 8; k++) {
+            c = ((c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1));
+        }
+        table[n] = c;
+    }
+    return table;
+})();
+
+function computeCRC32(str) {
+    let crc = -1;
+    for (let i = 0; i < str.length; i++) {
+        crc = (crc >>> 8) ^ CRC32_TABLE[(crc ^ str.charCodeAt(i)) & 0xFF];
+    }
+    return (crc ^ -1) >>> 0;
+}
+
+const VMath = {
+    sub: (v1, v2) => [v1[0] - v2[0], v1[1] - v2[1], v1[2] - v2[2]],
+    add: (v1, v2) => [v1[0] + v2[0], v1[1] + v2[1], v1[2] + v2[2]],
+    mag: (v) => Math.sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]),
+    norm: (v) => {
+        const m = Math.sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+        return m === 0 ? [0,0,0] : [v[0]/m, v[1]/m, v[2]/m];
+    },
+    rotateY: (v, angle) => {
+        const cos = Math.cos(angle), sin = Math.sin(angle);
+        return [v[0] * cos - v[2] * sin, v[1], v[0] * sin + v[2] * cos];
+    },
+    rotateX: (v, angle) => {
+        const cos = Math.cos(angle), sin = Math.sin(angle);
+        return [v[0], v[1] * cos + v[2] * sin, -v[1] * sin + v[2] * cos];
+    }
+};
+
+const State = {
+    factionCode: "JUNK",
+    currentHexColor: "#00FFAA",
+    isOverridden: false,
+    editorGPS: { name: "Orbital Signal", coords: [16384, 148384, -113616] },
+    observerKey: "planet_Earth", 
+    camera: { yaw: 0.6, pitch: -0.2, fov: 75, targetYaw: 0.6, targetPitch: -0.2 },
+    hudMode: 0, 
+    uiVisible: true,
+    altPressed: false,
+    settings: { entropy: false, minSat: 70, minLight: 45, starCount: 500, invertPitch: false },
+    stars: [],
+    gpsLibrary: [
+        { id: "init-1", name: "Station Outpost Alpha", coords: [16384, 148384, -113616], color: "#00FFAA", faction: "JUNK", enabled: true }
+    ]
+};
+
+function getActiveObserverWorldPosition() {
+    if (State.observerKey.startsWith("planet_")) {
+        const targetName = State.observerKey.replace("planet_", "");
+        const match = PLANETS.find(p => p.name === targetName);
+        return match ? match.center : [0,0,0];
+    } else if (State.observerKey.startsWith("lib_")) {
+        const targetId = State.observerKey.replace("lib_", "");
+        const match = State.gpsLibrary.find(item => item.id === targetId);
+        return match ? match.coords : [0,0,0];
+    }
+    return [0,0,0];
+}
+
+function runResonanceAlgorithm() {
+    if (State.isOverridden) return;
+
+    let rawTag = State.factionCode.trim();
+    if (rawTag.length === 0) rawTag = "____";
+    
+    let padded = rawTag.toUpperCase();
+    if (padded.length < 4) {
+        padded = padded.padEnd(4, '_');
+    } else if (padded.length > 4) {
+        padded = padded.substring(0, 4);
+    }
+
+    let seed = computeCRC32(padded);
+    let debugInfo = `<ABCD> Code: ${padded}\nCRC32 Core Sig: 0x${seed.toString(16).toUpperCase()}\n`;
+
+    if (State.settings.entropy) {
+        let coordString = `${Math.round(State.editorGPS.coords[0])}:${Math.round(State.editorGPS.coords[1])}:${Math.round(State.editorGPS.coords[2])}`;
+        let coordCrc = computeCRC32(coordString);
+        seed = (seed ^ coordCrc) >>> 0;
+        debugInfo += `Entropy Shift Enabled:\n -> Matrix Shift: 0x${coordCrc.toString(16).toUpperCase()}\n -> Mutated Seed: 0x${seed.toString(16).toUpperCase()}\n`;
+    }
+
+    let rawHue = seed & 0x1FF;
+    let rawSat = (seed >> 9) & 0x1F;
+    let rawLight = (seed >> 14) & 0x1F;
+
+    let hue = rawHue % 360;
+    let minS = State.settings.minSat;
+    let sat = minS + Math.floor((rawSat / 31) * (100 - minS));
+    let minL = State.settings.minLight;
+    let light = minL + Math.floor((rawLight / 31) * (85 - minL));
+
+    const hex = HSLToHex(hue, sat, light);
+    State.currentHexColor = hex;
+
+    debugInfo += `Computed Profile:\n -> Hue: ${hue}° | Sat: ${sat}% | Light: ${light}%\n -> Output Result: ${hex}`;
+    document.getElementById("hash-vis-log").innerText = debugInfo;
+
+    updateUIColors();
+}
+
+function HSLToHex(h, s, l) {
+    s /= 100; l /= 100;
+    let c = (1 - Math.abs(2 * l - 1)) * s,
+        x = c * (1 - Math.abs((h / 60) % 2 - 1)),
+        m = l - c / 2, r = 0, g = 0, b = 0;
+    if (0 <= h && h < 60) { r = c; g = x; b = 0; }
+    else if (60 <= h && h < 120) { r = x; g = c; b = 0; }
+    else if (120 <= h && h < 180) { r = 0; g = c; b = x; }
+    else if (180 <= h && h < 240) { r = 0; g = x; b = c; }
+    else if (240 <= h && h < 300) { r = x; g = 0; b = c; }
+    else if (300 <= h && h < 360) { r = c; g = 0; b = x; }
+    let rHex = Math.round((r + m) * 255).toString(16).padStart(2, '0');
+    let gHex = Math.round((g + m) * 255).toString(16).padStart(2, '0');
+    let bHex = Math.round((b + m) * 255).toString(16).padStart(2, '0');
+    return `#${rHex}${gHex}${bHex}`.toUpperCase();
+}
+
+function updateUIColors() {
+    document.getElementById("color-override-picker").value = State.currentHexColor;
+    document.getElementById("hex-output-box").value = State.currentHexColor;
+    document.getElementById("color-preview-wrapper").style.backgroundColor = State.currentHexColor;
+    compileGPSOutput();
+}
+
+function rebuildObserverOptionsDropdown() {
+    const selector = document.getElementById("src-observer-select");
+    const cachedSelection = State.observerKey;
+    selector.innerHTML = "";
+
+    const groupPlanets = document.createElement("optgroup");
+    groupPlanets.label = "Celestial Bodies (Planets/Moons)";
+    PLANETS.forEach(p => {
+        const option = document.createElement("option");
+        option.value = `planet_${p.name}`;
+        option.textContent = p.name;
+        groupPlanets.appendChild(option);
+    });
+    selector.appendChild(groupPlanets);
+
+    if (State.gpsLibrary.length > 0) {
+        const groupLib = document.createElement("optgroup");
+        groupLib.label = "Saved Signals Inventory";
+        State.gpsLibrary.forEach(item => {
+            const option = document.createElement("option");
+            option.value = `lib_${item.id}`;
+            option.textContent = item.faction ? `<${item.faction}> ${item.name}` : item.name;
+            groupLib.appendChild(option);
+        });
+        selector.appendChild(groupLib);
+    }
+
+    if (selector.querySelector(`option[value="${cachedSelection}"]`)) {
+        selector.value = cachedSelection;
+    } else {
+        selector.value = "planet_Earth";
+        State.observerKey = "planet_Earth";
+    }
+}
+
+function rebuildLibraryInventoryUI() {
+    const listNode = document.getElementById("inventory-list-node");
+    listNode.innerHTML = "";
+
+    if (State.gpsLibrary.length === 0) {
+        listNode.innerHTML = `<div style="font-size:0.75rem; text-align:center; color:var(--text-muted); padding:10px 0;">Inventory is Empty</div>`;
+        return;
+    }
+
+    State.gpsLibrary.forEach(item => {
+        const row = document.createElement("div");
+        row.className = "library-item-row";
+
+        const metaBox = document.createElement("div");
+        metaBox.className = "lib-meta-container";
+
+        const toggle = document.createElement("input");
+        toggle.type = "checkbox";
+        toggle.checked = item.enabled;
+        toggle.style.cursor = "pointer";
+        toggle.addEventListener("change", (e) => {
+            item.enabled = e.target.checked;
+        });
+
+        const textNode = document.createElement("span");
+        textNode.className = "lib-text-node";
+        textNode.style.color = item.color;
+        textNode.textContent = item.faction ? `<${item.faction}> ${item.name}` : item.name;
+        
+        textNode.addEventListener("click", () => {
+            State.factionCode = item.faction || "____";
+            document.getElementById("faction-input").value = State.factionCode;
+            State.editorGPS.name = item.name;
+            State.editorGPS.coords = [...item.coords];
+            State.currentHexColor = item.color;
+            State.isOverridden = true;
+            updateUIColors();
+            
+            const rawOutput = `GPS:${item.faction ? '<'+item.faction+'> ' : ''}${item.name}:${item.coords[0]}:${item.coords[1]}:${item.coords[2]}:${item.color}:`;
+            document.getElementById("gps-input-raw").value = rawOutput;
+
+            snapCameraToCoords(item.coords);
+        });
+
+        metaBox.appendChild(toggle);
+        metaBox.appendChild(textNode);
+
+        const deleteNode = document.createElement("span");
+        deleteNode.className = "lib-delete-trigger";
+        deleteNode.textContent = "×";
+        deleteNode.addEventListener("click", () => {
+            State.gpsLibrary = State.gpsLibrary.filter(x => x.id !== item.id);
+            rebuildLibraryInventoryUI();
+            rebuildObserverOptionsDropdown();
+        });
+
+        row.appendChild(metaBox);
+        row.appendChild(deleteNode);
+        listNode.appendChild(row);
+    });
+}
+
+function parseGPSInputString(stream) {
+    stream = stream.trim();
+    if (!stream.startsWith("GPS:")) return;
+    
+    const elements = stream.split(":");
+    if (elements.length < 6) return;
+
+    let fullName = elements[1];
+    let x = parseFloat(elements[2]);
+    let y = parseFloat(elements[3]);
+    let z = parseFloat(elements[4]);
+    
+    if (isNaN(x) || isNaN(y) || isNaN(z)) return;
+
+    let parsedFaction = "____";
+    const bracketMatch = fullName.match(/^<([^>]+)>/);
+    const periodMatch = fullName.match(/^([A-Za-z0-9_]{4})\./);
+
+    if (bracketMatch) {
+        parsedFaction = bracketMatch[1];
+    } else if (periodMatch) {
+        parsedFaction = periodMatch[1];
+    }
+
+    State.factionCode = parsedFaction;
+    document.getElementById("faction-input").value = parsedFaction;
+
+    State.editorGPS.coords = [x, y, z];
+    State.editorGPS.name = fullName.replace(/^<[^>]+>\s*/, "").replace(/^[A-Za-z0-9_]{4}\.\s*/, "");
+
+    State.isOverridden = false;
+    runResonanceAlgorithm();
+    snapCameraToCoords(State.editorGPS.coords);
+}
+
+function compileGPSOutput() {
+    let tag = State.factionCode.trim().toUpperCase();
+    let nameSegment = "";
+    
+    if (tag.length > 0) {
+        if (tag.length < 4) tag = tag.padEnd(4, '_');
+        nameSegment = `<${tag}> ${State.editorGPS.name}`;
+    } else {
+        nameSegment = `____. ${State.editorGPS.name}`;
+    }
+
+    let x = State.editorGPS.coords[0].toFixed(1);
+    let y = State.editorGPS.coords[1].toFixed(1);
+    let z = State.editorGPS.coords[2].toFixed(1);
+
+    const compiledStr = `GPS:${nameSegment}:${x}:${y}:${z}:${State.currentHexColor}:`;
+    document.getElementById("gps-output-raw").value = compiledStr;
+}
+
+function formatSpaceDistance(meters) {
+    if (meters < 1000) return meters.toFixed(1) + " m";
+    const km = meters / 1000;
+    if (km < 100) return km.toFixed(2) + " km";
+    return km.toFixed(1) + " km";
+}
+
+function initProceduralStarfield() {
+    State.stars = [];
+    const count = State.settings.starCount;
+    for (let i = 0; i < count; i++) {
+        let theta = Math.random() * Math.PI * 2;
+        let phi = Math.acos((Math.random() * 2) - 1);
+        State.stars.push([
+            Math.sin(phi) * Math.cos(theta),
+            Math.sin(phi) * Math.sin(theta),
+            Math.cos(phi),
+            Math.random() * 0.8 + 0.2
+        ]);
+    }
+}
+
+function renderScene() {
+    const svg = document.getElementById("space-render-engine");
+    const starPlane = document.getElementById("starfield-plane");
+    const planetPlane = document.getElementById("planetary-projection-plane");
+    const defs = document.getElementById("svg-defs-pipe");
+    const hudOverlay = document.getElementById("hud-overlay");
+
+    const width = svg.clientWidth || window.innerWidth;
+    const height = svg.clientHeight || window.innerHeight;
+    
+    svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+
+    starPlane.innerHTML = "";
+    planetPlane.innerHTML = "";
+    defs.innerHTML = "";
+    hudOverlay.innerHTML = "";
+
+    const centerX = width / 2;
+    const centerY = height / 2;
+
+    // --- CENTRAL LIGHT TARGET RETICLE INDICATOR LINE PASS ---
+    const reticleCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    reticleCircle.setAttribute("cx", centerX);
+    reticleCircle.setAttribute("cy", centerY);
+    reticleCircle.setAttribute("r", 40);
+    reticleCircle.setAttribute("fill", "rgba(255, 255, 255, 0.015)");
+    reticleCircle.setAttribute("stroke", "rgba(0, 255, 170, 0.15)");
+    reticleCircle.setAttribute("stroke-width", "1");
+    reticleCircle.setAttribute("stroke-dasharray", "4, 4");
+    planetPlane.appendChild(reticleCircle);
+
+    const fovRad = (State.camera.fov * Math.PI) / 180;
+    const projectionFactor = (width / 2) / Math.tan(fovRad / 2);
+
+    State.camera.yaw += (State.camera.targetYaw - State.camera.yaw) * 0.15;
+    State.camera.pitch += (State.camera.targetPitch - State.camera.pitch) * 0.15;
+
+    const project3DVector = (v3d) => {
+        let r = VMath.rotateY(v3d, -State.camera.yaw);
+        r = VMath.rotateX(r, -State.camera.pitch);
+        return r;
+    };
+
+    let starElements = [];
+    State.stars.forEach(star => {
+        const r = project3DVector(star);
+        if (r[2] > 0.1) {
+            const x = centerX + r[0] * projectionFactor / r[2];
+            const y = centerY - r[1] * projectionFactor / r[2];
+            
+            if (x >= 0 && x <= width && y >= 0 && y <= height) {
+                const size = (star[3] * 1.5) / r[2];
+                if (size > 0.1) {
+                    const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                    c.setAttribute("cx", x);
+                    c.setAttribute("cy", y);
+                    c.setAttribute("r", Math.min(size, 2.5));
+                    c.setAttribute("fill", "#ffffff");
+                    c.setAttribute("opacity", star[3]);
+                    starElements.push(c);
+                }
+            }
+        }
+    });
+    const starFrag = document.createDocumentFragment();
+    starElements.forEach(el => starFrag.appendChild(el));
+    starPlane.appendChild(starFrag);
+
+    const observerWorldPos = getActiveObserverWorldPosition();
+
+    PLANETS.forEach((planet, index) => {
+        if (State.observerKey === `planet_${planet.name}`) return;
+
+        const planetWorldPos = planet.center;
+        const relativeTargetVector = VMath.sub(planetWorldPos, observerWorldPos);
+        const distance = VMath.mag(relativeTargetVector);
+        const r = project3DVector(relativeTargetVector);
+
+        if (r[2] > 100) {
+            const x = centerX + r[0] * projectionFactor / r[2];
+            const y = centerY - r[1] * projectionFactor / r[2];
+
+            const angularDiameterRad = 2 * Math.atan2(planet.radius, distance);
+            const pixelRadius = (angularDiameterRad / fovRad) * (width / 2);
+
+            if (pixelRadius > 0.5) {
+                const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                const gradId = `grad-planet-${index}`;
+                const linGrad = document.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
+                linGrad.setAttribute("id", gradId);
+                linGrad.setAttribute("x1", "0%"); linGrad.setAttribute("y1", "0%");
+                linGrad.setAttribute("x2", "100%"); linGrad.setAttribute("y2", "100%");
+                
+                const stop1 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+                stop1.setAttribute("offset", "0%"); stop1.setAttribute("stop-color", planet.color);
+                const stop2 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+                stop2.setAttribute("offset", "75%"); stop2.setAttribute("stop-color", planet.nightColor || "#111");
+                const stop3 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+                stop3.setAttribute("offset", "100%"); stop3.setAttribute("stop-color", "#000000");
+
+                linGrad.appendChild(stop1); linGrad.appendChild(stop2); linGrad.appendChild(stop3);
+                defs.appendChild(linGrad);
+
+                if (planet.atmosphere > 0) {
+                    const atmosGradId = `grad-atmos-${index}`;
+                    const radGrad = document.createElementNS("http://www.w3.org/2000/svg", "radialGradient");
+                    radGrad.setAttribute("id", atmosGradId);
+                    
+                    const aStop1 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+                    aStop1.setAttribute("offset", "65%"); aStop1.setAttribute("stop-color", planet.color); aStop1.setAttribute("stop-opacity", "0.8");
+                    const aStop2 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+                    aStop2.setAttribute("offset", "100%"); aStop2.setAttribute("stop-color", planet.color); aStop2.setAttribute("stop-opacity", "0");
+
+                    radGrad.appendChild(aStop1); radGrad.appendChild(aStop2);
+                    defs.appendChild(radGrad);
+
+                    const atmosDiameterRad = 2 * Math.atan2(planet.radius + planet.atmosphere, distance);
+                    const atmosPixelRadius = (atmosDiameterRad / fovRad) * (width / 2);
+
+                    const atmosCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                    atmosCircle.setAttribute("cx", x); atmosCircle.setAttribute("cy", y);
+                    atmosCircle.setAttribute("r", atmosPixelRadius);
+                    atmosCircle.setAttribute("fill", `url(#${atmosGradId})`);
+                    group.appendChild(atmosCircle);
+                }
+
+                const planetCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                planetCircle.setAttribute("cx", x); planetCircle.setAttribute("cy", y);
+                planetCircle.setAttribute("r", pixelRadius);
+                planetCircle.setAttribute("fill", `url(#${gradId})`);
+                group.appendChild(planetCircle);
+
+                planetPlane.appendChild(group);
+            }
+        }
+    });
+
+    // --- TRACKING LOOP OVER MATRIX CATALOG ARRAY SIGNALS ---
+    if (State.hudMode === 2) return; 
+
+    State.gpsLibrary.forEach(item => {
+        if (!item.enabled) return;
+
+        const targetRelativePos = VMath.sub(item.coords, observerWorldPos);
+        const targetDistance = VMath.mag(targetRelativePos);
+
+        const tRot = project3DVector(targetRelativePos);
+        let screenX = 0, screenY = 0;
+        
+        if (tRot[2] <= 0.5) {
+            screenX = centerX - tRot[0] * projectionFactor;
+            screenY = centerY + tRot[1] * projectionFactor;
+        } else {
+            screenX = centerX + tRot[0] * projectionFactor / tRot[2];
+            screenY = centerY - tRot[1] * projectionFactor / tRot[2];
+        }
+
+        const dx = screenX - centerX;
+        const dy = screenY - centerY;
+        const angle = Math.atan2(dy, dx);
+        const distFromCenter = Math.sqrt(dx * dx + dy * dy);
+
+        const borderMargin = 55;
+        const isInsideView = (tRot[2] > 0.5 && screenX >= borderMargin && screenX <= width - borderMargin && screenY >= borderMargin && screenY <= height - borderMargin);
+        
+        // Target tracking verification parameters
+        const isCentered = (isInsideView && distFromCenter < 40); 
+
+        let finalRenderX = screenX;
+        let finalRenderY = screenY;
+
+        if (!isInsideView) {
+            const radiusX = (width / 2) - borderMargin;
+            const radiusY = (height / 2) - borderMargin;
+            finalRenderX = centerX + Math.cos(angle) * radiusX;
+            finalRenderY = centerY + Math.sin(angle) * radiusY;
+        }
+
+        // Generate HUD element markup nodes
+        const el = document.createElement("div");
+        el.className = "hud-element";
+        el.style.left = `${finalRenderX}px`;
+        el.style.top = `${finalRenderY}px`;
+        el.style.color = item.color;
+
+        const tagStr = item.faction ? `<${item.faction}> ` : '';
+        const computedName = `${tagStr}${item.name}`;
+
+        let labelDisplay = "none";
+        let arrowDisplay = "none";
+        let svgContent = "";
+
+        if (!isInsideView) {
+            arrowDisplay = "block";
+            svgContent = SVG_ICONS.standardPin;
+            if (State.hudMode === 0 || State.altPressed) labelDisplay = "block";
+        } else {
+            arrowDisplay = "none";
+            if (isCentered) {
+                // Inside the targeting circle -> drop the pin completely, only retain tracking box outline
+                svgContent = SVG_ICONS.emptyCorners;
+                labelDisplay = "block"; 
+            } else {
+                // Outlying screen array path -> location pin enclosed by targeting bounding vectors
+                svgContent = SVG_ICONS.cornerWrappedPin;
+                if (State.hudMode === 0 || State.altPressed) labelDisplay = "block";
+            }
+        }
+
+        const angleDeg = (angle * 180 / Math.PI) + 90;
+        const arrowTransform = `rotate(${angleDeg}deg) translateY(-24px)`;
+
+        el.innerHTML = `
+            <div class="hud-text-label" style="display: ${labelDisplay};">${computedName}</div>
+            <div class="hud-icon-wrapper">
+                <div class="hud-arrow" style="display: ${arrowDisplay}; transform: ${arrowTransform};">▲</div>
+                <div class="hud-svg-slot">${svgContent}</div>
+            </div>
+            <div class="hud-distance">${formatSpaceDistance(targetDistance)}</div>
+        `;
+
+        hudOverlay.appendChild(el);
+    });
+}
+
+function snapCameraToCoords(coords) {
+    const observerWorldPos = getActiveObserverWorldPosition();
+    const targetRelativePos = VMath.sub(coords, observerWorldPos);
+    
+    if (VMath.mag(targetRelativePos) > 0) {
+        const norm = VMath.norm(targetRelativePos);
+        State.camera.targetYaw = Math.atan2(norm[0], norm[2]);
+        State.camera.targetPitch = Math.asin(norm[1]);
+    }
+}
+
+function triggerProceduralOrbitalStationGeneration() {
+    const planet = PLANETS[Math.floor(Math.random() * PLANETS.length)];
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos((Math.random() * 2) - 1);
+    
+    const minimumBaseAlt = planet.radius + planet.atmosphere;
+    const orbitalAltitudeOffset = minimumBaseAlt + (Math.random() * 120000) + 5000; 
+
+    const directionalUnitVector = [
+        Math.sin(phi) * Math.cos(theta),
+        Math.sin(phi) * Math.sin(theta),
+        Math.cos(phi)
+    ];
+
+    const generatedRelativeCoordinates = [
+        directionalUnitVector[0] * orbitalAltitudeOffset,
+        directionalUnitVector[1] * orbitalAltitudeOffset,
+        directionalUnitVector[2] * orbitalAltitudeOffset
+    ];
+
+    const finalWorldMatrixCoordinates = VMath.add(planet.center, generatedRelativeCoordinates);
+    const STATION_NAMES = ["Research Outpost", "Mining Platform", "Deep Space Relay", "Refueling Station", "Observation Buoy", "Manufacturing Array"];
+    
+    State.editorGPS.name = STATION_NAMES[Math.floor(Math.random() * STATION_NAMES.length)];
+    State.editorGPS.coords = finalWorldMatrixCoordinates;
+    
+    State.isOverridden = false;
+    runResonanceAlgorithm();
+    snapCameraToCoords(State.editorGPS.coords);
+
+    // Auto-inject into tracking array library for unified tracking experience
+    document.getElementById("btn-append-library").click();
+}
+
+function registerDOMInputEventPipelines() {
+    // Collapsible Sub-container layout interactions
+    document.querySelectorAll(".collapsible-header").forEach(header => {
+        header.addEventListener("click", () => {
+            header.parentElement.classList.toggle("collapsed");
+        });
+    });
+
+    rebuildObserverOptionsDropdown();
+    rebuildLibraryInventoryUI();
+
+    document.getElementById("faction-input").addEventListener("input", (e) => {
+        State.factionCode = e.target.value;
+        runResonanceAlgorithm();
+    });
+
+    document.getElementById("src-observer-select").addEventListener("change", (e) => {
+        State.observerKey = e.target.value;
+        runResonanceAlgorithm();
+    });
+
+    document.getElementById("gps-input-raw").addEventListener("input", (e) => {
+        parseGPSInputString(e.target.value);
+    });
+
+    document.getElementById("color-override-picker").addEventListener("input", (e) => {
+        State.isOverridden = true;
+        State.currentHexColor = e.target.value.toUpperCase();
+        updateUIColors();
+    });
+
+    document.getElementById("hex-output-box").addEventListener("input", (e) => {
+        let val = e.target.value;
+        if (!val.startsWith("#")) val = "#" + val;
+        if (val.length === 7) {
+            State.isOverridden = true;
+            State.currentHexColor = val.toUpperCase();
+            updateUIColors();
+        }
+    });
+
+    document.getElementById("btn-reset-color").addEventListener("click", () => {
+        State.isOverridden = false;
+        runResonanceAlgorithm();
+    });
+
+    document.getElementById("btn-generate-station").addEventListener("click", () => {
+        triggerProceduralOrbitalStationGeneration();
+    });
+
+    // Inventory Array Mutation Systems
+    document.getElementById("btn-append-library").addEventListener("click", () => {
+        const itemFaction = State.factionCode.trim().toUpperCase();
+        State.gpsLibrary.push({
+            id: "sig-" + Date.now() + "-" + Math.floor(Math.random() * 1000),
+            name: State.editorGPS.name,
+            coords: [...State.editorGPS.coords],
+            color: State.currentHexColor,
+            faction: itemFaction.length > 0 ? itemFaction : null,
+            enabled: true
+        });
+        rebuildLibraryInventoryUI();
+        rebuildObserverOptionsDropdown();
+    });
+
+    document.getElementById("btn-copy-gps").addEventListener("click", () => {
+        const outputField = document.getElementById("gps-output-raw");
+        outputField.select();
+        outputField.setSelectionRange(0, 99999);
+        navigator.clipboard.writeText(outputField.value).then(() => {
+            const origText = document.getElementById("btn-copy-gps").innerText;
+            document.getElementById("btn-copy-gps").innerText = "SUCCESSFULLY COPIED!";
+            document.getElementById("btn-copy-gps").style.borderColor = "var(--se-hud-green)";
+            setTimeout(() => {
+                document.getElementById("btn-copy-gps").innerText = origText;
+                document.getElementById("btn-copy-gps").style.borderColor = "";
+            }, 1500);
+        });
+    });
+
+    // Configuration Settings Modal Controls
+    document.getElementById("btn-toggle-settings").addEventListener("click", () => {
+        document.getElementById("settings-panel").classList.toggle("active");
+    });
+
+    document.getElementById("setting-entropy-toggle").addEventListener("change", (e) => {
+        State.settings.entropy = e.target.checked;
+        runResonanceAlgorithm();
+    });
+
+    document.getElementById("setting-invert-pitch-toggle").addEventListener("change", (e) => {
+        State.settings.invertPitch = e.target.checked;
+    });
+
+    document.getElementById("setting-fov").addEventListener("input", (e) => {
+        State.camera.fov = parseInt(e.target.value);
+        document.getElementById("val-fov").innerText = `${e.target.value}°`;
+    });
+
+    document.getElementById("setting-min-sat").addEventListener("input", (e) => {
+        State.settings.minSat = parseInt(e.target.value);
+        document.getElementById("val-sat").innerText = `${e.target.value}%`;
+        runResonanceAlgorithm();
+    });
+
+    document.getElementById("setting-min-light").addEventListener("input", (e) => {
+        State.settings.minLight = parseInt(e.target.value);
+        document.getElementById("val-light").innerText = `${e.target.value}%`;
+        runResonanceAlgorithm();
+    });
+
+    document.getElementById("setting-stars").addEventListener("input", (e) => {
+        State.settings.starCount = parseInt(e.target.value);
+        document.getElementById("val-stars").innerText = e.target.value;
+        initProceduralStarfield();
+    });
+
+    // Universal JSON System Synchronizations
+    document.getElementById("btn-export-json").addEventListener("click", () => {
+        const bundle = {
+            version: "1.2.0",
+            factionCode: State.factionCode,
+            currentHexColor: State.currentHexColor,
+            settings: State.settings,
+            gpsLibrary: State.gpsLibrary,
+            observerKey: State.observerKey
+        };
+        const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: "application/json" });
+        const endpoint = URL.createObjectURL(blob);
+        const linkNode = document.createElement("a");
+        linkNode.href = endpoint;
+        linkNode.download = `se_gps_laboratory_backup_${Math.floor(Date.now()/1000)}.json`;
+        document.body.appendChild(linkNode);
+        linkNode.click();
+        document.body.removeChild(linkNode);
+        URL.revokeObjectURL(endpoint);
+    });
+
+    document.getElementById("btn-import-trigger").addEventListener("click", () => {
+        document.getElementById("input-json-file").click();
+    });
+
+    document.getElementById("input-json-file").addEventListener("change", (e) => {
+        const fileRef = e.target.files[0];
+        if (!fileRef) return;
+
+        const pipeline = new FileReader();
+        pipeline.onload = (event) => {
+            try {
+                const config = JSON.parse(event.target.result);
+                if (config.factionCode) State.factionCode = config.factionCode;
+                if (config.currentHexColor) State.currentHexColor = config.currentHexColor;
+                if (config.settings) State.settings = { ...State.settings, ...config.settings };
+                if (config.gpsLibrary && Array.isArray(config.gpsLibrary)) State.gpsLibrary = config.gpsLibrary;
+                if (config.observerKey) State.observerKey = config.observerKey;
+
+                // Sync layout tracking metrics interface
+                document.getElementById("faction-input").value = State.factionCode;
+                document.getElementById("setting-entropy-toggle").checked = State.settings.entropy;
+                document.getElementById("setting-invert-pitch-toggle").checked = !!State.settings.invertPitch;
+                document.getElementById("setting-min-sat").value = State.settings.minSat;
+                document.getElementById("setting-min-light").value = State.settings.minLight;
+                document.getElementById("setting-stars").value = State.settings.starCount;
+                
+                document.getElementById("val-sat").innerText = `${State.settings.minSat}%`;
+                document.getElementById("val-light").innerText = `${State.settings.minLight}%`;
+                document.getElementById("val-stars").innerText = State.settings.starCount;
+
+                initProceduralStarfield();
+                runResonanceAlgorithm();
+                rebuildLibraryInventoryUI();
+                rebuildObserverOptionsDropdown();
+
+                alert("JSON Matrix array telemetry synced successfully!");
+            } catch(err) {
+                alert("Error: Critical parsing fault during JSON import sequence.");
+            }
+        };
+        pipeline.readAsText(fileRef);
+    });
+
+    document.getElementById("btn-reset-view").addEventListener("click", () => {
+        // Zero out both the instantaneous frame targets and tracking points
+        State.camera.targetYaw = 0;
+        State.camera.targetPitch = 0;
+        State.camera.yaw = 0;
+        State.camera.pitch = 0;
+    });
+
+    document.getElementById("btn-reset-defaults").addEventListener("click", () => {
+        document.getElementById("setting-entropy-toggle").checked = false;
+        document.getElementById("setting-invert-pitch-toggle").checked = false;
+        document.getElementById("setting-fov").value = 75;
+        document.getElementById("setting-min-sat").value = 70;
+        document.getElementById("setting-min-light").value = 45;
+        document.getElementById("setting-stars").value = 1200;
+
+        document.getElementById("val-fov").innerText = "75°";
+        document.getElementById("val-sat").innerText = "70%";
+        document.getElementById("val-light").innerText = "45%";
+        document.getElementById("val-stars").innerText = "1200";
+
+        State.settings.entropy = false;
+        State.settings.invertPitch = false;
+        State.camera.fov = 75;
+        State.settings.minSat = 70;
+        State.settings.minLight = 45;
+        State.settings.starCount = 1200;
+
+        initProceduralStarfield();
+        runResonanceAlgorithm();
+    });
+
+    // Viewport Navigation Pipeline Bindings
+    const viewWrapper = document.getElementById("viewport-wrapper");
+    let isDragging = false;
+    let prevMouseX = 0, prevMouseY = 0;
+
+    viewWrapper.addEventListener("mousedown", (e) => {
+        if (e.target.closest('#settings-panel') || e.target.closest('.settings-toggle-btn')) return;
+        isDragging = true;
+        prevMouseX = e.clientX;
+        prevMouseY = e.clientY;
+    });
+
+    window.addEventListener("mousemove", (e) => {
+        if (!isDragging) return;
+        const deltaX = e.clientX - prevMouseX;
+        const deltaY = e.clientY - prevMouseY;
+        
+        prevMouseX = e.clientX;
+        prevMouseY = e.clientY;
+
+        State.camera.targetYaw -= deltaX * 0.005;
+        State.camera.targetPitch += deltaY * 0.005 * (State.settings.invertPitch ? -1 : 1);
+
+        // Safely wrap values when completing full revolutions to prevent float precision loss
+        const TWO_PI = Math.PI * 2;
+        if (Math.abs(State.camera.targetYaw) > TWO_PI) {
+            State.camera.targetYaw %= TWO_PI;
+            State.camera.yaw %= TWO_PI;
+        }
+        if (Math.abs(State.camera.targetPitch) > TWO_PI) {
+            State.camera.targetPitch %= TWO_PI;
+            State.camera.pitch %= TWO_PI;
+        }
+    });
+
+    window.addEventListener("mouseup", () => { isDragging = false; });
+
+    viewWrapper.addEventListener("touchstart", (e) => {
+        if (e.target.closest('#settings-panel') || e.target.closest('.settings-toggle-btn')) return;
+        if (e.touches.length === 1) {
+            isDragging = true;
+            prevMouseX = e.touches[0].clientX;
+            prevMouseY = e.touches[0].clientY;
+        }
+    }, {passive: true});
+
+    window.addEventListener("touchmove", (e) => {
+        if (!isDragging || e.touches.length === 0) return;
+        const deltaX = e.touches[0].clientX - prevMouseX;
+        const deltaY = e.touches[0].clientY - prevMouseY;
+        
+        prevMouseX = e.touches[0].clientX;
+        prevMouseY = e.touches[0].clientY;
+
+        State.camera.targetYaw -= deltaX * 0.007;
+        State.camera.targetPitch += deltaY * 0.007 * (State.settings.invertPitch ? -1 : 1);
+
+        // Safely wrap values when completing full revolutions to prevent float precision loss
+        const TWO_PI = Math.PI * 2;
+        if (Math.abs(State.camera.targetYaw) > TWO_PI) {
+            State.camera.targetYaw %= TWO_PI;
+            State.camera.yaw %= TWO_PI;
+        }
+        if (Math.abs(State.camera.targetPitch) > TWO_PI) {
+            State.camera.targetPitch %= TWO_PI;
+            State.camera.pitch %= TWO_PI;
+        }
+
+    }, {passive: true});
+
+    window.addEventListener("touchend", () => { isDragging = false; });
+
+    viewWrapper.addEventListener("wheel", (e) => {
+        e.preventDefault();
+        let fov = State.camera.fov + (e.deltaY * 0.04);
+        fov = Math.max(45, Math.min(110, fov));
+        State.camera.fov = fov;
+        
+        document.getElementById("setting-fov").value = Math.round(fov);
+        document.getElementById("val-fov").innerText = `${Math.round(fov)}°`;
+    }, { passive: false });
+
+    window.addEventListener("keydown", (e) => {
+        if (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "SELECT") return;
+        const key = e.key.toUpperCase();
+        if (key === "H") State.hudMode = (State.hudMode + 1) % 3;
+        if (key === "TAB") { 
+            e.preventDefault(); 
+            State.uiVisible = !State.uiVisible;
+            document.body.classList.toggle("sidebar-hidden", !State.uiVisible);
+        }
+        if (e.key === "Alt") { e.preventDefault(); State.altPressed = true; }
+    });
+
+    window.addEventListener("keyup", (e) => {
+        if (e.key === "Alt") State.altPressed = false;
+    });
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+    registerDOMInputEventPipelines();
+    initProceduralStarfield();
+    runResonanceAlgorithm();
+    compileGPSOutput();
+    snapCameraToCoords(State.editorGPS.coords);
+
+    function mainAppFrameTick() {
+        renderScene();
+        requestAnimationFrame(mainAppFrameTick);
+    }
+    requestAnimationFrame(mainAppFrameTick);
+});
+</script>
+</body>
+</html>

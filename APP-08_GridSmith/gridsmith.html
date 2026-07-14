@@ -1,0 +1,2559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="description" content="GridSmith — Design it before you build it. A 3D block planner for Space Engineers.">
+<link rel="icon" type="image/svg+xml" href="gridsmith_icon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>GridSmith — Block Planner</title>
+<style>
+  :root{
+    --bg:#0a0d12; --panel:#11151c; --panel2:#161b24; --line:#232b38; --line-soft:#1a212c;
+    --text:#dbe2ea; --text-dim:#7c8898; --cyan:#34e0c9; --amber:#ffb454; --red:#ff5c5c;
+    --mono:'JetBrains Mono','SF Mono',Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  }
+  body.light{
+    --bg:#eef1f4; --panel:#ffffff; --panel2:#f3f5f8; --line:#d7dce3; --line-soft:#e3e7ec;
+    --text:#1a212c; --text-dim:#6b7480; --cyan:#0e8d7d; --amber:#b8690a; --red:#cf3131;
+  }
+  body.light #hud, body.light #selInfo, body.light #tipline{ background:rgba(255,255,255,.72); }
+  body.light .radial-wrap .lbl{ color:#10141b; text-shadow:0 1px 0 rgba(0,0,0,.12); }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--sans);}
+  #app{position:fixed;inset:0;display:flex;flex-direction:column;}
+
+  #topbar{display:flex;align-items:center;gap:8px;padding:8px 10px;background:linear-gradient(180deg,var(--panel),var(--panel2));border-bottom:1px solid var(--line);z-index:20;flex-wrap:wrap;}
+  .brand{font-family:var(--mono);font-size:12px;letter-spacing:.12em;color:var(--cyan);text-transform:uppercase;margin-right:auto;display:flex;align-items:center;gap:6px;}
+  .brand .dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan);}
+  .btn{background:var(--panel2);border:1px solid var(--line);color:var(--text);font-family:var(--mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase;padding:7px 10px;border-radius:6px;cursor:pointer;user-select:none;display:flex;align-items:center;gap:6px;white-space:nowrap;}
+  .btn:active{transform:translateY(1px);}
+  .btn.active{border-color:var(--cyan);color:var(--cyan);background:rgba(52,224,201,.08);}
+  .btn.disabled{opacity:.35;pointer-events:none;}
+  .btn.danger.active{border-color:var(--red);color:var(--red);background:rgba(255,92,92,.08);}
+  .seg{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;}
+  .seg .btn{border:none;border-radius:0;}
+  .seg .btn+.btn{border-left:1px solid var(--line);}
+
+  #viewport{position:relative;flex:1;min-height:0;}
+  #viewport canvas{display:block;width:100%;height:100%;touch-action:none;}
+  #hud{position:absolute;left:10px;top:10px;font-family:var(--mono);font-size:11px;color:var(--text-dim);background:rgba(10,13,18,.55);border:1px solid var(--line-soft);border-radius:6px;padding:6px 9px;line-height:1.5;pointer-events:none;}
+  #hud b{color:var(--cyan);}
+  #flash{position:absolute;inset:0;pointer-events:none;background:rgba(255,92,92,0);transition:background .15s;}
+  #selInfo{position:absolute;right:10px;top:10px;text-align:right;font-family:var(--mono);font-size:11px;color:var(--text-dim);background:rgba(10,13,18,.55);border:1px solid var(--line-soft);border-radius:6px;padding:6px 9px;line-height:1.5;pointer-events:none;max-width:46%;}
+  #selInfo .name{color:var(--amber);font-weight:600;}
+  #tipline{position:absolute;left:10px;bottom:10px;font-family:var(--mono);font-size:10px;color:var(--text-dim);background:rgba(10,13,18,.45);border:1px solid var(--line-soft);border-radius:6px;padding:5px 8px;pointer-events:none;max-width:70%;line-height:1.4;}
+  #tipline.hidden{display:none;}
+  #nextPreview{
+    position:absolute;right:10px;top:78px;width:108px;height:108px;
+    background:rgba(10,13,18,.6);border:1px solid var(--line-soft);border-radius:8px;
+    overflow:hidden;pointer-events:none;
+  }
+  body:not(.axis-mono) #axisXBtn.active{ background:rgba(255,92,92,.18); border-color:#ff5c5c; color:#ff5c5c; }
+  body:not(.axis-mono) #axisYBtn.active{ background:rgba(63,174,90,.18); border-color:#3fae5a; color:#3fae5a; }
+  body:not(.axis-mono) #axisZBtn.active{ background:rgba(91,184,240,.18); border-color:#5bb8f0; color:#5bb8f0; }
+  #eyedropperBtn.active{ border-color:var(--amber);color:var(--amber);background:rgba(255,180,84,.12); }
+  #paintBtn.active{ border-color:#b45cff;color:#b45cff;background:rgba(180,92,255,.12); }
+  #storedColorSwatch.active{ box-shadow:0 0 0 2px var(--amber),0 0 8px rgba(255,180,84,.4); }
+  #nextPreview .np-label{
+    position:absolute;top:4px;left:6px;font-family:var(--mono);font-size:9px;letter-spacing:.12em;
+    color:var(--text-dim);z-index:1;
+  }
+  #nextCanvas{display:block;width:100%;height:100%;}
+  #selectBar{
+    position:absolute;left:50%;bottom:14px;transform:translateX(-50%);
+    display:none;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;
+    background:var(--panel);border:1px solid var(--cyan);border-radius:10px;
+    padding:8px 10px;box-shadow:0 8px 24px rgba(0,0,0,.5);z-index:30;
+    font-family:var(--mono);font-size:11px;color:var(--text);
+    max-width:92vw;
+  }
+  #selectBar.open{display:flex;}
+  #selectBar .btn{padding:7px 9px;white-space:nowrap;}
+
+  /* ---------- HOTBAR ---------- */
+  #hotbar{display:flex;gap:6px;padding:0 8px 7px;}
+  .hotslot{flex:1;max-width:56px;height:42px;border-radius:7px;border:1px solid var(--line);background:var(--panel2);position:relative;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .hotslot.pinned{border-style:solid;}
+  .hotslot.auto{border-style:dashed;opacity:.85;}
+  .hotslot.selected{box-shadow:0 0 0 1px var(--cyan),0 0 10px rgba(52,224,201,.3);}
+  .hotslot .num{position:absolute;top:2px;left:4px;font-family:var(--mono);font-size:8px;color:var(--text-dim);}
+  .hotslot .chip{width:22px;height:18px;border-radius:3px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.15);}
+  .hotslot.empty .chip{background:transparent;box-shadow:inset 0 0 0 1px var(--line);}
+
+  /* ---------- PALETTE ---------- */
+  #palette-wrap{background:linear-gradient(0deg,var(--panel),var(--panel2));border-top:1px solid var(--line);padding:8px 8px calc(8px + env(safe-area-inset-bottom));z-index:20;}
+  #palette{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin;}
+  #palette::-webkit-scrollbar{height:4px;}
+  #palette::-webkit-scrollbar-thumb{background:var(--line);border-radius:2px;}
+  .swatch{flex:0 0 auto;width:64px;display:flex;flex-direction:column;align-items:center;gap:5px;padding:7px 4px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);cursor:pointer;user-select:none;}
+  .swatch.selected{border-color:var(--cyan);box-shadow:0 0 0 1px var(--cyan),0 0 12px rgba(52,224,201,.25);}
+  .swatch.back{justify-content:center;color:var(--text-dim);}
+  .swatch .cube{width:30px;height:26px;border-radius:3px;position:relative;box-shadow:inset 0 0 0 1px rgba(255,255,255,.15),0 2px 4px rgba(0,0,0,.4);}
+  .swatch .cube::after{content:'';position:absolute;inset:0;border-radius:3px;background:linear-gradient(135deg,rgba(255,255,255,.25),transparent 60%);}
+  .swatch .stack{width:34px;height:26px;position:relative;}
+  .swatch .stack i{position:absolute;width:14px;height:14px;border-radius:3px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.15);}
+  .swatch label{font-family:var(--mono);font-size:8.5px;color:var(--text-dim);text-align:center;line-height:1.2;text-transform:uppercase;letter-spacing:.02em;}
+  .swatch.selected label{color:var(--text);}
+  .catcount{font-family:var(--mono);font-size:7.5px;color:var(--text-dim);}
+
+  /* ---------- MODALS ---------- */
+  .modal-overlay{position:fixed;inset:0;background:rgba(5,7,10,.7);backdrop-filter:blur(2px);display:none;align-items:flex-end;justify-content:center;z-index:50;}
+  .modal-overlay.open{display:flex;}
+  .modal{width:100%;max-width:480px;max-height:80vh;overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:14px 14px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom));font-family:var(--sans);}
+  @media (min-width:600px){.modal-overlay{align-items:center;}.modal{border-radius:14px;max-height:70vh;}}
+  .modal h2{margin:0 0 12px;font-family:var(--mono);font-size:13px;letter-spacing:.08em;color:var(--cyan);text-transform:uppercase;}
+  .modal-close{position:absolute;top:10px;right:14px;color:var(--text-dim);font-size:20px;cursor:pointer;}
+  .save-row{display:flex;align-items:center;gap:8px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:8px;background:var(--panel2);}
+  .save-row .meta{flex:1;min-width:0;}
+  .save-row .meta .nm{font-size:13px;color:var(--text);}
+  .save-row .meta .sub{font-family:var(--mono);font-size:10px;color:var(--text-dim);}
+  .save-row .btn{padding:6px 9px;font-size:10px;}
+  input[type=text]{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:9px 10px;border-radius:7px;font-family:var(--sans);font-size:14px;margin-bottom:10px;}
+  .row{display:flex;gap:8px;}
+  .row .btn{flex:1;justify-content:center;}
+  .hint{font-family:var(--mono);font-size:10.5px;color:var(--text-dim);margin:6px 0 14px;line-height:1.5;}
+  .empty{font-family:var(--mono);font-size:11px;color:var(--text-dim);padding:14px 0;text-align:center;}
+  .pick-cat-header{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--text-dim);text-transform:uppercase;margin:14px 0 6px;}
+  .pick-row{display:flex;align-items:center;gap:10px;padding:8px 6px;border-radius:7px;cursor:pointer;}
+  .pick-row:hover, .pick-row:active{background:var(--panel2);}
+  .pick-row .chip{width:24px;height:20px;border-radius:3px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.15);}
+  .pick-row span{font-size:13px;}
+
+  /* ---------- PC LIST CONTEXT MENU ---------- */
+  #pcMenu{position:fixed;z-index:80;background:var(--panel);border:1px solid var(--line);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.5);overflow:hidden;display:none;min-width:160px;font-family:var(--mono);font-size:12px;}
+  #pcMenu.open{display:block;}
+  #pcMenu .item{padding:10px 14px;cursor:pointer;color:var(--text);border-bottom:1px solid var(--line-soft);}
+  #pcMenu .item:last-child{border-bottom:none;}
+  #pcMenu .item:hover{background:var(--panel2);color:var(--cyan);}
+  #pcMenu .item.danger:hover{color:var(--red);}
+
+  /* ---------- RADIAL MENU ---------- */
+  .radial-wrap{position:fixed;z-index:80;width:220px;height:220px;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;}
+  .radial-wrap .ring{position:absolute;inset:0;border-radius:50%;box-shadow:0 0 0 2px rgba(255,255,255,.06), 0 10px 30px rgba(0,0,0,.5);}
+  .radial-wrap .hub{position:absolute;left:50%;top:50%;width:18px;height:18px;margin:-9px;border-radius:50%;background:var(--panel);border:1px solid var(--line);}
+  .radial-wrap .lbl{position:absolute;transform:translate(-50%,-50%);font-family:var(--mono);font-size:10px;color:#0a0d12;text-align:center;font-weight:700;text-shadow:0 1px 0 rgba(255,255,255,.25);width:54px;line-height:1.2;}
+  .radial-wrap .lbl.hi{outline:2px solid #fff;border-radius:6px;padding:2px;background:rgba(255,255,255,.18);}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div id="topbar">
+    <div class="brand"><span class="dot"></span>GridSmith</div>
+    <div class="seg">
+      <div class="btn active" id="gridSmallBtn">Small</div>
+      <div class="btn" id="gridLargeBtn">Large</div>
+    </div>
+    <div class="btn" id="rotateBtn" title="Rotate (R)">⟳ Rotate</div>
+    <div class="seg" title="Which axis Rotate/Rotate-Group turns">
+      <div class="btn" id="axisXBtn">X</div>
+      <div class="btn active" id="axisYBtn">Y</div>
+      <div class="btn" id="axisZBtn">Z</div>
+    </div>
+    <div class="seg" title="Undo / Redo">
+      <div class="btn disabled" id="undoBtn" title="Undo (Ctrl+Z)">↶ Undo</div>
+      <div class="btn disabled" id="redoBtn" title="Redo (Ctrl+Y)">↷ Redo</div>
+    </div>
+    <div class="btn" id="panBtn" title="Pan mode (P)">Pan</div>
+    <div class="btn danger" id="eraseBtn" title="Erase (E)">Erase</div>
+    <div class="btn" id="selectBtn" title="Select (S)">Select</div>
+    <div class="seg" title="Paint tools">
+      <div class="btn" id="eyedropperBtn" title="Eyedropper — tap a block to sample its color (I)">💧 Pick</div>
+      <div class="btn" id="paintBtn" title="Paint mode — tap a block to apply stored color (B)">🖌 Paint</div>
+      <div id="storedColorSwatch" title="Stored color (click to set manually)" style="width:28px;height:28px;border-radius:5px;border:1px solid var(--line);background:#9aa3ab;cursor:pointer;flex-shrink:0;margin:3px 0;box-shadow:inset 0 0 0 1px rgba(255,255,255,.15);"></div>
+      <div class="seg" id="paintTargetSeg" title="Paint whole group or just the tapped block?" style="display:none;">
+        <div class="btn active" id="paintGroupBtn" title="Paint whole composite group">Group</div>
+        <div class="btn" id="paintBlockBtn" title="Paint only the tapped block">Block</div>
+      </div>
+    </div>
+    <div class="btn" id="xrayBtn" title="X-Ray view — adjust block transparency and depth clipping">⬡ X-Ray</div>
+    <div class="btn" id="settingsBtn" title="Settings">⚙ Settings</div>
+  </div>
+
+  <div id="viewport">
+    <canvas id="gl"></canvas>
+    <div id="hud">grid: <b id="hudScale">SMALL · 0.5m</b><br>cell: <b id="hudCell">—</b><br>blocks: <b id="hudCount">0</b></div>
+    <div id="selInfo">selected<br><span class="name" id="selName">Light Armor</span><br>mode: <span id="selMode">PLACE</span></div>
+    <div id="nextPreview">
+      <div class="np-label">ORIENTATION</div>
+      <canvas id="nextCanvas"></canvas>
+    </div>
+    <div id="xrayPanel" style="display:none;position:absolute;left:10px;bottom:14px;background:rgba(10,13,18,.8);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-family:var(--mono);font-size:10px;color:var(--text-dim);z-index:25;min-width:180px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <span style="color:var(--cyan);letter-spacing:.08em;">X-RAY</span>
+        <div class="btn danger" id="xrayCloseBtn" style="padding:2px 7px;font-size:9px;">✕</div>
+      </div>
+      <div style="margin-bottom:5px;">Opacity <span id="xrayOpacityVal">100%</span></div>
+      <input type="range" id="xrayOpacitySlider" min="5" max="100" value="100" style="width:100%;margin-bottom:8px;accent-color:var(--cyan);">
+      <div style="margin-bottom:5px;">Clip depth <span id="xrayDepthVal">Off</span></div>
+      <input type="range" id="xrayDepthSlider" min="0" max="50" value="0" style="width:100%;accent-color:var(--amber);">
+    </div>
+    <div id="tipline">PC: middle-click-drag = pan · right-click a block = menu · right-click-hold empty ground = hotbar wheel.<br>Keys: E=erase S=select P=pan I=eyedrop B=paint R=rotate X/Y/Z=axis PageUp/Down=rotate F1=toggle tips<br>Touch: hold a block = radial menu · hold empty ground = hotbar wheel · 3-finger TAP toggles hotbar wheel.</div>
+    <div id="flash"></div>
+    <div id="selectBar">
+      <span id="selectCount">0 selected</span>
+      <div class="btn" id="rotateSelBtn" title="Rotate (R / PageUp)">⟳ Rotate</div>
+      <div class="btn" id="flipXSelBtn">Flip X</div>
+      <div class="btn" id="flipYSelBtn">Flip Y</div>
+      <div class="btn" id="flipZSelBtn">Flip Z</div>
+      <div class="seg" title="Nudge by half a cell — for centering a piece on a neighbor, e.g. a wheel on an axle">
+        <div class="btn" id="nudgeXMinusBtn">X −½</div>
+        <div class="btn" id="nudgeXPlusBtn">X +½</div>
+        <div class="btn" id="nudgeYMinusBtn">Y −½</div>
+        <div class="btn" id="nudgeYPlusBtn">Y +½</div>
+        <div class="btn" id="nudgeZMinusBtn">Z −½</div>
+        <div class="btn" id="nudgeZPlusBtn">Z +½</div>
+      </div>
+      <div class="btn" id="saveCompositeBtn">Save as Composite</div>
+      <div class="btn" id="resaveCompositeBtn" style="display:none;border-color:var(--amber);color:var(--amber);">↺ Update Composite</div>
+      <div class="btn danger" id="cancelSelectBtn">Cancel</div>
+    </div>
+  </div>
+
+  <div id="palette-wrap">
+    <div id="hotbar"></div>
+    <div id="palette"></div>
+  </div>
+
+</div>
+
+<div id="pcMenu"></div>
+
+<div class="modal-overlay" id="manageCompositeOverlay">
+  <div class="modal" style="position:relative;">
+    <span class="modal-close" data-close="manageCompositeOverlay">&times;</span>
+    <h2 id="manageCompositeTitle">Manage Composite</h2>
+    <input type="text" id="manageCompositeNameInput" placeholder="Composite name…">
+    <div class="row" style="margin-bottom:8px;">
+      <div class="btn" id="manageCompositeRenameBtn" style="justify-content:center;flex:1;">Rename</div>
+    </div>
+    <div class="row">
+      <div class="btn danger" id="manageCompositeDeleteBtn" style="justify-content:center;flex:1;">Delete Composite</div>
+    </div>
+    <div class="hint">Long-press (touch) or right-click (PC) any Custom-category swatch to reopen this.</div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="colorOverlay">
+  <div class="modal" style="position:relative;">
+    <span class="modal-close" data-close="colorOverlay">&times;</span>
+    <h2>Recolor</h2>
+    <div id="storedColorRow" style="display:none;margin-bottom:12px;">
+      <div class="hint" style="margin:0 0 6px;">Stored color (tap to apply instantly)</div>
+      <div id="storedColorQuickBtn" style="width:100%;height:40px;border-radius:8px;border:1px solid var(--line);cursor:pointer;display:flex;align-items:center;gap:10px;padding:0 12px;box-sizing:border-box;">
+        <div id="storedColorPreview" style="width:26px;height:26px;border-radius:4px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.2);flex-shrink:0;"></div>
+        <span style="font-family:var(--mono);font-size:11px;color:var(--text);" id="storedColorHex">#9aa3ab</span>
+      </div>
+    </div>
+    <div class="hint" style="margin:0 0 6px;">Custom color</div>
+    <input type="color" id="colorPickerInput" value="#9aa3ab" style="width:100%;height:48px;border:none;border-radius:8px;margin-bottom:12px;cursor:pointer;">
+    <div class="row">
+      <div class="btn" id="colorApplyBtn" style="justify-content:center;flex:1;">Apply</div>
+      <div class="btn danger" id="colorResetBtn" style="justify-content:center;flex:1;">Reset to Default</div>
+    </div>
+    <div class="hint">For a group, this repaints every member at once.</div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="compositeOverlay">
+  <div class="modal" style="position:relative;">
+    <span class="modal-close" data-close="compositeOverlay">&times;</span>
+    <h2>Save Composite Block</h2>
+    <input type="text" id="compositeNameInput" placeholder="Name this composite…">
+    <div class="row">
+      <div class="btn" id="compositeSaveConfirmBtn" style="justify-content:center;flex:1;">Save</div>
+    </div>
+    <div class="hint">Saved to the Custom category in your palette and to this device's persistent storage. It places as a one-time stamp of its member blocks — moving/deleting afterward works on the individual pieces, not the group.</div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="settingsOverlay">
+  <div class="modal" style="position:relative;">
+    <span class="modal-close" data-close="settingsOverlay">&times;</span>
+    <h2>Settings</h2>
+
+    <div class="hint" style="margin-top:0;">Appearance</div>
+    <div class="seg" style="margin-bottom:16px;width:100%;">
+      <div class="btn" id="themeDarkBtn" style="flex:1;justify-content:center;">🌙 Dark</div>
+      <div class="btn" id="themeLightBtn" style="flex:1;justify-content:center;">☀️ Light</div>
+    </div>
+
+    <div class="hint" style="margin-top:0;">Axis Colors (X/Y/Z buttons + gizmo)</div>
+    <div class="seg" style="margin-bottom:16px;width:100%;">
+      <div class="btn" id="axisColorRgbBtn" style="flex:1;justify-content:center;">RGB</div>
+      <div class="btn" id="axisColorMonoBtn" style="flex:1;justify-content:center;">Mono</div>
+    </div>
+
+    <div class="hint" style="margin-top:0;">Builds</div>
+    <div class="row" style="margin-bottom:8px;">
+      <div class="btn" id="openSaveBtn" style="justify-content:center;flex:1;">Saved Builds</div>
+      <div class="btn" id="openIoBtn" style="justify-content:center;flex:1;">Import / Export</div>
+    </div>
+    <div class="row" style="margin-bottom:16px;">
+      <div class="btn danger" id="openClearBtn" style="justify-content:center;flex:1;">Clear Grid</div>
+    </div>
+
+    <div class="hint" style="margin-top:0;">Build Settings — Grid Size</div>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;">
+      <label style="font-family:var(--mono);font-size:11px;color:var(--text-dim);flex:1;">Width (X cells)</label>
+      <input type="number" id="gridWInput" min="10" max="300" value="40" style="width:70px;background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:5px 8px;border-radius:6px;font-family:var(--mono);font-size:12px;">
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
+      <label style="font-family:var(--mono);font-size:11px;color:var(--text-dim);flex:1;">Depth (Z cells)</label>
+      <input type="number" id="gridDInput" min="10" max="300" value="40" style="width:70px;background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:5px 8px;border-radius:6px;font-family:var(--mono);font-size:12px;">
+    </div>
+    <div class="row" style="margin-bottom:16px;">
+      <div class="btn" id="applyGridSizeBtn" style="justify-content:center;flex:1;">Apply Grid Size</div>
+    </div>
+
+    <div class="hint" style="margin-top:0;">On-screen hints (F1 toggles too)</div>
+    <div class="seg" style="width:100%;">
+      <div class="btn" id="tipsOnBtn" style="flex:1;justify-content:center;">Show</div>
+      <div class="btn" id="tipsOffBtn" style="flex:1;justify-content:center;">Hide</div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="saveOverlay">
+  <div class="modal" style="position:relative;">
+    <span class="modal-close" data-close="saveOverlay">&times;</span>
+    <h2>Saved Builds</h2>
+    <div class="row" style="margin-bottom:10px;">
+      <input type="text" id="saveNameInput" placeholder="Name this build…">
+      <div class="btn" id="saveConfirmBtn" style="padding:9px 14px;">Save</div>
+    </div>
+    <div id="saveList"></div>
+    <div class="hint">Saved to this device's persistent storage. For a portable file, use Import/Export instead.</div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="ioOverlay">
+  <div class="modal" style="position:relative;">
+    <span class="modal-close" data-close="ioOverlay">&times;</span>
+    <h2>Import / Export</h2>
+    <div class="row" style="margin-bottom:10px;">
+      <div class="btn" id="exportBtn" style="justify-content:center;flex:1;">⇩ Export current build (.json)</div>
+    </div>
+    <div class="row" style="margin-bottom:10px;">
+      <div class="btn" id="importBtn" style="justify-content:center;flex:1;">⇧ Import build from file</div>
+      <input type="file" id="importFile" accept="application/json,.json" style="display:none;">
+    </div>
+    <div class="hint">Export writes one self-contained JSON file per design. Import replaces the current grid.</div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="pickOverlay">
+  <div class="modal" style="position:relative;">
+    <span class="modal-close" data-close="pickOverlay">&times;</span>
+    <h2 id="pickTitle">Replace Block</h2>
+    <div id="pickList"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+/* =========================================================================
+   ORIENTATION MATH — 3×3 signed-permutation matrices (row-major, flat [9])
+   
+   A cube has 48 symmetries: 24 proper rotations (det=+1) and 24 improper
+   ones (rotation + reflection, det=−1). All are representable here.
+   Replacing the old {rot:{x,y,z}, flip:{x,y,z}} scheme with a single matrix
+   is what makes composing X then Y then Z rotations give the correct result
+   instead of the wrong one — Euler angles don't commute, matrices do.
+   
+   Convention: oriApply(m, v) = M·v  (transforms a local vector to world).
+   "dims" use the absolute version so a 1×1×2 block that's been rotated 90°
+   around X properly becomes a 1×2×1 footprint.
+========================================================================= */
+const ORI_I  = [ 1, 0, 0,  0, 1, 0,  0, 0, 1]; // identity
+// 90° CCW (right-hand rule) about each world axis
+const ORI_RX = [ 1, 0, 0,  0, 0,-1,  0, 1, 0];
+const ORI_RY = [ 0, 0, 1,  0, 1, 0, -1, 0, 0];
+const ORI_RZ = [ 0,-1, 0,  1, 0, 0,  0, 0, 1];
+// Mirror planes (flip)
+const ORI_FX = [-1, 0, 0,  0, 1, 0,  0, 0, 1];
+const ORI_FY = [ 1, 0, 0,  0,-1, 0,  0, 0, 1];
+const ORI_FZ = [ 1, 0, 0,  0, 1, 0,  0, 0,-1];
+function oriMul(A, B){ // C = A*B
+  const C=new Array(9);
+  for(let r=0;r<3;r++) for(let c=0;c<3;c++)
+    C[r*3+c]=A[r*3+0]*B[c]+A[r*3+1]*B[3+c]+A[r*3+2]*B[6+c];
+  return C;
+}
+function oriApply(m,v){ return [m[0]*v[0]+m[1]*v[1]+m[2]*v[2],m[3]*v[0]+m[4]*v[1]+m[5]*v[2],m[6]*v[0]+m[7]*v[1]+m[8]*v[2]]; }
+function oriApplyAbs(m,v){ return [Math.abs(m[0])*v[0]+Math.abs(m[1])*v[1]+Math.abs(m[2])*v[2],Math.abs(m[3])*v[0]+Math.abs(m[4])*v[1]+Math.abs(m[5])*v[2],Math.abs(m[6])*v[0]+Math.abs(m[7])*v[1]+Math.abs(m[8])*v[2]]; }
+function oriAxisR90(axis){ return axis==='x'?ORI_RX:axis==='y'?ORI_RY:ORI_RZ; }
+function oriAxisFlip(axis){ return axis==='x'?ORI_FX:axis==='y'?ORI_FY:ORI_FZ; }
+function oriDet(m){ return m[0]*(m[4]*m[8]-m[5]*m[7])-m[1]*(m[3]*m[8]-m[5]*m[6])+m[2]*(m[3]*m[7]-m[4]*m[6]); }
+// Apply orientation to a Three.js mesh (handles reflections via scale.x flip)
+function oriApplyToMesh(m, mesh){
+  const det = oriDet(m);
+  const mEff = det<0 ? oriMul(ORI_FX,m) : m;
+  const m4 = new THREE.Matrix4().set(
+    mEff[0],mEff[1],mEff[2],0, mEff[3],mEff[4],mEff[5],0, mEff[6],mEff[7],mEff[8],0, 0,0,0,1);
+  mesh.rotation.setFromRotationMatrix(m4);
+  mesh.scale.set(det<0?-1:1, 1, 1);
+}
+// Convert legacy {rot:{x,y,z}, flip:{x,y,z}} to an orientation matrix
+function legacyToOri(rot, flip){
+  rot=rot||{}; flip=flip||{};
+  let m=ORI_I.slice();
+  const sy=((Math.round((rot.y||0)/90)%4)+4)%4;
+  const sx=((Math.round((rot.x||0)/90)%4)+4)%4;
+  const sz=((Math.round((rot.z||0)/90)%4)+4)%4;
+  for(let i=0;i<sy;i++) m=oriMul(ORI_RY,m);
+  for(let i=0;i<sx;i++) m=oriMul(ORI_RX,m);
+  for(let i=0;i<sz;i++) m=oriMul(ORI_RZ,m);
+  if(flip.x) m=oriMul(ORI_FX,m);
+  if(flip.y) m=oriMul(ORI_FY,m);
+  if(flip.z) m=oriMul(ORI_FZ,m);
+  return m;
+}
+// Clamp each entry to exactly -1, 0, or 1 (floating-point safety)
+function oriClean(m){ return m.map(v=>Math.round(v)); }
+
+
+
+/* =========================================================================
+   BLOCK DEFINITIONS — add custom/mod blocks by pushing more entries here.
+========================================================================= */
+const CATEGORY_ORDER = ['Armor','Power','Propulsion','Logistics','Cockpits','Primitives','Custom'];
+
+const BLOCK_DEFS = [
+  { id:'light_armor',  label:'Light Armor',     dims:[1,1,1], color:0x9aa3ab, sbc:'LargeBlockArmorBlock',        type:'structural', category:'Armor',      vents:[], shape:'box' },
+  { id:'hydrogen_tank',label:'Hydrogen Tank',    dims:[1,1,2], color:0x21c7b5, sbc:'LargeHydrogenTank',           type:'functional',  category:'Power',      vents:['-z'], shape:'box' },
+  { id:'battery',      label:'Battery',          dims:[1,1,1], color:0x3fae5a, sbc:'LargeBlockBatteryBlock',      type:'functional',  category:'Power',      vents:[], shape:'box' },
+  { id:'h2_thruster',  label:'Hydrogen Thruster',dims:[1,1,2], color:0xe1543c, sbc:'LargeBlockLargeHydrogenThrust',type:'functional', category:'Propulsion', vents:['+z'], shape:'box' },
+  { id:'gyroscope',    label:'Gyroscope',        dims:[1,1,1], color:0xd9a526, sbc:'LargeBlockGyro',              type:'functional',  category:'Propulsion',  vents:[], shape:'box' },
+  { id:'oxygen_tank',  label:'Oxygen Tank',      dims:[1,1,2], color:0x5bb8f0, sbc:'LargeBlockOxygenTank',        type:'functional',  category:'Logistics',  vents:['-z'], shape:'box' },
+  { id:'conveyor',     label:'Conveyor',         dims:[1,1,1], color:0x808a93, sbc:'LargeBlockConveyor',          type:'functional',  category:'Logistics',  vents:['+x','-x','+y','-y','+z','-z'], shape:'box' },
+  { id:'connector',    label:'Connector',        dims:[1,1,1], color:0xf2a93b, sbc:'LargeShipConnector',          type:'functional',  category:'Logistics',  vents:['+z'], shape:'box' },
+  { id:'cockpit',      label:'Cockpit',          dims:[1,1,1], color:0x3a7bd5, sbc:'LargeBlockCockpit',           type:'functional',  category:'Cockpits',   vents:[], shape:'box' },
+
+  // Primitives: sub-block shapes for building composites (half block, wedge, quarter-cylinder corner).
+  // Each still occupies a 1x1x1 *cell* footprint for grid/collision purposes — the mesh just fills
+  // less of that cell. Four 'corner_round' pieces rotated 0/90/180/270 tile into a full circle.
+  { id:'half_block',   label:'Half Block',      dims:[1,1,1], color:0xb9c2cb, sbc:'LargeHalfArmorBlock',         type:'structural', category:'Primitives', vents:[], shape:'half' },
+  { id:'wedge',        label:'Wedge (Tri Prism)',dims:[1,1,1], color:0xc7a96b, sbc:'LargeArmorSlope',             type:'structural', category:'Primitives', vents:[], shape:'wedge' },
+  { id:'corner_round', label:'Round Corner',     dims:[1,1,1], color:0x8fb8c9, sbc:'LargeArmorRoundCorner',       type:'structural', category:'Primitives', vents:[], shape:'corner_round' },
+  { id:'cylinder',     label:'Cylinder/Axle',    dims:[1,1,1], color:0x6b7480, sbc:'',                            type:'structural', category:'Primitives', vents:[], shape:'cylinder',
+    // attach: array of local face normals that CAN connect to neighbors.
+    // [+x,-x,+y,-y,+z,-z] in local space, mapped to world by ori at place time.
+    // null = all faces attachable (default for standard blocks).
+    attach:['−x','+x','−y','+y','−z','+z'] },
+  // 1×2 ramp: a gradual slope that starts at 0 height one end and full height
+  // the other, spanning two grid cells. Great for angled armor or hull seams.
+  // The long axis is Z in local space (dims [1,1,2]).
+  { id:'ramp_1x2',     label:'Ramp 1×2',         dims:[1,1,2], color:0xb0b9c2, sbc:'LargeArmorSlopeBase',         type:'structural', category:'Primitives', vents:[], shape:'ramp_1x2',
+    attach:['−x','+x','−y','+z'] }, // flat faces only: sides, bottom, back (tall end)
+  { id:'air',          label:'Air (Space)',      dims:[1,1,1], color:0x8fd3ff, sbc:'',                            type:'structural', category:'Primitives', vents:[], shape:'box', isAir:true },
+];
+const BLOCK_BY_ID = {}; BLOCK_DEFS.forEach(b=>BLOCK_BY_ID[b.id]=b);
+function hex(c){ return '#'+c.toString(16).padStart(6,'0'); }
+function blocksInCategory(cat){ return BLOCK_DEFS.filter(b=>b.category===cat); }
+
+const SCALE = { small:0.5, large:1.5 };
+
+/* =========================================================================
+   STATE
+========================================================================= */
+let activeScale = 'small';
+let selectedBlockId = BLOCK_DEFS[0].id;
+let pendingOri = ORI_I.slice(); // pending orientation matrix for the NEXT placement
+let rotAxis = 'y'; // which axis the Rotate button/key currently turns
+let eraseMode = false;
+let selectMode = false;
+let panMode = false; // when on, single-finger/left-drag pans instead of orbiting
+let eyedropperMode = false; // tap a block to sample its color
+let paintMode = false;      // tap a block to instantly apply storedColor
+let paintGroupMode = true;  // true = paint whole group, false = just tapped block
+let storedColor = null;     // hex int, e.g. 0x000000 for black
+let selectedSet = new Set(); // uids currently selected for composite-saving
+let placed = [];
+let groups = new Map(); // groupUid -> {defId, scale, memberUids:[...], outlineMesh}
+let groupUidCounter = 1;
+let uidCounter = 1;
+let currentCategory = null; // null = showing category tiles
+let gridW = 40, gridD = 40; // per-build grid size in cells (settable per build)
+let xrayOpacity = 1.0;       // 1 = opaque, slider drives this down for transparency
+let xrayClip = 0;            // 0 = no clip; >0 = hide blocks whose centre is > xrayClip cells from camera
+
+/* =========================================================================
+   UNDO / REDO — snapshot-based. Every committing mutation (place, delete,
+   rotate, flip, replace, recolor, nudge, group ops, composite stamp, clear,
+   import) calls commitHistory() once it has actually changed the grid.
+   Undo/redo just replay full snapshots rather than trying to invert each
+   operation, which is far simpler to keep correct as more mutation types
+   get added.
+========================================================================= */
+let historyStack = [];
+let historyIndex = -1;
+let suppressHistory = false; // true while restoring, so restore itself doesn't get recorded
+const HISTORY_LIMIT = 60;
+
+function captureSnapshot(){
+  return {
+    placed: placed.map(b=>({
+      uid:b.uid, id:b.id, ox:b.ox,oy:b.oy,oz:b.oz, dx:b.dx,dy:b.dy,dz:b.dz,
+      ori:b.ori.slice(), scale:b.scale, groupUid:b.groupUid,
+      colorOverride: b.colorOverride ?? null
+    })),
+    groups: Array.from(groups.entries()).map(([gid,g])=>({ gid, defId:g.defId, label:g.label, scale:g.scale, memberUids:[...g.memberUids] })),
+    uidCounter, groupUidCounter
+  };
+}
+
+function restoreSnapshot(snap){
+  suppressHistory = true;
+  placed.forEach(b=>blockGroup.remove(b.mesh));
+  groups.forEach(g=>{ if(g.outlineMesh) blockGroup.remove(g.outlineMesh); });
+  placed = [];
+  groups = new Map();
+  selectedSet.clear();
+
+  snap.placed.forEach(b=>{
+    const baseDef = BLOCK_BY_ID[b.id] || {id:b.id, label:b.id, color:0xaaaaaa, shape:'box'};
+    const def = (b.colorOverride!=null) ? {...baseDef, color:b.colorOverride} : baseDef;
+    const cs = SCALE[b.scale] || SCALE.small;
+    const ori = Array.isArray(b.ori) ? b.ori.slice() : legacyToOri(b.rot||{}, b.flip||{});
+    const mesh = makeBlockMesh(def, [b.dx,b.dy,b.dz], cs, ori);
+    mesh.position.set((b.ox+b.dx/2)*cs, (b.oy+b.dy/2)*cs, (b.oz+b.dz/2)*cs);
+    blockGroup.add(mesh);
+    mesh.userData.uid = b.uid;
+    placed.push({ uid:b.uid, id:b.id, ox:b.ox,oy:b.oy,oz:b.oz, dx:b.dx,dy:b.dy,dz:b.dz,
+      ori, scale:b.scale, mesh, groupUid:b.groupUid, colorOverride:b.colorOverride });
+  });
+  snap.groups.forEach(g=>{
+    groups.set(g.gid, { defId:g.defId, label:g.label, scale:g.scale, memberUids:[...g.memberUids], outlineMesh:null });
+  });
+  groups.forEach((g,gid)=>refreshGroupOutline(gid));
+  uidCounter = snap.uidCounter;
+  groupUidCounter = snap.groupUidCounter;
+  refreshHud();
+  refreshSelectBar();
+  suppressHistory = false;
+}
+
+function commitHistory(){
+  if(suppressHistory) return;
+  historyStack = historyStack.slice(0, historyIndex+1); // drop any redo branch
+  historyStack.push(captureSnapshot());
+  if(historyStack.length > HISTORY_LIMIT) historyStack.shift();
+  historyIndex = historyStack.length - 1;
+  refreshUndoRedoButtons();
+}
+function undo(){
+  if(historyIndex<=0) return;
+  historyIndex--;
+  restoreSnapshot(historyStack[historyIndex]);
+  refreshUndoRedoButtons();
+}
+function redo(){
+  if(historyIndex>=historyStack.length-1) return;
+  historyIndex++;
+  restoreSnapshot(historyStack[historyIndex]);
+  refreshUndoRedoButtons();
+}
+function refreshUndoRedoButtons(){
+  const u = document.getElementById('undoBtn'), r = document.getElementById('redoBtn');
+  if(u) u.classList.toggle('disabled', historyIndex<=0);
+  if(r) r.classList.toggle('disabled', historyIndex>=historyStack.length-1);
+}
+function resetHistory(){
+  historyStack = [captureSnapshot()];
+  historyIndex = 0;
+  refreshUndoRedoButtons();
+}
+
+let hotbarSlots = new Array(8).fill(null); // manual pins, null = auto-fill
+let recentMRU = []; // most-recently-used block ids, newest first
+
+function recordMRU(id){
+  recentMRU = recentMRU.filter(x=>x!==id);
+  recentMRU.unshift(id);
+  if(recentMRU.length>16) recentMRU.length=16;
+  renderHotbar();
+}
+function hotbarResolved(){
+  // returns array of 8 {id, pinned:boolean|false-for-empty}
+  const used = new Set(hotbarSlots.filter(Boolean));
+  const autoQueue = recentMRU.filter(id=>!used.has(id));
+  let ai = 0;
+  return hotbarSlots.map(pin=>{
+    if(pin) return {id:pin, pinned:true};
+    const id = autoQueue[ai]; ai++;
+    return id ? {id, pinned:false} : {id:null, pinned:false};
+  });
+}
+
+/* =========================================================================
+   THREE.JS SETUP
+========================================================================= */
+const canvas = document.getElementById('gl');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+
+let theme = 'dark';
+const THEME_COLORS = {
+  dark:  { bg:0x0a0d12, fog:0x0a0d12, gridMajor:0x2c6e64, gridMinor:0x1a212c },
+  light: { bg:0xeef1f4, fog:0xeef1f4, gridMajor:0x1e8f7c, gridMinor:0xc9cfd6 }
+};
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(THEME_COLORS[theme].bg);
+scene.fog = new THREE.Fog(THEME_COLORS[theme].fog, 40, 140);
+const camera = new THREE.PerspectiveCamera(50, 1, 0.05, 500);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+const dl = new THREE.DirectionalLight(0xffffff, 0.85); dl.position.set(8,14,6); scene.add(dl);
+const dl2 = new THREE.DirectionalLight(0x4488ff, 0.25); dl2.position.set(-8,4,-10); scene.add(dl2);
+
+let gridHelper, groundMesh;
+const blockGroup = new THREE.Group();
+scene.add(blockGroup);
+function cellSize(){ return SCALE[activeScale]; }
+
+function buildGround(){
+  if(gridHelper) scene.remove(gridHelper);
+  if(groundMesh) scene.remove(groundMesh);
+  const cs = cellSize();
+  const tc = THEME_COLORS[theme];
+  const SPAN = Math.max(gridW, gridD);
+  gridHelper = new THREE.GridHelper(SPAN*cs, SPAN, tc.gridMajor, tc.gridMinor);
+  scene.add(gridHelper);
+  const groundGeo = new THREE.PlaneGeometry(gridW*cs, gridD*cs);
+  groundMesh = new THREE.Mesh(groundGeo, new THREE.MeshBasicMaterial({visible:false}));
+  groundMesh.rotation.x = -Math.PI/2;
+  groundMesh.name = '__ground__';
+  scene.add(groundMesh);
+}
+buildGround();
+
+
+function setTheme(mode){
+  theme = mode;
+  document.body.classList.toggle('light', mode==='light');
+  document.getElementById('themeDarkBtn').classList.toggle('active', mode==='dark');
+  document.getElementById('themeLightBtn').classList.toggle('active', mode==='light');
+  scene.background.setHex(THEME_COLORS[mode].bg);
+  scene.fog.color.setHex(THEME_COLORS[mode].fog);
+  buildGround();
+  try{ window.storage.set('gs:settings:theme', mode, false); }catch(err){}
+}
+document.getElementById('themeDarkBtn').addEventListener('click', ()=>setTheme('dark'));
+document.getElementById('themeLightBtn').addEventListener('click', ()=>setTheme('light'));
+
+let axisColorMode = 'rgb';
+function setAxisColorMode(mode){
+  axisColorMode = mode;
+  document.body.classList.toggle('axis-mono', mode==='mono');
+  document.getElementById('axisColorRgbBtn').classList.toggle('active', mode==='rgb');
+  document.getElementById('axisColorMonoBtn').classList.toggle('active', mode==='mono');
+  try{ window.storage.set('gs:settings:axisColor', mode, false); }catch(err){}
+  if(typeof refreshNextPreview === 'function') refreshNextPreview();
+}
+document.getElementById('axisColorRgbBtn').addEventListener('click', ()=>setAxisColorMode('rgb'));
+document.getElementById('axisColorMonoBtn').addEventListener('click', ()=>setAxisColorMode('mono'));
+(async ()=>{
+  try{
+    const res = await window.storage.get('gs:settings:axisColor', false);
+    setAxisColorMode(res && res.value==='mono' ? 'mono' : 'rgb');
+  }catch(err){ setAxisColorMode('rgb'); }
+})();
+(async ()=>{
+  try{
+    const res = await window.storage.get('gs:settings:theme', false);
+    if(res && (res.value==='light' || res.value==='dark')) setTheme(res.value);
+    else setTheme('dark');
+  }catch(err){ setTheme('dark'); }
+})();
+
+let tipsVisible = true;
+function setTipsVisible(v){
+  tipsVisible = v;
+  document.getElementById('tipline').classList.toggle('hidden', !v);
+  document.getElementById('tipsOnBtn').classList.toggle('active', v);
+  document.getElementById('tipsOffBtn').classList.toggle('active', !v);
+  try{ window.storage.set('gs:settings:tips', v ? 'on' : 'off', false); }catch(err){}
+}
+document.getElementById('tipsOnBtn').addEventListener('click', ()=>setTipsVisible(true));
+document.getElementById('tipsOffBtn').addEventListener('click', ()=>setTipsVisible(false));
+window.addEventListener('keydown', (e)=>{
+  if(e.key === 'F1'){
+    e.preventDefault();
+    setTipsVisible(!tipsVisible);
+  }
+});
+(async ()=>{
+  try{
+    const res = await window.storage.get('gs:settings:tips', false);
+    setTipsVisible(res ? res.value !== 'off' : true);
+  }catch(err){ setTipsVisible(true); }
+})();
+
+/* =========================================================================
+   CAMERA (custom touch/mouse orbit, left-button only)
+========================================================================= */
+const cam = { target:new THREE.Vector3(0,1.5,0), radius:14, theta:Math.PI*0.25, phi:Math.PI*0.35 };
+function clampPhi(p){ return Math.max(0.08, Math.min(Math.PI-0.08, p)); }
+function updateCameraPos(){
+  const r=cam.radius;
+  camera.position.set(
+    cam.target.x + r*Math.sin(cam.phi)*Math.sin(cam.theta),
+    cam.target.y + r*Math.cos(cam.phi),
+    cam.target.z + r*Math.sin(cam.phi)*Math.cos(cam.theta)
+  );
+  camera.lookAt(cam.target);
+}
+updateCameraPos();
+
+/* =========================================================================
+   "NEXT" PREVIEW — a small separate scene/camera/renderer showing the
+   currently selected block (or composite) at its pending rotation, Tetris-
+   next-piece style, plus a tiny RGB axis gizmo with the active axis lit up.
+   (Declared early, before refreshHud()'s first call, since refreshHud calls
+   refreshNextPreview() on every state change.)
+========================================================================= */
+const npCanvas = document.getElementById('nextCanvas');
+const npRenderer = new THREE.WebGLRenderer({canvas:npCanvas, antialias:true, alpha:true});
+npRenderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+const npScene = new THREE.Scene();
+const npCamera = new THREE.PerspectiveCamera(38, 1, 0.05, 50);
+npCamera.position.set(2.1, 1.9, 2.5);
+npCamera.lookAt(0,0,0);
+npScene.add(new THREE.AmbientLight(0xffffff, 0.85));
+const npLight = new THREE.DirectionalLight(0xffffff, 0.6); npLight.position.set(3,5,2); npScene.add(npLight);
+let npMesh = null, npGizmo = null;
+
+function buildAxisGizmo(){
+  const g = new THREE.Group();
+  const mk = (dir, color)=>{
+    const mat = new THREE.LineBasicMaterial({color});
+    const geo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), dir]);
+    return new THREE.Line(geo, mat);
+  };
+  g.add(mk(new THREE.Vector3(0.9,0,0), 0xff5c5c)); // X
+  g.add(mk(new THREE.Vector3(0,0.9,0), 0x3fae5a)); // Y
+  g.add(mk(new THREE.Vector3(0,0,0.9), 0x5bb8f0)); // Z
+  return g;
+}
+function defNeedsPreview(def){
+  if(!def) return false;
+  if(def.isComposite) return def.members.some(m=>{
+    const mdef = BLOCK_BY_ID[m.id];
+    return mdef && mdef.shape && mdef.shape!=='box';
+  });
+  return !!(def.shape && def.shape!=='box');
+}
+function refreshNextPreview(){
+  if(npMesh){ npScene.remove(npMesh); npMesh=null; }
+  const def = BLOCK_BY_ID[selectedBlockId];
+  if(def && defNeedsPreview(def)){
+    if(def.isComposite){
+      const group = new THREE.Group();
+      const relMembers = resolveCompositeMembers(def, pendingOri);
+      relMembers.forEach(m=>{
+        const mdef = BLOCK_BY_ID[m.id]; if(!mdef) return;
+        const mesh = makeBlockMesh(mdef, m.dims, 1, m.ori);
+        mesh.position.set(m.off[0]+m.dims[0]/2, m.off[1]+m.dims[1]/2, m.off[2]+m.dims[2]/2);
+        group.add(mesh);
+      });
+      const box = new THREE.Box3().setFromObject(group);
+      const center = box.getCenter(new THREE.Vector3());
+      group.children.forEach(c=>c.position.sub(center));
+      npMesh = group;
+    } else {
+      const dims = rotatedDims(def.dims, pendingOri);
+      npMesh = makeBlockMesh(def, dims, 1, pendingOri);
+    }
+    npScene.add(npMesh);
+  }
+  // The axis gizmo is always present — it's the always-visible "which way is
+  // X/Y/Z" reference, independent of whether the current block's shape
+  // actually needs a visual orientation preview.
+  if(npGizmo) npScene.remove(npGizmo);
+  npGizmo = buildAxisGizmo();
+  const activeColors = axisColorMode==='mono'
+    ? {x:0x34e0c9, y:0x34e0c9, z:0x34e0c9}
+    : {x:0xff5c5c, y:0x3fae5a, z:0x5bb8f0};
+  npGizmo.children.forEach((line,i)=>{
+    const letter = ['x','y','z'][i];
+    line.material.color.setHex(letter===rotAxis ? activeColors[letter] : 0x3a4250);
+  });
+  npGizmo.position.set(-1.1, -1.0, -1.1);
+  npScene.add(npGizmo);
+}
+function resizeNextPreview(){
+  const rect = npCanvas.parentElement.getBoundingClientRect();
+  npRenderer.setSize(rect.width, rect.height, false);
+  npCamera.aspect = rect.width/rect.height;
+  npCamera.updateProjectionMatrix();
+}
+window.addEventListener('resize', resizeNextPreview);
+resizeNextPreview();
+function animateNextPreview(){
+  requestAnimationFrame(animateNextPreview);
+  // Lock the preview's viewing angle to the main viewport's current orbit
+  // (same theta/phi, fixed close-in radius) so "which way is up/forward"
+  // always matches what you're actually looking at on the grid.
+  const r = 2.6;
+  npCamera.position.set(
+    r*Math.sin(cam.phi)*Math.sin(cam.theta),
+    r*Math.cos(cam.phi) + 0.25,
+    r*Math.sin(cam.phi)*Math.cos(cam.theta)
+  );
+  npCamera.lookAt(0,0,0);
+  npRenderer.render(npScene, npCamera);
+}
+animateNextPreview();
+
+/* =========================================================================
+   RAYCAST HELPER
+========================================================================= */
+const raycaster = new THREE.Raycaster();
+const ndc = new THREE.Vector2();
+function raycastAt(clientX, clientY){
+  const rect = canvas.getBoundingClientRect();
+  ndc.x = ((clientX-rect.left)/rect.width)*2-1;
+  ndc.y = -((clientY-rect.top)/rect.height)*2+1;
+  raycaster.setFromCamera(ndc, camera);
+  const targets = [groundMesh, ...placed.map(b=>b.mesh)];
+  const hits = raycaster.intersectObjects(targets, false);
+  if(!hits.length) return {type:null};
+  const hit = hits[0];
+  if(hit.object === groundMesh) return {type:'ground', point:hit.point};
+  const entry = placed.find(b=>b.mesh===hit.object);
+  return {type:'block', entry, hit};
+}
+
+/* =========================================================================
+   BLOCK GEOMETRY / PLACEMENT
+========================================================================= */
+function rotatedDims(dims, ori){
+  if(!ori) return dims.slice();
+  // If legacy {x,y,z} object slipped in, convert it first
+  if(!Array.isArray(ori)) ori = legacyToOri(ori, {});
+  return oriApplyAbs(ori, dims).map(Math.round);
+}
+
+function overlaps(origin, dims, scale, excludeUid){
+  const cs = SCALE[scale];
+  const [ox,oy,oz]=origin, [dx,dy,dz]=dims;
+  const EPS = 1e-6;
+  const isSet = excludeUid instanceof Set;
+  const nMinX=ox*cs, nMinY=oy*cs, nMinZ=oz*cs;
+  const nMaxX=(ox+dx)*cs, nMaxY=(oy+dy)*cs, nMaxZ=(oz+dz)*cs;
+  for(const b of placed){
+    if(isSet ? excludeUid.has(b.uid) : b.uid===excludeUid) continue;
+    const bcs = SCALE[b.scale];
+    const bMinX=b.ox*bcs, bMinY=b.oy*bcs, bMinZ=b.oz*bcs;
+    const bMaxX=(b.ox+b.dx)*bcs, bMaxY=(b.oy+b.dy)*bcs, bMaxZ=(b.oz+b.dz)*bcs;
+    const sep = nMaxX<=bMinX+EPS || bMaxX<=nMinX+EPS ||
+                nMaxY<=bMinY+EPS || bMaxY<=nMinY+EPS ||
+                nMaxZ<=bMinZ+EPS || bMaxZ<=nMinZ+EPS;
+    if(!sep) return true;
+  }
+  return false;
+}
+
+function flashError(){
+  const f=document.getElementById('flash');
+  f.style.background='rgba(255,92,92,.18)';
+  setTimeout(()=>f.style.background='rgba(255,92,92,0)',140);
+}
+
+function buildGeometryForShape(shape, cs){
+  switch(shape){
+    case 'half': { // slab filling the bottom half of the cell
+      const g = new THREE.BoxGeometry(cs, cs*0.5, cs);
+      g.translate(0, -cs*0.25, 0);
+      return g;
+    }
+    case 'wedge': { // right-triangle cross-section prism — 4 rotations + a half_block can form a circle-ish step
+      const h = cs/2;
+      const sh = new THREE.Shape();
+      sh.moveTo(-h,-h); sh.lineTo(h,-h); sh.lineTo(-h,h); sh.lineTo(-h,-h);
+      const g = new THREE.ExtrudeGeometry(sh, {depth:cs, bevelEnabled:false});
+      g.translate(0,0,-h);
+      return g;
+    }
+    case 'corner_round': { // quarter-cylinder pivoting on one vertical edge of the cell.
+      // (CylinderGeometry with a partial theta sweep never generates the two flat
+      // radial "cut" faces, hence the see-through walls — ExtrudeGeometry of a
+      // pie-slice shape walls every edge of the profile, including straight ones.)
+      const r = cs;
+      const sh = new THREE.Shape();
+      sh.moveTo(0,0);
+      sh.lineTo(r,0);
+      sh.absarc(0,0,r,0,Math.PI/2,false);
+      sh.lineTo(0,0);
+      const g = new THREE.ExtrudeGeometry(sh, {depth:cs, bevelEnabled:false, curveSegments:10});
+      g.rotateX(Math.PI/2);
+      g.translate(0, cs/2, 0);
+      g.translate(-cs/2, 0, -cs/2);
+      return g;
+    }
+    case 'cylinder': { // a vertical rod/axle filling the cell, full height, half the cell's width across
+      return new THREE.CylinderGeometry(cs/2, cs/2, cs, 16, 1, false);
+    }
+    case 'ramp_1x2': { // gradual slope, 2 cells long along Z, 1 wide along X, 1 tall.
+      // Profile (in Y-Z plane): bottom-left(0,0) → bottom-right(2cs,0) → top-right(2cs,cs) → top-left(0,0).
+      // Width in X: from -cs/2 to +cs/2.
+      // Faces: bottom (quad), back wall (quad, tall end at +Z), two side triangles, and the slope face.
+      const hw = cs/2, len = 2*cs, h = cs;
+      const geo = new THREE.BufferGeometry();
+      // vertices: 8 corners of the prism
+      // left side (x=-hw): 0=(0,0,0), 1=(0,0,len), 2=(0,h,len)
+      // right side (x=+hw): 3=(0,0,0)→x=+hw, etc.
+      const verts = new Float32Array([
+        -hw,0,0,   hw,0,0,    hw,0,len,   -hw,0,len,   // bottom quad: 0,1,2,3
+        -hw,h,len, hw,h,len                              // top-back edge: 4,5
+      ]);
+      // indices: bottom(0,1,2,0,2,3), back(2,5,4,2,3,4 → fix winding),
+      //          left tri(0,3,4), right tri(1,2,5→fix), slope(0,4,5,0,5,1→fix)
+      const idx = new Uint16Array([
+        0,2,1, 0,3,2,      // bottom
+        3,5,2, 3,4,5,      // back wall (+Z face, tall end)
+        0,4,3,             // left triangle
+        1,2,5,             // right triangle
+        0,1,5, 0,5,4       // slope face
+      ]);
+      geo.setAttribute('position', new THREE.BufferAttribute(verts,3));
+      geo.setIndex(new THREE.BufferAttribute(idx,1));
+      geo.computeVertexNormals();
+      geo.translate(-hw, 0, -len/2); // center on local origin (matching 1×1×2 bbox center)
+      geo.translate(0, -h/2, 0);
+      return geo;
+    }
+    default:
+      return null; // caller falls back to a plain box sized to dims
+  }
+}
+
+// A placed block can carry its own colorOverride (set via the Recolor action)
+// independent of its block-definition's default color. This resolves the def
+// actually used for rendering, without mutating BLOCK_DEFS itself.
+function effectiveDef(entry){
+  const def = BLOCK_BY_ID[entry.id];
+  if(!def) return def;
+  return (entry.colorOverride!=null) ? {...def, color:entry.colorOverride} : def;
+}
+function rebuildEntryMesh(entry){
+  const def = effectiveDef(entry);
+  blockGroup.remove(entry.mesh);
+  const cs = SCALE[entry.scale];
+  const mesh = makeBlockMesh(def, [entry.dx,entry.dy,entry.dz], cs, entry.ori);
+  mesh.position.set((entry.ox+entry.dx/2)*cs, (entry.oy+entry.dy/2)*cs, (entry.oz+entry.dz/2)*cs);
+  mesh.userData.uid = entry.uid;
+  blockGroup.add(mesh);
+  entry.mesh = mesh;
+}
+
+function makeBlockMesh(def, dims, cs, ori){
+  ori = (ori && Array.isArray(ori)) ? ori : (ori ? legacyToOri(ori,{}) : ORI_I.slice());
+  const isPrimitive = def.shape && def.shape!=='box';
+  // For boxes we use the already-oriented `dims` for the geometry size.
+  // For primitives the geometry is always built in local-space (1-cell sized),
+  // and the orientation matrix is applied to the mesh transform instead.
+  const geo = isPrimitive
+    ? buildGeometryForShape(def.shape, cs)
+    : new THREE.BoxGeometry(dims[0]*cs, dims[1]*cs, dims[2]*cs);
+  const mat = def.isAir
+    ? new THREE.MeshBasicMaterial({ color: def.color, transparent:true, opacity:0.16, depthWrite:false })
+    : new THREE.MeshStandardMaterial({ color: def.color, roughness:0.55, metalness:0.25 });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({color: def.isAir?0x8fd3ff:0x05080b, transparent:true, opacity: def.isAir?0.5:0.55})));
+  // Primitives always need the orientation applied as a real mesh rotation.
+  // Box meshes just use the correct dims (rotatedDims already handled that),
+  // but we still apply any improper (det=-1) part as scale.x=-1 so that
+  // a flipped cube renders correctly (normals flip the right way, not inside-out).
+  if(isPrimitive || oriDet(ori)<0) oriApplyToMesh(ori, mesh);
+  return mesh;
+}
+
+function addBlock(def, origin, dims, cs, scale, oriParam, _flipParam, groupUid, skipHistory){
+  // _flipParam kept in signature for legacy call-sites; ignored — ori encodes flip now.
+  const ori = Array.isArray(oriParam) ? oriParam.slice()
+            : oriParam ? legacyToOri(oriParam, _flipParam||{}) : pendingOri.slice();
+  const [ox,oy,oz]=origin, [dx,dy,dz]=dims;
+  const mesh = makeBlockMesh(def, dims, cs, ori);
+  mesh.position.set((ox+dx/2)*cs, (oy+dy/2)*cs, (oz+dz/2)*cs);
+  blockGroup.add(mesh);
+  const entry = { uid:uidCounter++, id:def.id, ox,oy,oz, dx,dy,dz, ori, scale, mesh, groupUid: groupUid||null };
+  mesh.userData.uid = entry.uid;
+  placed.push(entry);
+  recordMRU(def.id);
+  refreshHud();
+  if(!skipHistory) commitHistory();
+  return entry;
+}
+function removeBlock(uid){
+  const idx = placed.findIndex(b=>b.uid===uid);
+  if(idx<0) return;
+  blockGroup.remove(placed[idx].mesh);
+  placed.splice(idx,1);
+  selectedSet.delete(uid);
+  refreshHud();
+  refreshSelectBar();
+  commitHistory();
+}
+function deleteGroup(groupUid){
+  const group = groups.get(groupUid);
+  if(!group) return;
+  group.memberUids.forEach(uid=>{
+    const idx = placed.findIndex(b=>b.uid===uid);
+    if(idx>=0){ blockGroup.remove(placed[idx].mesh); placed.splice(idx,1); }
+    selectedSet.delete(uid);
+  });
+  if(group.outlineMesh) blockGroup.remove(group.outlineMesh);
+  groups.delete(groupUid);
+  refreshHud(); refreshSelectBar();
+  commitHistory();
+}
+function ungroup(groupUid){
+  const group = groups.get(groupUid);
+  if(!group) return;
+  const sourceDefId = group.defId; // remember so the user can Re-save to same def
+  const memberUids = [...group.memberUids];
+  memberUids.forEach(uid=>{
+    const entry = placed.find(b=>b.uid===uid);
+    if(entry){ entry.groupUid = null; entry.sourceDefId = sourceDefId; }
+  });
+  if(group.outlineMesh) blockGroup.remove(group.outlineMesh);
+  groups.delete(groupUid);
+  // Auto-enter select mode with all ex-members selected so user can immediately
+  // edit and then re-save without having to manually re-select.
+  if(!selectMode) toggleSelectMode(true);
+  memberUids.forEach(uid=>{
+    const e = placed.find(b=>b.uid===uid);
+    if(e && !selectedSet.has(uid)){ selectedSet.add(uid); setBlockHighlight(e,true); }
+  });
+  refreshSelectBar();
+  commitHistory();
+}
+function clearAll(){ placed.forEach(b=>blockGroup.remove(b.mesh)); placed=[]; groups.forEach(g=>{ if(g.outlineMesh) blockGroup.remove(g.outlineMesh); }); groups.clear(); selectedSet.clear(); refreshHud(); refreshSelectBar(); }
+
+/* ---- "Select" from the context menu — jumps straight into Select mode
+   with this block's whole group (or just itself, if it's not grouped)
+   already selected, instead of making you tap pieces one at a time. ---- */
+function selectGroupOrBlock(uid){
+  const entry = placed.find(b=>b.uid===uid);
+  if(!entry) return;
+  if(!selectMode) toggleSelectMode(true);
+  const uids = entry.groupUid ? (groups.get(entry.groupUid)?.memberUids || [uid]) : [uid];
+  uids.forEach(u=>{
+    const e = placed.find(b=>b.uid===u);
+    if(e && !selectedSet.has(u)){ selectedSet.add(u); setBlockHighlight(e,true); }
+  });
+  refreshSelectBar();
+}
+
+/* ---- "Duplicate" — clones a single block, or an entire group as one unit,
+   offset by one cell along +X so the copy doesn't land exactly on top of
+   the original. This is the "reuse it" shortcut: grab a copy of something
+   already on the grid without re-selecting it from the palette. ---- */
+function duplicateBlock(uid){
+  const entry = placed.find(b=>b.uid===uid);
+  if(!entry) return;
+  const def = effectiveDef(entry);
+  const nox = entry.ox + entry.dx; // offset flush along +X by its own width
+  if(overlaps([nox,entry.oy,entry.oz], [entry.dx,entry.dy,entry.dz], entry.scale, null)){ flashError(); return; }
+  const copy = addBlock(BLOCK_BY_ID[entry.id], [nox,entry.oy,entry.oz], [entry.dx,entry.dy,entry.dz], SCALE[entry.scale], entry.scale, entry.ori.slice(), null, null, true);
+  copy.colorOverride = entry.colorOverride ?? null;
+  if(copy.colorOverride!=null) rebuildEntryMesh(copy);
+  commitHistory();
+}
+function duplicateGroup(groupUid){
+  const group = groups.get(groupUid);
+  if(!group) return;
+  const members = group.memberUids.map(uid=>placed.find(b=>b.uid===uid)).filter(Boolean);
+  if(!members.length) return;
+  const maxX = Math.max(...members.map(m=>m.ox+m.dx));
+  const minX = Math.min(...members.map(m=>m.ox));
+  const offsetX = maxX - minX; // shift the whole group by its own footprint width
+  for(const m of members){
+    if(overlaps([m.ox+offsetX,m.oy,m.oz], [m.dx,m.dy,m.dz], group.scale, null)){ flashError(); return; }
+  }
+  const newGroupUid = 'g' + (groupUidCounter++);
+  const newMemberUids = [];
+  members.forEach(m=>{
+    const copy = addBlock(BLOCK_BY_ID[m.id], [m.ox+offsetX,m.oy,m.oz], [m.dx,m.dy,m.dz], SCALE[group.scale], group.scale, m.ori.slice(), null, newGroupUid, true);
+    copy.colorOverride = m.colorOverride ?? null;
+    if(copy.colorOverride!=null) rebuildEntryMesh(copy);
+    newMemberUids.push(copy.uid);
+  });
+  groups.set(newGroupUid, { defId:group.defId, label:group.label, scale:group.scale, memberUids:newMemberUids, outlineMesh:null });
+  refreshGroupOutline(newGroupUid);
+  commitHistory();
+}
+
+function buildGroupOutline(group){
+  const cs = SCALE[group.scale];
+  const members = group.memberUids.map(uid=>placed.find(b=>b.uid===uid)).filter(Boolean);
+  if(!members.length) return null;
+  const minX=Math.min(...members.map(m=>m.ox))*cs, minY=Math.min(...members.map(m=>m.oy))*cs, minZ=Math.min(...members.map(m=>m.oz))*cs;
+  const maxX=Math.max(...members.map(m=>m.ox+m.dx))*cs, maxY=Math.max(...members.map(m=>m.oy+m.dy))*cs, maxZ=Math.max(...members.map(m=>m.oz+m.dz))*cs;
+  const w=Math.max(maxX-minX,0.01), h=Math.max(maxY-minY,0.01), d=Math.max(maxZ-minZ,0.01);
+  const geo = new THREE.BoxGeometry(w,h,d);
+  const edges = new THREE.EdgesGeometry(geo);
+  const mat = new THREE.LineDashedMaterial({color:0xffb454, dashSize:cs*0.18, gapSize:cs*0.12, transparent:true, opacity:0.85});
+  const line = new THREE.LineSegments(edges, mat);
+  line.computeLineDistances();
+  line.position.set(minX+w/2, minY+h/2, minZ+d/2);
+  line.raycast = ()=>{}; // never intercept placement/erase raycasts
+  return line;
+}
+function refreshGroupOutline(groupUid){
+  const group = groups.get(groupUid); if(!group) return;
+  if(group.outlineMesh) blockGroup.remove(group.outlineMesh);
+  group.outlineMesh = buildGroupOutline(group);
+  if(group.outlineMesh) blockGroup.add(group.outlineMesh);
+}
+
+function adjacentOrigin(existing, normal, newDims, newScale){
+  const ecs = SCALE[existing.scale];
+  const ncs = SCALE[newScale];
+  const eMinM = [existing.ox*ecs, existing.oy*ecs, existing.oz*ecs];
+  const eMaxM = [eMinM[0]+existing.dx*ecs, eMinM[1]+existing.dy*ecs, eMinM[2]+existing.dz*ecs];
+  const ax=Math.round(normal.x), ay=Math.round(normal.y), az=Math.round(normal.z);
+
+  // ── Face attachability check ──────────────────────────────────────────────
+  // The block's `attach` array lists which LOCAL face normals can connect.
+  // We need to transform the WORLD-space hit normal back to the block's local
+  // space by multiplying by the INVERSE orientation (transpose, since ori is
+  // orthogonal). The face we're snapping TO on the existing block is the face
+  // in the direction opposite to `normal` (we're approaching from the outside).
+  const def = BLOCK_BY_ID[existing.id];
+  if(def && def.attach){
+    const oriT = [ // transpose = inverse for orthogonal matrix
+      existing.ori[0], existing.ori[3], existing.ori[6],
+      existing.ori[1], existing.ori[4], existing.ori[7],
+      existing.ori[2], existing.ori[5], existing.ori[8]
+    ];
+    const worldNormal = [ax,ay,az]; // direction INTO existing block from outside
+    const localNormal = oriApply(oriT, worldNormal); // in the block's local frame
+    const faceKey = (localNormal[0]!==0 ? (localNormal[0]>0?'+x':'−x')
+                   : localNormal[1]!==0 ? (localNormal[1]>0?'+y':'−y')
+                   :                      (localNormal[2]>0?'+z':'−z'));
+    const oppKey = faceKey.startsWith('+') ? '−'+faceKey[1] : '+'+faceKey[1];
+    if(!def.attach.includes(oppKey)){ flashError(); return null; }
+  }
+  // ─────────────────────────────────────────────────────────────────────────
+
+  const originM = [eMinM[0], eMinM[1], eMinM[2]];
+  if(ax!==0)      originM[0] = ax>0 ? eMaxM[0] : eMinM[0]-newDims[0]*ncs;
+  else if(ay!==0) originM[1] = ay>0 ? eMaxM[1] : eMinM[1]-newDims[1]*ncs;
+  else if(az!==0) originM[2] = az>0 ? eMaxM[2] : eMinM[2]-newDims[2]*ncs;
+  else return null;
+  return [
+    Math.round(originM[0]/ncs),
+    Math.round(originM[1]/ncs),
+    Math.round(originM[2]/ncs)
+  ];
+}
+
+/* ---- Pure rotation primitive, shared by composite-stamp pre-rotation AND
+   already-placed Rotate Group. Using the orientation matrix means composing
+   rotations across different axes always gives the mathematically correct
+   result (unlike the old Euler-angle approach). ---- */
+function rotateCellMembers90(members, axis){
+  const minO=[Infinity,Infinity,Infinity], maxO=[-Infinity,-Infinity,-Infinity];
+  members.forEach(m=>{ for(let a=0;a<3;a++){ if(m.off[a]<minO[a]) minO[a]=m.off[a]; if(m.off[a]+m.dims[a]>maxO[a]) maxO[a]=m.off[a]+m.dims[a]; } });
+  const pivot = [(minO[0]+maxO[0])/2,(minO[1]+maxO[1])/2,(minO[2]+maxO[2])/2];
+  const R = oriAxisR90(axis);
+  return members.map(m=>{
+    const newOri = oriClean(oriMul(R, m.ori));
+    const newDims = rotatedDims(m.baseDims, newOri);
+    const center = [m.off[0]+m.dims[0]/2, m.off[1]+m.dims[1]/2, m.off[2]+m.dims[2]/2];
+    const rel = center.map((v,i)=>v-pivot[i]);
+    const newRel = oriApply(R, rel);
+    const newOff = newRel.map((v,i)=>v+pivot[i]-newDims[i]/2);
+    return { id:m.id, baseDims:m.baseDims, off:newOff, dims:newDims, ori:newOri };
+  });
+}
+
+/* ---- Composite stamp placement: a saved selection re-placed as a group of
+   independent blocks, now honoring whichever axis (X/Y/Z) is selected, and
+   properly carrying each member's flip through. Returns members positioned
+   RELATIVE to [0,0,0] — placeCompositeAt shifts them to the real origin
+   after measuring the rotated bbox. ---- */
+function resolveCompositeMembers(def, stampOri){
+  // stampOri: the pending orientation matrix to apply to the whole stamp
+  if(!stampOri) stampOri = ORI_I.slice();
+  let members = def.members.map(m=>{
+    const mdef = BLOCK_BY_ID[m.id];
+    const ori = Array.isArray(m.ori) ? m.ori.slice()
+              : legacyToOri(m.rot||{}, m.flip||{});
+    const baseDims = mdef ? mdef.dims : [1,1,1];
+    const dims = rotatedDims(baseDims, ori);
+    return { id:m.id, baseDims, off:[m.dx,m.dy,m.dz], dims, ori };
+  });
+  // Apply the stamp orientation: rotate every member's offset AND its own
+  // orientation, pivoting around the stamp's own bbox center.
+  // We factor the stampOri into individual 90° rotations using the det.
+  // Cleanest: find the 4 standard axes and apply the matrix directly.
+  members = applyStampOri(members, stampOri);
+  return members;
+}
+
+function applyStampOri(members, stampOri){
+  if(stampOri.every((v,i)=>v===ORI_I[i])) return members; // identity, skip
+  const minO=[Infinity,Infinity,Infinity], maxO=[-Infinity,-Infinity,-Infinity];
+  members.forEach(m=>{
+    for(let a=0;a<3;a++){
+      if(m.off[a]<minO[a]) minO[a]=m.off[a];
+      if(m.off[a]+m.dims[a]>maxO[a]) maxO[a]=m.off[a]+m.dims[a];
+    }
+  });
+  const pivotLocal = [(minO[0]+maxO[0])/2,(minO[1]+maxO[1])/2,(minO[2]+maxO[2])/2];
+  return members.map(m=>{
+    const center = [m.off[0]+m.dims[0]/2, m.off[1]+m.dims[1]/2, m.off[2]+m.dims[2]/2];
+    const rel = center.map((v,i)=>v-pivotLocal[i]);
+    const newRel = oriApply(stampOri, rel);
+    const newOri = oriClean(oriMul(stampOri, m.ori));
+    const newDims = rotatedDims(m.baseDims, newOri);
+    const newOff = newRel.map((v,i)=>v+pivotLocal[i]-newDims[i]/2);
+    return { id:m.id, baseDims:m.baseDims, off:newOff, dims:newDims, ori:newOri };
+  });
+}
+
+function placeCompositeAt(def, rc){
+  const cs = SCALE[def.scale];
+  const relMembers = resolveCompositeMembers(def, pendingOri);
+  const minX=Math.min(...relMembers.map(m=>m.off[0])), maxX=Math.max(...relMembers.map(m=>m.off[0]+m.dims[0]));
+  const minY=Math.min(...relMembers.map(m=>m.off[1])), maxY=Math.max(...relMembers.map(m=>m.off[1]+m.dims[1]));
+  const minZ=Math.min(...relMembers.map(m=>m.off[2])), maxZ=Math.max(...relMembers.map(m=>m.off[2]+m.dims[2]));
+  const boundsDims = [maxX-minX, maxY-minY, maxZ-minZ];
+
+  let bboxOrigin; // the BOUNDING BOX's min corner, in cells
+  if(rc.type==='ground'){
+    bboxOrigin = [Math.floor(rc.point.x/cs), 0, Math.floor(rc.point.z/cs)];
+  } else if(rc.type==='block'){
+    const n = rc.hit.face.normal.clone().transformDirection(rc.hit.object.matrixWorld);
+    bboxOrigin = adjacentOrigin(rc.entry, n, boundsDims, def.scale);
+    if(!bboxOrigin) return;
+  } else return;
+  // shift each member from "relative to its own rotated bbox min" to "relative to the placement point"
+  const shift = [bboxOrigin[0]-minX, bboxOrigin[1]-minY, bboxOrigin[2]-minZ];
+  const resolved = relMembers.map(m=>({
+    id:m.id, ori:m.ori, dims:m.dims,
+    ox:m.off[0]+shift[0], oy:m.off[1]+shift[1], oz:m.off[2]+shift[2]
+  }));
+
+  // validate every member first so we never place a partial stamp
+  for(const m of resolved){
+    if(overlaps([m.ox,m.oy,m.oz], m.dims, def.scale, null)){ flashError(); return; }
+  }
+
+  const groupUid = 'g' + (groupUidCounter++);
+  const memberUids = [];
+  resolved.forEach(m=>{
+    const mdef = BLOCK_BY_ID[m.id];
+    if(!mdef) return;
+    const entry = addBlock(mdef, [m.ox,m.oy,m.oz], m.dims, cs, def.scale, m.ori, null, groupUid, true);
+    memberUids.push(entry.uid);
+  });
+  groups.set(groupUid, { defId:def.id, label:def.label, scale:def.scale, memberUids, outlineMesh:null });
+  refreshGroupOutline(groupUid);
+  commitHistory();
+}
+
+/* ---- Transform an already-placed GROUP as a rigid whole: rotate 90° around
+   its bbox center, or mirror across X/Z through that same center. Member
+   centers can land on half-cell lines after this — that's intentional, it's
+   how a wheel-on-axle ends up centered instead of grid-locked. ---- */
+function rotateMemberSet90(memberUids, scale, axis){
+  const members = memberUids.map(uid=>placed.find(b=>b.uid===uid)).filter(Boolean);
+  if(!members.length) return false;
+  const cs = SCALE[scale];
+  const excl = new Set(memberUids);
+  const R = oriAxisR90(axis);
+  // Pivot = bbox center in world-space
+  const pivot = [
+    (Math.min(...members.map(m=>m.ox*cs))+Math.max(...members.map(m=>(m.ox+m.dx)*cs)))/2,
+    (Math.min(...members.map(m=>m.oy*cs))+Math.max(...members.map(m=>(m.oy+m.dy)*cs)))/2,
+    (Math.min(...members.map(m=>m.oz*cs))+Math.max(...members.map(m=>(m.oz+m.dz)*cs)))/2
+  ];
+  const updates = members.map(m=>{
+    const def = effectiveDef(m);
+    const newOri = oriClean(oriMul(R, m.ori));
+    const ndims = rotatedDims(def.dims, newOri);
+    const center = [(m.ox+m.dx/2)*cs,(m.oy+m.dy/2)*cs,(m.oz+m.dz/2)*cs];
+    const rel = center.map((v,i)=>v-pivot[i]);
+    const newRel = oriApply(R, rel);
+    const nox = (pivot[0]+newRel[0])/cs - ndims[0]/2;
+    const noy = (pivot[1]+newRel[1])/cs - ndims[1]/2;
+    const noz = (pivot[2]+newRel[2])/cs - ndims[2]/2;
+    return { entry:m, def, nox, noy, noz, newOri, ndims };
+  });
+  for(const u of updates){
+    if(overlaps([u.nox,u.noy,u.noz], u.ndims, scale, excl)){ flashError(); return false; }
+  }
+  updates.forEach(u=>{
+    blockGroup.remove(u.entry.mesh);
+    const mesh = makeBlockMesh(u.def, u.ndims, cs, u.newOri);
+    mesh.position.set((u.nox+u.ndims[0]/2)*cs, (u.noy+u.ndims[1]/2)*cs, (u.noz+u.ndims[2]/2)*cs);
+    mesh.userData.uid = u.entry.uid;
+    blockGroup.add(mesh);
+    u.entry.mesh=mesh; u.entry.ox=u.nox; u.entry.oy=u.noy; u.entry.oz=u.noz;
+    u.entry.ori=u.newOri;
+    u.entry.dx=u.ndims[0]; u.entry.dy=u.ndims[1]; u.entry.dz=u.ndims[2];
+  });
+  return true;
+}
+// dirSteps lets PageDown rotate "backwards" — implemented as 3 forward 90°
+// steps (mathematically identical to -90°) so it always reuses the same,
+// already-correct rotation path rather than a separate hand-derived inverse.
+function rotateMemberSet(memberUids, scale, axis, dirSteps){
+  dirSteps = dirSteps || 1;
+  const steps = ((dirSteps%4)+4)%4;
+  for(let s=0;s<steps;s++){ if(!rotateMemberSet90(memberUids, scale, axis)) return false; }
+  return true;
+}
+function rotateGroup(groupUid, axis, dirSteps){
+  axis = axis || rotAxis;
+  const group = groups.get(groupUid); if(!group) return;
+  if(rotateMemberSet(group.memberUids, group.scale, axis, dirSteps)){ refreshGroupOutline(groupUid); commitHistory(); }
+}
+
+function flipMemberSet(memberUids, scale, axis){
+  const members = memberUids.map(uid=>placed.find(b=>b.uid===uid)).filter(Boolean);
+  if(!members.length) return false;
+  const cs = SCALE[scale];
+  const excl = new Set(memberUids);
+  const F = oriAxisFlip(axis);
+  const ai = axis==='x'?0:axis==='y'?1:2;
+  const pivot = (Math.min(...members.map(m=>m.ox*cs+(ai===0?0:0),m.oy*cs+(ai===1?0:0),m.oz*cs+(ai===2?0:0))[ai]||
+    (Math.min(...members.map(m=>[m.ox*cs,m.oy*cs,m.oz*cs][ai]))+Math.max(...members.map(m=>([m.ox+m.dx,m.oy+m.dy,m.oz+m.dz][ai])*cs))))/2);
+  // simpler:
+  const mink = Math.min(...members.map(m=>[m.ox,m.oy,m.oz][ai]*cs));
+  const maxk = Math.max(...members.map(m=>([m.ox+m.dx,m.oy+m.dy,m.oz+m.dz][ai])*cs));
+  const piv  = (mink+maxk)/2;
+  const updates = members.map(m=>{
+    const def = effectiveDef(m);
+    const newOri = oriClean(oriMul(F, m.ori));
+    const dims = rotatedDims(def.dims, newOri);
+    const ck = [m.ox+m.dx/2,m.oy+m.dy/2,m.oz+m.dz/2][ai]*cs;
+    const nk = piv-(ck-piv);
+    const pos = {ox:m.ox,oy:m.oy,oz:m.oz};
+    const keys=['ox','oy','oz']; const dkeys=['dx','dy','dz'];
+    pos[keys[ai]] = nk/cs - dims[ai]/2;
+    return { entry:m, def, dims, newOri, pos };
+  });
+  for(const u of updates){
+    if(overlaps([u.pos.ox,u.pos.oy,u.pos.oz], u.dims, scale, excl)){ flashError(); return false; }
+  }
+  updates.forEach(u=>{
+    blockGroup.remove(u.entry.mesh);
+    const mesh = makeBlockMesh(u.def, u.dims, cs, u.newOri);
+    mesh.position.set((u.pos.ox+u.dims[0]/2)*cs, (u.pos.oy+u.dims[1]/2)*cs, (u.pos.oz+u.dims[2]/2)*cs);
+    mesh.userData.uid = u.entry.uid;
+    blockGroup.add(mesh);
+    u.entry.mesh=mesh; u.entry.ox=u.pos.ox; u.entry.oy=u.pos.oy; u.entry.oz=u.pos.oz; u.entry.ori=u.newOri;
+    u.entry.dx=u.dims[0]; u.entry.dy=u.dims[1]; u.entry.dz=u.dims[2];
+  });
+  return true;
+}
+function flipGroup(groupUid, axis){
+  const group = groups.get(groupUid); if(!group) return;
+  if(flipMemberSet(group.memberUids, group.scale, axis)){ refreshGroupOutline(groupUid); commitHistory(); }
+}
+
+/* ---- Ad-hoc rotate/flip for a plain Select-mode selection (no permanent
+   group created) — lets you keep tapping Rotate to walk through orientations
+   without first saving a composite. ---- */
+function selectionScaleOrWarn(){
+  const uids = Array.from(selectedSet);
+  if(!uids.length) return null;
+  const scale = placed.find(b=>b.uid===uids[0])?.scale;
+  if(uids.some(uid=>placed.find(b=>b.uid===uid)?.scale!==scale)){
+    alert('Selected blocks must share the same grid scale (all Small or all Large) to rotate/flip together.');
+    return null;
+  }
+  return scale;
+}
+function rotateSelection(dirSteps){
+  const uids = Array.from(selectedSet);
+  const scale = selectionScaleOrWarn();
+  if(!scale) return;
+  if(rotateMemberSet(uids, scale, rotAxis, dirSteps)){
+    uids.forEach(uid=>{ const e=placed.find(b=>b.uid===uid); if(e) setBlockHighlight(e,true); });
+    commitHistory();
+  }
+}
+function flipSelection(axis){
+  const uids = Array.from(selectedSet);
+  const scale = selectionScaleOrWarn();
+  if(!scale) return;
+  if(flipMemberSet(uids, scale, axis)){
+    uids.forEach(uid=>{ const e=placed.find(b=>b.uid===uid); if(e) setBlockHighlight(e,true); });
+    commitHistory();
+  }
+}
+
+function placeSelectedAt(rc){
+  const def = BLOCK_BY_ID[selectedBlockId];
+  if(!def) return;
+  if(def.isComposite){ placeCompositeAt(def, rc); return; }
+  const cs = cellSize();
+  const dims = rotatedDims(def.dims, pendingOri);
+  let origin;
+  if(rc.type==='ground'){
+    origin = [Math.floor(rc.point.x/cs), 0, Math.floor(rc.point.z/cs)];
+  } else if(rc.type==='block'){
+    const n = rc.hit.face.normal.clone().transformDirection(rc.hit.object.matrixWorld);
+    origin = adjacentOrigin(rc.entry, n, dims, activeScale);
+    if(!origin) return;
+  } else return;
+  if(overlaps(origin, dims, activeScale, null)){ flashError(); return; }
+  addBlock(def, origin, dims, cs, activeScale);
+}
+
+function performReplace(uid, newDefId){
+  const entry = placed.find(b=>b.uid===uid);
+  if(!entry) return;
+  const def = BLOCK_BY_ID[newDefId];
+  const dims = rotatedDims(def.dims, entry.ori);
+  if(overlaps([entry.ox,entry.oy,entry.oz], dims, entry.scale, entry.uid)){ flashError(); return; }
+  blockGroup.remove(entry.mesh);
+  const cs = SCALE[entry.scale];
+  const mesh = makeBlockMesh(def, dims, cs, entry.ori);
+  mesh.position.set((entry.ox+dims[0]/2)*cs, (entry.oy+dims[1]/2)*cs, (entry.oz+dims[2]/2)*cs);
+  mesh.userData.uid = entry.uid;
+  blockGroup.add(mesh);
+  entry.id = newDefId; entry.dx=dims[0]; entry.dy=dims[1]; entry.dz=dims[2]; entry.mesh=mesh;
+  entry.colorOverride = null; // swapping the block type drops any custom paint
+  recordMRU(newDefId);
+  refreshHud();
+  commitHistory();
+}
+
+function performRotateInPlace(uid, dirSteps){
+  const entry = placed.find(b=>b.uid===uid);
+  if(!entry) return;
+  dirSteps = dirSteps || 1;
+  const steps = ((dirSteps%4)+4)%4;
+  for(let s=0;s<steps;s++){
+    const def = effectiveDef(entry);
+    const newOri = oriClean(oriMul(oriAxisR90(rotAxis), entry.ori));
+    const dims = rotatedDims(def.dims, newOri);
+    if(overlaps([entry.ox,entry.oy,entry.oz], dims, entry.scale, entry.uid)){ flashError(); return; }
+    blockGroup.remove(entry.mesh);
+    const cs = SCALE[entry.scale];
+    const mesh = makeBlockMesh(def, dims, cs, newOri);
+    mesh.position.set((entry.ox+dims[0]/2)*cs, (entry.oy+dims[1]/2)*cs, (entry.oz+dims[2]/2)*cs);
+    mesh.userData.uid = entry.uid;
+    blockGroup.add(mesh);
+    entry.ori=newOri; entry.dx=dims[0]; entry.dy=dims[1]; entry.dz=dims[2]; entry.mesh=mesh;
+  }
+  refreshHud();
+  commitHistory();
+}
+
+/* =========================================================================
+   POINTER / INPUT HANDLING
+   Left mouse / single touch  -> orbit camera or tap-to-place/erase
+   Two touches                -> pinch zoom + pan
+   Three-finger TAP (quick, no hold) -> TOGGLES the hotbar radial wheel open/closed
+   Touch long-press on block  -> radial context menu (Delete/Replace/Rotate)
+   Touch long-press on ground -> radial hotbar wheel (held drag + release)
+   Right mouse click on block -> PC list menu (Delete/Replace/Rotate)
+   Right mouse hold on ground -> radial hotbar wheel (drag + release)
+========================================================================= */
+const pointers = new Map();
+let pinchStartDist=0, pinchStartRadius=0, pinchStartMid=null;
+let dragMoved = false;
+let longPressTimer = null;
+let longPressFired = false;
+let activeRadial = null; // {kind, items, cx, cy, handle, pointerId, static}
+let rightDownActive = false;
+let threeFingerInfo = null; // {time, centroid} — for 3-finger TAP toggle (not hold)
+let panState = null; // {pointerId, startX, startY, startTarget} — middle-mouse pan
+
+function dist(a,b){ return Math.hypot(a.x-b.x,a.y-b.y); }
+function getMid(arr){ return {x:(arr[0].x+arr[1].x)/2, y:(arr[0].y+arr[1].y)/2}; }
+function centroidOf(map){
+  const arr = Array.from(map.values());
+  return { x: arr.reduce((s,p)=>s+p.x,0)/arr.length, y: arr.reduce((s,p)=>s+p.y,0)/arr.length };
+}
+
+canvas.addEventListener('contextmenu', e=>e.preventDefault());
+canvas.addEventListener('mousedown', e=>{ if(e.button===1) e.preventDefault(); });
+canvas.addEventListener('auxclick', e=>{ if(e.button===1) e.preventDefault(); });
+
+canvas.addEventListener('pointerdown', (e)=>{
+  canvas.setPointerCapture(e.pointerId);
+
+  if(e.button === 1){ // middle mouse — pan
+    e.preventDefault();
+    panState = { pointerId: e.pointerId, startX: e.clientX, startY: e.clientY, startTarget: cam.target.clone() };
+    return;
+  }
+
+  if(e.button === 2){ // right mouse
+    rightDownActive = true;
+    const rc = raycastAt(e.clientX, e.clientY);
+    if(rc.type==='block'){
+      openPcListMenu(e.clientX, e.clientY, rc.entry.uid);
+    } else if(rc.type==='ground'){
+      openHotbarRadial(e.clientX, e.clientY, e.pointerId);
+    }
+    return;
+  }
+
+  pointers.set(e.pointerId, {x:e.clientX,y:e.clientY,startX:e.clientX,startY:e.clientY});
+  dragMoved = false; longPressFired = false;
+
+  if(pointers.size === 2){
+    const arr = Array.from(pointers.values());
+    pinchStartDist = dist(arr[0],arr[1]); pinchStartRadius = cam.radius; pinchStartMid = getMid(arr);
+    clearTimeout(longPressTimer);
+  }
+
+  if(pointers.size === 3 && e.pointerType==='touch' && !threeFingerInfo){
+    threeFingerInfo = { time: Date.now(), centroid: centroidOf(pointers) };
+    clearTimeout(longPressTimer);
+  }
+
+  if(pointers.size === 1 && e.pointerType === 'touch' && !selectMode && !(activeRadial && activeRadial.static)){
+    const rc = raycastAt(e.clientX, e.clientY);
+    longPressTimer = setTimeout(()=>{
+      if(pointers.size!==1 || dragMoved) return;
+      longPressFired = true;
+      if(rc.type==='block') openBlockRadial(e.clientX, e.clientY, rc.entry.uid, e.pointerId);
+      else if(rc.type==='ground') openHotbarRadial(e.clientX, e.clientY, e.pointerId);
+    }, 480);
+  }
+});
+
+canvas.addEventListener('pointermove', (e)=>{
+  if(panState && panState.pointerId === e.pointerId){
+    const dx = e.clientX - panState.startX, dy = e.clientY - panState.startY;
+    const factor = 0.01 * (cam.radius/14);
+    const forward = new THREE.Vector3().subVectors(panState.startTarget, camera.position); forward.y=0; forward.normalize();
+    const right = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0,1,0)).normalize();
+    cam.target.copy(panState.startTarget).addScaledVector(right, -dx*factor);
+    cam.target.y = panState.startTarget.y + dy*factor;
+    updateCameraPos();
+    return;
+  }
+  if(activeRadial && activeRadial.static){
+    activeRadial.handle.updateHighlight(e.clientX, e.clientY);
+    return;
+  }
+  if(activeRadial && activeRadial.pointerId === e.pointerId){
+    activeRadial.handle.updateHighlight(e.clientX, e.clientY);
+    return;
+  }
+  if(!pointers.has(e.pointerId)) return;
+  const p = pointers.get(e.pointerId);
+  const dx = e.clientX-p.x, dy = e.clientY-p.y;
+
+  if(pointers.size === 1){
+    if(Math.abs(e.clientX-p.startX)>4 || Math.abs(e.clientY-p.startY)>4){
+      dragMoved = true;
+      clearTimeout(longPressTimer);
+    }
+    if(dragMoved && !longPressFired){
+      if(panMode){
+        const factor = 0.01 * (cam.radius/14);
+        const forward = new THREE.Vector3().subVectors(cam.target, camera.position); forward.y=0; forward.normalize();
+        const right = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0,1,0)).normalize();
+        cam.target.addScaledVector(right, -dx*factor);
+        cam.target.y += dy*factor;
+        updateCameraPos();
+      } else {
+        cam.theta -= dx*0.0065;
+        cam.phi = clampPhi(cam.phi - dy*0.0065);
+        updateCameraPos();
+      }
+    }
+  } else if(pointers.size === 2 && !longPressFired){
+    dragMoved = true;
+    p.x=e.clientX; p.y=e.clientY; pointers.set(e.pointerId,p);
+    const arr = Array.from(pointers.values());
+    const newDist = dist(arr[0],arr[1]);
+    const newMid = getMid(arr);
+    cam.radius = Math.max(2, Math.min(80, pinchStartRadius*(pinchStartDist/Math.max(newDist,1))));
+    const panDx=(newMid.x-pinchStartMid.x)*0.01*(cam.radius/14);
+    const panDy=(newMid.y-pinchStartMid.y)*0.01*(cam.radius/14);
+    const forward = new THREE.Vector3().subVectors(cam.target,camera.position); forward.y=0; forward.normalize();
+    const right = new THREE.Vector3().crossVectors(forward,new THREE.Vector3(0,1,0)).normalize();
+    cam.target.addScaledVector(right,-panDx); cam.target.y += panDy;
+    pinchStartMid=newMid; pinchStartDist=newDist; pinchStartRadius=cam.radius;
+    updateCameraPos();
+    return;
+  }
+  p.x=e.clientX; p.y=e.clientY; pointers.set(e.pointerId,p);
+});
+
+function endPointer(e){
+  if(panState && panState.pointerId === e.pointerId){ panState = null; return; }
+  // 3-finger TAP (not hold) toggles the hotbar wheel open/closed
+  if(threeFingerInfo && pointers.size === 3){
+    const arr = Array.from(pointers.values());
+    const maxDrift = Math.max(...arr.map(p=>Math.max(Math.abs(p.x-p.startX), Math.abs(p.y-p.startY))));
+    const elapsed = Date.now() - threeFingerInfo.time;
+    if(elapsed < 450 && maxDrift < 18){
+      toggleHotbarWheel(threeFingerInfo.centroid.x, threeFingerInfo.centroid.y);
+    }
+    threeFingerInfo = null;
+    pointers.delete(e.pointerId);
+    if(pointers.size === 2){
+      const arr2 = Array.from(pointers.values());
+      pinchStartDist = dist(arr2[0],arr2[1]); pinchStartRadius = cam.radius; pinchStartMid = getMid(arr2);
+    }
+    return;
+  }
+  // Static (toggled-open) wheel: a plain tap anywhere picks a sector or closes it
+  if(activeRadial && activeRadial.static){
+    const kind = activeRadial._kind;
+    const key = activeRadial.handle.commit(e.clientX, e.clientY);
+    closeRadial();
+    if(key!=null && kind==='hotbar') onHotbarPick(key);
+    pointers.delete(e.pointerId);
+    return;
+  }
+  if(e.button===2 || rightDownActive){
+    if(activeRadial && activeRadial.pointerId===e.pointerId){
+      const kind = activeRadial._kind;
+      const result = activeRadial.handle.commit(e.clientX, e.clientY);
+      closeRadial();
+      if(result!=null && kind==='hotbar') onHotbarPick(result);
+    }
+    rightDownActive = false;
+    return;
+  }
+  if(activeRadial && activeRadial.pointerId===e.pointerId){
+    const kind = activeRadial._kind;
+    const result = activeRadial.handle.commit(e.clientX, e.clientY);
+    closeRadial();
+    if(result!=null && kind==='hotbar') onHotbarPick(result);
+    pointers.delete(e.pointerId);
+    return;
+  }
+  clearTimeout(longPressTimer);
+  const wasSingle = pointers.size===1 && pointers.has(e.pointerId);
+  if(wasSingle && !dragMoved && !longPressFired){
+    const rc = raycastAt(e.clientX, e.clientY);
+    if(selectMode){
+      if(rc.type==='block') toggleSelected(rc.entry.uid);
+    } else if(eyedropperMode && rc.type==='block'){
+      sampleColor(rc.entry);
+    } else if(paintMode && rc.type==='block'){
+      const entry = rc.entry;
+      if(paintGroupMode && entry.groupUid) applyStoredColor(entry.groupUid, 'group');
+      else applyStoredColor(entry.uid, 'block');
+    } else if(rc.type==='block' && eraseMode){
+      if(rc.entry.groupUid) deleteGroup(rc.entry.groupUid);
+      else removeBlock(rc.entry.uid);
+    }
+    else if(!eraseMode) placeSelectedAt(rc);
+  }
+  pointers.delete(e.pointerId);
+  if(pointers.size<2) pinchStartDist=0;
+}
+canvas.addEventListener('pointerup', endPointer);
+canvas.addEventListener('pointercancel', (e)=>{ pointers.delete(e.pointerId); clearTimeout(longPressTimer); if(panState && panState.pointerId===e.pointerId) panState=null; });
+canvas.addEventListener('wheel', (e)=>{ e.preventDefault(); cam.radius=Math.max(2,Math.min(80,cam.radius*(1+e.deltaY*0.001))); updateCameraPos(); }, {passive:false});
+
+/* =========================================================================
+   RADIAL MENU (generic) — used for block context menu + hotbar wheel
+========================================================================= */
+function buildRadial(cx, cy, items){
+  const N = items.length;
+  const wrap = document.createElement('div');
+  wrap.className = 'radial-wrap';
+  wrap.style.left = cx+'px'; wrap.style.top = cy+'px';
+  const sectorDeg = 360/N;
+  const stops = items.map((it,i)=>`${hex(it.color)} ${i*sectorDeg}deg ${(i+1)*sectorDeg}deg`).join(',');
+  const ring = document.createElement('div');
+  ring.className = 'ring';
+  ring.style.background = `conic-gradient(from 0deg, ${stops})`;
+  wrap.appendChild(ring);
+  const hub = document.createElement('div'); hub.className='hub'; wrap.appendChild(hub);
+  const labelEls = items.map((it,i)=>{
+    const angle = (i+0.5)*sectorDeg * Math.PI/180;
+    const r = 78;
+    const lx = 110 + r*Math.sin(angle), ly = 110 - r*Math.cos(angle);
+    const el = document.createElement('div');
+    el.className='lbl'; el.style.left=lx+'px'; el.style.top=ly+'px';
+    el.textContent = it.label;
+    wrap.appendChild(el);
+    return el;
+  });
+  document.body.appendChild(wrap);
+
+  let highlighted = -1;
+  function sectorAt(px,py){
+    const dx=px-cx, dy=py-cy;
+    const distC = Math.hypot(dx,dy);
+    if(distC < 26) return -1;
+    let deg = Math.atan2(dx,-dy)*180/Math.PI; if(deg<0) deg+=360;
+    return Math.floor(deg/sectorDeg);
+  }
+  return {
+    updateHighlight(px,py){
+      const idx = sectorAt(px,py);
+      if(idx===highlighted) return;
+      if(highlighted>=0) labelEls[highlighted].classList.remove('hi');
+      highlighted = idx;
+      if(highlighted>=0) labelEls[highlighted].classList.add('hi');
+    },
+    commit(px,py){
+      const idx = sectorAt(px,py);
+      return idx>=0 ? items[idx].key : null;
+    },
+    destroy(){ wrap.remove(); }
+  };
+}
+
+function closeRadial(){
+  if(activeRadial){ activeRadial.handle.destroy(); activeRadial=null; }
+}
+
+function openBlockRadial(cx, cy, uid, pointerId){
+  const entry = placed.find(b=>b.uid===uid);
+  if(!entry) return;
+  const def = BLOCK_BY_ID[entry.id];
+  const isGroup = !!entry.groupUid;
+  const group = isGroup ? groups.get(entry.groupUid) : null;
+  const canManage = isGroup && group && group.defId && BLOCK_BY_ID[group.defId];
+  const items = isGroup ? [
+    {key:'delete', label:'Delete Group', color:0xff5c5c},
+    {key:'rotate', label:'Rotate ('+rotAxis.toUpperCase()+')', color:0xffb454},
+    {key:'flipx', label:'Flip X', color:0x8fb8c9},
+    {key:'flipy', label:'Flip Y', color:0x5bb8f0},
+    {key:'flipz', label:'Flip Z', color:0xc7a96b},
+    {key:'recolor', label:'Recolor', color:0xffffff},
+    {key:'select', label:'Select Group', color:0x808a93},
+    {key:'duplicate', label:'Duplicate', color:0x21c7b5},
+    {key:'ungroup', label:'Ungroup', color:0x404a58},
+    ...(canManage ? [{key:'manage', label:'Edit Composite', color:0xf2a93b}] : []),
+  ] : [
+    {key:'delete', label:'Delete', color:0xff5c5c},
+    {key:'rotate', label:'Rotate ('+rotAxis.toUpperCase()+')', color:0xffb454},
+    {key:'replace', label:'Replace', color:0x34e0c9},
+    {key:'recolor', label:'Recolor', color:0xffffff},
+    {key:'select', label:'Select', color:0x808a93},
+    {key:'duplicate', label:'Duplicate', color:0x21c7b5},
+  ];
+  const handle = buildRadial(cx, cy, items);
+  activeRadial = { pointerId, handle, _kind:'block', uid, _items:items };
+  // override commit to act immediately (block menu performs its own action)
+  const origCommit = handle.commit;
+  handle.commit = (px,py)=>{
+    const key = origCommit(px,py);
+    if(isGroup){
+      if(key==='delete') deleteGroup(entry.groupUid);
+      else if(key==='rotate') rotateGroup(entry.groupUid);
+      else if(key==='flipx') flipGroup(entry.groupUid,'x');
+      else if(key==='flipy') flipGroup(entry.groupUid,'y');
+      else if(key==='flipz') flipGroup(entry.groupUid,'z');
+      else if(key==='recolor') openColorPicker('group', entry.groupUid);
+      else if(key==='select') selectGroupOrBlock(uid);
+      else if(key==='duplicate') duplicateGroup(entry.groupUid);
+      else if(key==='ungroup') ungroup(entry.groupUid);
+      else if(key==='manage') openManageComposite(group.defId);
+    } else {
+      if(key==='delete') removeBlock(uid);
+      else if(key==='rotate') performRotateInPlace(uid);
+      else if(key==='replace') openReplacePicker(uid);
+      else if(key==='recolor') openColorPicker('block', uid);
+      else if(key==='select') selectGroupOrBlock(uid);
+      else if(key==='duplicate') duplicateBlock(uid);
+    }
+    return null; // already handled, no further dispatch needed
+  };
+}
+
+function openHotbarRadial(cx, cy, pointerId){
+  const resolved = hotbarResolved();
+  const items = resolved.map((slot,i)=>{
+    if(!slot.id) return {key:i, label:'—', color:0x232b38};
+    const def = BLOCK_BY_ID[slot.id];
+    return {key:i, label:def.label, color:def.color};
+  });
+  const handle = buildRadial(cx, cy, items);
+  activeRadial = { pointerId, handle, _kind:'hotbar' };
+}
+
+function toggleHotbarWheel(cx, cy){
+  if(activeRadial && activeRadial._kind==='hotbar' && activeRadial.static){
+    closeRadial();
+    return;
+  }
+  closeRadial();
+  const resolved = hotbarResolved();
+  const items = resolved.map((slot,i)=>{
+    if(!slot.id) return {key:i, label:'—', color:0x232b38};
+    const def = BLOCK_BY_ID[slot.id];
+    return {key:i, label:def.label, color:def.color};
+  });
+  const handle = buildRadial(cx, cy, items);
+  activeRadial = { pointerId:null, handle, _kind:'hotbar', static:true };
+}
+
+function onHotbarPick(slotIndex){
+  const resolved = hotbarResolved();
+  const slot = resolved[slotIndex];
+  if(slot && slot.id){ selectedBlockId = slot.id; buildPalette(); refreshHud(); }
+}
+
+/* =========================================================================
+   PC LIST MENU (right-click on a placed block)
+========================================================================= */
+const pcMenu = document.getElementById('pcMenu');
+function openPcListMenu(x,y,uid){
+  pcMenu.innerHTML = '';
+  const entry = placed.find(b=>b.uid===uid);
+  const groupUid = entry && entry.groupUid;
+  const group = groupUid ? groups.get(groupUid) : null;
+  const canManage = group && group.defId && BLOCK_BY_ID[group.defId];
+  const items = groupUid ? [
+    {label:'Delete Group', danger:true, act:()=>deleteGroup(groupUid)},
+    {label:'Rotate Group ('+rotAxis.toUpperCase()+')', act:()=>rotateGroup(groupUid)},
+    {label:'Flip X', act:()=>flipGroup(groupUid,'x')},
+    {label:'Flip Y', act:()=>flipGroup(groupUid,'y')},
+    {label:'Flip Z', act:()=>flipGroup(groupUid,'z')},
+    {label:'Recolor…', act:()=>openColorPicker('group', groupUid)},
+    {label:'Select Group', act:()=>selectGroupOrBlock(uid)},
+    {label:'Duplicate', act:()=>duplicateGroup(groupUid)},
+    {label:'Ungroup', act:()=>ungroup(groupUid)},
+    ...(canManage ? [{label:'Edit Composite…', act:()=>openManageComposite(group.defId)}] : []),
+  ] : [
+    {label:'Delete', danger:true, act:()=>removeBlock(uid)},
+    {label:'Rotate 90° ('+rotAxis.toUpperCase()+')', act:()=>performRotateInPlace(uid)},
+    {label:'Replace…', act:()=>openReplacePicker(uid)},
+    {label:'Recolor…', act:()=>openColorPicker('block', uid)},
+    {label:'Select', act:()=>selectGroupOrBlock(uid)},
+    {label:'Duplicate', act:()=>duplicateBlock(uid)},
+  ];
+  items.forEach(it=>{
+    const row = document.createElement('div');
+    row.className = 'item'+(it.danger?' danger':'');
+    row.textContent = it.label;
+    row.addEventListener('pointerup', (ev)=>{ ev.stopPropagation(); it.act(); closePcMenu(); });
+    pcMenu.appendChild(row);
+  });
+  pcMenu.style.left = x+'px'; pcMenu.style.top = y+'px';
+  pcMenu.classList.add('open');
+  setTimeout(()=>document.addEventListener('pointerdown', pcMenuOutside, {once:true}), 0);
+}
+function pcMenuOutside(e){ if(!pcMenu.contains(e.target)) closePcMenu(); }
+function closePcMenu(){ pcMenu.classList.remove('open'); }
+
+/* =========================================================================
+   REPLACE PICKER MODAL
+========================================================================= */
+const pickList = document.getElementById('pickList');
+let pickTargetUid = null;
+/* =========================================================================
+   RECOLOR — per-instance color override, independent of the block def's
+   default color. Works on a single block or repaints a whole group.
+========================================================================= */
+/* =========================================================================
+   PAINT TOOLS — eyedropper (sample color from a placed block) +
+   paint mode (apply stored color in one tap) + stored color swatch
+========================================================================= */
+function refreshStoredColorUI(){
+  const swatch = document.getElementById('storedColorSwatch');
+  const h = hex(storedColor ?? 0x9aa3ab);
+  swatch.style.background = h;
+  swatch.classList.toggle('active', storedColor !== null);
+  // update the quick-apply row in the recolor modal if it's open
+  document.getElementById('storedColorPreview').style.background = h;
+  document.getElementById('storedColorHex').textContent = h;
+  document.getElementById('storedColorRow').style.display = storedColor !== null ? 'block' : 'none';
+}
+
+function sampleColor(entry){
+  const def = BLOCK_BY_ID[entry.id];
+  storedColor = entry.colorOverride ?? (def ? def.color : 0x9aa3ab);
+  toggleEyedropperMode(false); // auto-exit after sampling
+  refreshStoredColorUI();
+}
+
+function applyStoredColor(id, kind){
+  if(storedColor === null) return;
+  if(kind==='group'){
+    const group = groups.get(id); if(!group) return;
+    group.memberUids.forEach(uid=>{ const e=placed.find(p=>p.uid===uid); if(e){ e.colorOverride=storedColor; rebuildEntryMesh(e); } });
+    refreshGroupOutline(id);
+  } else {
+    const e = placed.find(p=>p.uid===id);
+    if(e){ e.colorOverride=storedColor; rebuildEntryMesh(e); }
+  }
+  commitHistory();
+}
+
+function toggleEyedropperMode(force){
+  eyedropperMode = force!==undefined ? force : !eyedropperMode;
+  document.getElementById('eyedropperBtn').classList.toggle('active', eyedropperMode);
+  if(eyedropperMode){
+    if(paintMode) togglePaintMode(false);
+    if(eraseMode) toggleEraseMode(false);
+    if(selectMode) exitSelectMode();
+  }
+  refreshHud();
+}
+function togglePaintMode(force){
+  paintMode = force!==undefined ? force : !paintMode;
+  document.getElementById('paintBtn').classList.toggle('active', paintMode);
+  document.getElementById('paintTargetSeg').style.display = paintMode ? 'flex' : 'none';
+  if(paintMode){
+    if(eyedropperMode) toggleEyedropperMode(false);
+    if(eraseMode) toggleEraseMode(false);
+    if(selectMode) exitSelectMode();
+  }
+  refreshHud();
+}
+
+document.getElementById('eyedropperBtn').addEventListener('click', ()=>toggleEyedropperMode());
+document.getElementById('paintBtn').addEventListener('click', ()=>togglePaintMode());
+document.getElementById('storedColorSwatch').addEventListener('click', ()=>{
+  // Tapping the swatch opens the full color picker to manually set the stored color
+  const input = document.createElement('input');
+  input.type = 'color';
+  input.value = hex(storedColor ?? 0x9aa3ab);
+  input.addEventListener('input', ()=>{
+    storedColor = parseInt(input.value.replace('#',''), 16);
+    refreshStoredColorUI();
+  });
+  input.click();
+});
+
+// Stored-color quick-apply inside the recolor modal
+document.getElementById('storedColorQuickBtn').addEventListener('click', ()=>{
+  if(storedColor === null || !colorTarget) return;
+  applyStoredColor(colorTarget.id, colorTarget.kind);
+  closeModal('colorOverlay');
+});
+
+let colorTarget = null; // {kind:'block'|'group', id}
+function openColorPicker(kind, id){
+  colorTarget = {kind, id};
+  let sampleEntry = null;
+  if(kind==='group'){
+    const group = groups.get(id);
+    sampleEntry = group && group.memberUids.map(u=>placed.find(p=>p.uid===u)).find(Boolean);
+  } else {
+    sampleEntry = placed.find(p=>p.uid===id);
+  }
+  const def = sampleEntry ? BLOCK_BY_ID[sampleEntry.id] : null;
+  const currentColor = sampleEntry ? (sampleEntry.colorOverride ?? (def?def.color:0x9aa3ab)) : 0x9aa3ab;
+  document.getElementById('colorPickerInput').value = hex(currentColor);
+  refreshStoredColorUI(); // ensures stored-color quick row is up-to-date
+  openModal('colorOverlay');
+}
+document.getElementById('colorApplyBtn').addEventListener('click', ()=>{
+  if(!colorTarget) return;
+  const colorInt = parseInt(document.getElementById('colorPickerInput').value.replace('#',''), 16);
+  if(colorTarget.kind==='group'){
+    const group = groups.get(colorTarget.id); if(!group) return;
+    group.memberUids.forEach(uid=>{ const e=placed.find(p=>p.uid===uid); if(e){ e.colorOverride=colorInt; rebuildEntryMesh(e); } });
+    refreshGroupOutline(colorTarget.id);
+  } else {
+    const e = placed.find(p=>p.uid===colorTarget.id);
+    if(e){ e.colorOverride=colorInt; rebuildEntryMesh(e); }
+  }
+  closeModal('colorOverlay');
+  commitHistory();
+});
+document.getElementById('colorResetBtn').addEventListener('click', ()=>{
+  if(!colorTarget) return;
+  if(colorTarget.kind==='group'){
+    const group = groups.get(colorTarget.id); if(!group) return;
+    group.memberUids.forEach(uid=>{ const e=placed.find(p=>p.uid===uid); if(e){ e.colorOverride=null; rebuildEntryMesh(e); } });
+    refreshGroupOutline(colorTarget.id);
+  } else {
+    const e = placed.find(p=>p.uid===colorTarget.id);
+    if(e){ e.colorOverride=null; rebuildEntryMesh(e); }
+  }
+  closeModal('colorOverlay');
+  commitHistory();
+});
+
+function openReplacePicker(uid){
+  pickTargetUid = uid;
+  pickList.innerHTML = '';
+  CATEGORY_ORDER.forEach(cat=>{
+    const blocks = blocksInCategory(cat);
+    if(!blocks.length) return;
+    const h = document.createElement('div'); h.className='pick-cat-header'; h.textContent=cat;
+    pickList.appendChild(h);
+    blocks.forEach(def=>{
+      const row = document.createElement('div'); row.className='pick-row';
+      row.innerHTML = `<div class="chip" style="background:${hex(def.color)}"></div><span>${def.label}</span>`;
+      row.addEventListener('pointerup', ()=>{
+        performReplace(pickTargetUid, def.id);
+        closeModal('pickOverlay');
+      });
+      pickList.appendChild(row);
+    });
+  });
+  openModal('pickOverlay');
+}
+
+/* =========================================================================
+   PALETTE — category drill-down + hotbar
+========================================================================= */
+const paletteEl = document.getElementById('palette');
+function buildPalette(){
+  paletteEl.innerHTML = '';
+  if(currentCategory===null){
+    CATEGORY_ORDER.forEach(cat=>{
+      const blocks = blocksInCategory(cat);
+      if(!blocks.length) return;
+      const el = document.createElement('div');
+      el.className = 'swatch';
+      const stackColors = blocks.slice(0,4).map(b=>hex(b.color));
+      const offsets = [[0,0],[14,0],[0,12],[14,12]];
+      const stackHtml = stackColors.map((c,i)=>`<i style="left:${offsets[i][0]}px;top:${offsets[i][1]}px;background:${c}"></i>`).join('');
+      el.innerHTML = `<div class="stack">${stackHtml}</div><label>${cat}</label><div class="catcount">${blocks.length} blocks</div>`;
+      el.addEventListener('pointerup', ()=>{ currentCategory = cat; buildPalette(); });
+      paletteEl.appendChild(el);
+    });
+    return;
+  }
+  const back = document.createElement('div');
+  back.className = 'swatch back';
+  back.innerHTML = `<div class="cube" style="background:transparent;box-shadow:inset 0 0 0 1px var(--line);display:flex;align-items:center;justify-content:center;font-size:14px;">←</div><label>Back</label>`;
+  back.addEventListener('pointerup', ()=>{ currentCategory=null; buildPalette(); });
+  paletteEl.appendChild(back);
+
+  blocksInCategory(currentCategory).forEach(def=>{
+    const el = document.createElement('div');
+    el.className = 'swatch' + (def.id===selectedBlockId ? ' selected':'');
+    el.innerHTML = `<div class="cube" style="background:${hex(def.color)}"></div><label>${def.label}</label>`;
+    el.addEventListener('pointerup', ()=>{ selectedBlockId=def.id; buildPalette(); refreshHud(); });
+    if(def.isComposite){
+      let holdTimer = null;
+      el.addEventListener('pointerdown', (ev)=>{
+        holdTimer = setTimeout(()=>{ holdTimer=null; openManageComposite(def.id); }, 480);
+      });
+      el.addEventListener('pointerup', ()=>{ if(holdTimer){ clearTimeout(holdTimer); } });
+      el.addEventListener('pointerleave', ()=>clearTimeout(holdTimer));
+      el.addEventListener('contextmenu', (ev)=>{ ev.preventDefault(); clearTimeout(holdTimer); openManageComposite(def.id); });
+    }
+    paletteEl.appendChild(el);
+  });
+}
+buildPalette();
+
+function openManageComposite(defId){
+  const def = BLOCK_BY_ID[defId];
+  if(!def) return;
+  document.getElementById('manageCompositeTitle').textContent = 'Manage "'+def.label+'"';
+  const nameInput = document.getElementById('manageCompositeNameInput');
+  nameInput.value = def.label;
+  document.getElementById('manageCompositeRenameBtn').onclick = async ()=>{
+    const newName = nameInput.value.trim();
+    if(!newName) return;
+    def.label = newName;
+    try{ await window.storage.set('gs:composite:'+def.id, JSON.stringify(def), false); }catch(err){}
+    closeModal('manageCompositeOverlay');
+    buildPalette(); renderHotbar();
+  };
+  document.getElementById('manageCompositeDeleteBtn').onclick = async ()=>{
+    if(!confirm('Delete the composite "'+def.label+'" from your palette? Blocks already placed on the grid stay put.')) return;
+    const idx = BLOCK_DEFS.findIndex(b=>b.id===defId);
+    if(idx>=0) BLOCK_DEFS.splice(idx,1);
+    delete BLOCK_BY_ID[defId];
+    try{ await window.storage.delete('gs:composite:'+defId, false); }catch(err){}
+    if(selectedBlockId===defId) selectedBlockId = BLOCK_DEFS[0].id;
+    closeModal('manageCompositeOverlay');
+    buildPalette(); renderHotbar();
+  };
+  openModal('manageCompositeOverlay');
+}
+
+const hotbarEl = document.getElementById('hotbar');
+function renderHotbar(){
+  hotbarEl.innerHTML = '';
+  const resolved = hotbarResolved();
+  resolved.forEach((slot,i)=>{
+    const el = document.createElement('div');
+    el.className = 'hotslot' + (slot.id ? (slot.pinned?' pinned':' auto') : ' empty') + (slot.id===selectedBlockId?' selected':'');
+    const def = slot.id ? BLOCK_BY_ID[slot.id] : null;
+    el.innerHTML = `<span class="num">${i+1}</span><div class="chip" style="${def?`background:${hex(def.color)}`:''}"></div>`;
+    el.title = def ? def.label + (slot.pinned?' (pinned)':' (recent)') : 'Empty — long-press to pin current block';
+    el.addEventListener('pointerup', ()=>{
+      if(slot.id){ selectedBlockId = slot.id; buildPalette(); refreshHud(); }
+    });
+    let holdTimer = null;
+    el.addEventListener('pointerdown', ()=>{
+      holdTimer = setTimeout(()=>{ hotbarSlots[i] = selectedBlockId; renderHotbar(); }, 480);
+    });
+    el.addEventListener('pointerup', ()=>clearTimeout(holdTimer));
+    el.addEventListener('pointerleave', ()=>clearTimeout(holdTimer));
+    el.addEventListener('contextmenu', (e)=>{ e.preventDefault(); hotbarSlots[i]=selectedBlockId; renderHotbar(); });
+    hotbarEl.appendChild(el);
+  });
+}
+renderHotbar();
+
+function rotateActive(dirSteps){
+  if(selectMode && selectedSet.size>0){ rotateSelection(dirSteps); return; }
+  const steps = ((dirSteps%4)+4)%4;
+  const R = oriAxisR90(rotAxis);
+  for(let s=0;s<steps;s++) pendingOri = oriClean(oriMul(R, pendingOri));
+  refreshHud();
+}
+window.addEventListener('keydown', (e)=>{
+  if(document.activeElement && ['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return;
+  const mod = e.ctrlKey || e.metaKey;
+  if(mod && e.key.toLowerCase()==='z'){ e.preventDefault(); if(e.shiftKey) redo(); else undo(); return; }
+  if(mod && e.key.toLowerCase()==='y'){ e.preventDefault(); redo(); return; }
+  if(mod) return; // don't let any other Ctrl/Cmd combo fall through to the plain shortcuts below
+  const n = parseInt(e.key,10);
+  if(n>=1 && n<=8){
+    const slot = hotbarResolved()[n-1];
+    if(slot && slot.id){ selectedBlockId = slot.id; buildPalette(); refreshHud(); }
+    return;
+  }
+  switch(e.key){
+    case 'PageUp': e.preventDefault(); rotateActive(1); return;
+    case 'PageDown': e.preventDefault(); rotateActive(-1); return;
+    case 'Home': e.preventDefault(); setRotAxis('x'); return;
+    case 'End': e.preventDefault(); setRotAxis('z'); return;
+  }
+  switch(e.key.toLowerCase()){
+    case 'e': toggleEraseMode(); break;
+    case 's': toggleSelectMode(); break;
+    case 'p': togglePanMode(); break;
+    case 'i': toggleEyedropperMode(); break;
+    case 'b': togglePaintMode(); break;
+    case 'r': document.getElementById('rotateBtn').click(); break;
+    case 'x': setRotAxis('x'); break;
+    case 'y': setRotAxis('y'); break;
+    case 'z': setRotAxis('z'); break;
+    case 'escape': {
+      const openOverlay = document.querySelector('.modal-overlay.open');
+      if(openOverlay){ closeModal(openOverlay.id); break; }
+      if(activeRadial){ closeRadial(); break; }
+      if(document.getElementById('pcMenu').classList.contains('open')){ closePcMenu(); break; }
+      if(selectMode){ exitSelectMode(); break; }
+      if(eyedropperMode){ toggleEyedropperMode(false); break; }
+      if(paintMode){ togglePaintMode(false); break; }
+      if(eraseMode){ toggleEraseMode(false); break; }
+      if(panMode){ togglePanMode(false); break; }
+      break;
+    }
+  }
+});
+
+/* =========================================================================
+   TOP BAR CONTROLS
+========================================================================= */
+document.getElementById('rotateBtn').addEventListener('click', ()=>{ pendingOri = oriClean(oriMul(oriAxisR90(rotAxis), pendingOri)); refreshHud(); });
+function setRotAxis(axis){
+  rotAxis = axis;
+  ['x','y','z'].forEach(a=>document.getElementById('axis'+a.toUpperCase()+'Btn').classList.toggle('active', a===axis));
+  refreshHud();
+}
+document.getElementById('axisXBtn').addEventListener('click', ()=>setRotAxis('x'));
+document.getElementById('axisYBtn').addEventListener('click', ()=>setRotAxis('y'));
+document.getElementById('axisZBtn').addEventListener('click', ()=>setRotAxis('z'));
+function toggleEraseMode(force){
+  eraseMode = force!==undefined ? force : !eraseMode;
+  document.getElementById('eraseBtn').classList.toggle('active', eraseMode);
+  if(eraseMode){
+    if(selectMode) exitSelectMode();
+    if(eyedropperMode) toggleEyedropperMode(false);
+    if(paintMode) togglePaintMode(false);
+  }
+  refreshHud();
+}
+document.getElementById('eraseBtn').addEventListener('click', ()=>toggleEraseMode());
+
+function setBlockHighlight(entry, on){
+  const mat = entry.mesh.material;
+  if(on){ mat.emissive.setHex(0x34e0c9); mat.emissiveIntensity = 0.7; }
+  else { mat.emissive.setHex(0x000000); mat.emissiveIntensity = 0; }
+}
+function toggleSelected(uid){
+  const entry = placed.find(b=>b.uid===uid);
+  if(!entry) return;
+  // Selecting a member of a placed composite group selects the whole group —
+  // it's already meant to act as one entity, so Select mode should treat it
+  // that way too (e.g. for re-saving, recoloring as a batch, etc).
+  const uids = entry.groupUid ? (groups.get(entry.groupUid)?.memberUids || [uid]) : [uid];
+  const allSelected = uids.every(u=>selectedSet.has(u));
+  uids.forEach(u=>{
+    const e = placed.find(b=>b.uid===u);
+    if(!e) return;
+    if(allSelected){ selectedSet.delete(u); setBlockHighlight(e,false); }
+    else { selectedSet.add(u); setBlockHighlight(e,true); }
+  });
+  refreshSelectBar();
+}
+function refreshSelectBar(){
+  const bar = document.getElementById('selectBar');
+  bar.classList.toggle('open', selectMode && selectedSet.size>0);
+  document.getElementById('selectCount').textContent = selectedSet.size + ' selected';
+  // Show "Update Composite" only when at least one selected block has a sourceDefId
+  const hasSrc = Array.from(selectedSet).some(uid=>placed.find(b=>b.uid===uid)?.sourceDefId);
+  document.getElementById('resaveCompositeBtn').style.display = hasSrc ? 'flex' : 'none';
+}
+function clearSelection(){
+  selectedSet.forEach(uid=>{
+    const entry = placed.find(b=>b.uid===uid);
+    if(entry) setBlockHighlight(entry,false);
+  });
+  selectedSet.clear();
+  refreshSelectBar();
+}
+function exitSelectMode(){
+  selectMode = false;
+  document.getElementById('selectBtn').classList.remove('active');
+  clearSelection();
+}
+function toggleSelectMode(force){
+  selectMode = force!==undefined ? force : !selectMode;
+  document.getElementById('selectBtn').classList.toggle('active', selectMode);
+  if(selectMode && eraseMode){ eraseMode=false; document.getElementById('eraseBtn').classList.remove('active'); }
+  if(!selectMode) clearSelection();
+  refreshHud();
+}
+document.getElementById('selectBtn').addEventListener('click', ()=>toggleSelectMode());
+document.getElementById('cancelSelectBtn').addEventListener('click', ()=>clearSelection());
+document.getElementById('rotateSelBtn').addEventListener('click', ()=>rotateSelection(1));
+document.getElementById('flipXSelBtn').addEventListener('click', ()=>flipSelection('x'));
+document.getElementById('flipYSelBtn').addEventListener('click', ()=>flipSelection('y'));
+document.getElementById('flipZSelBtn').addEventListener('click', ()=>flipSelection('z'));
+
+function nudgeSelection(axis, delta){
+  if(selectedSet.size===0) return;
+  const uids = Array.from(selectedSet);
+  const entries = uids.map(uid=>placed.find(b=>b.uid===uid)).filter(Boolean);
+  if(!entries.length) return;
+  const scale = entries[0].scale;
+  if(entries.some(e=>e.scale!==scale)){
+    alert('Selected blocks must share the same grid scale to nudge together.');
+    return;
+  }
+  const key = axis==='x'?'ox':axis==='y'?'oy':'oz';
+  const excl = new Set(uids);
+  const proposals = entries.map(e=>{
+    const origin = [e.ox, e.oy, e.oz];
+    origin[axis==='x'?0:axis==='y'?1:2] = e[key]+delta;
+    return { e, newVal: e[key]+delta, origin };
+  });
+  for(const p of proposals){
+    if(overlaps(p.origin, [p.e.dx,p.e.dy,p.e.dz], scale, excl)){ flashError(); return; }
+  }
+  const cs = SCALE[scale];
+  proposals.forEach(p=>{
+    p.e[key] = p.newVal;
+    p.e.mesh.position[axis] = (p.newVal + p.e['d'+axis]/2) * cs;
+  });
+  const touchedGroups = new Set(entries.map(e=>e.groupUid).filter(Boolean));
+  touchedGroups.forEach(gid=>refreshGroupOutline(gid));
+  commitHistory();
+}
+document.getElementById('nudgeXMinusBtn').addEventListener('click', ()=>nudgeSelection('x', -0.5));
+document.getElementById('nudgeXPlusBtn').addEventListener('click', ()=>nudgeSelection('x', 0.5));
+document.getElementById('nudgeYMinusBtn').addEventListener('click', ()=>nudgeSelection('y', -0.5));
+document.getElementById('nudgeYPlusBtn').addEventListener('click', ()=>nudgeSelection('y', 0.5));
+document.getElementById('nudgeZMinusBtn').addEventListener('click', ()=>nudgeSelection('z', -0.5));
+document.getElementById('nudgeZPlusBtn').addEventListener('click', ()=>nudgeSelection('z', 0.5));
+
+function togglePanMode(force){
+  panMode = force!==undefined ? force : !panMode;
+  document.getElementById('panBtn').classList.toggle('active', panMode);
+}
+document.getElementById('panBtn').addEventListener('click', ()=>togglePanMode());
+document.getElementById('undoBtn').addEventListener('click', ()=>undo());
+document.getElementById('redoBtn').addEventListener('click', ()=>redo());
+
+/* ---- Composite save flow ---- */
+document.getElementById('saveCompositeBtn').addEventListener('click', ()=>{
+  if(selectedSet.size===0) return;
+  openModal('compositeOverlay');
+});
+document.getElementById('compositeSaveConfirmBtn').addEventListener('click', async ()=>{
+  const nameInput = document.getElementById('compositeNameInput');
+  const name = nameInput.value.trim();
+  if(!name){ alert('Give your composite a name first.'); return; }
+  const members = Array.from(selectedSet).map(uid=>placed.find(b=>b.uid===uid)).filter(Boolean);
+  if(!members.length) return;
+  const scale = members[0].scale;
+  if(members.some(m=>m.scale!==scale)){
+    alert("Every block in a composite needs to be the same grid scale (all Small or all Large). Your selection mixes both — split it into two saves.");
+    return;
+  }
+  const minOx = Math.min(...members.map(m=>m.ox));
+  const minOy = Math.min(...members.map(m=>m.oy));
+  const minOz = Math.min(...members.map(m=>m.oz));
+  const maxOx = Math.max(...members.map(m=>m.ox+m.dx));
+  const maxOy = Math.max(...members.map(m=>m.oy+m.dy));
+  const maxOz = Math.max(...members.map(m=>m.oz+m.dz));
+  const id = 'composite_' + Date.now();
+  const def = {
+    id, label:name, isComposite:true, category:'Custom', scale,
+    dims:[maxOx-minOx, maxOy-minOy, maxOz-minOz],
+    color: members[0].mesh.material.color.getHex(),
+    sbc:'', vents:[], shape:'box',
+    members: members.map(m=>({ id:m.id, dx:m.ox-minOx, dy:m.oy-minOy, dz:m.oz-minOz, ori:m.ori.slice() }))
+  };
+  BLOCK_DEFS.push(def);
+  BLOCK_BY_ID[def.id] = def;
+  try{ await window.storage.set('gs:composite:'+id, JSON.stringify(def), false); }catch(err){}
+  nameInput.value = '';
+  closeModal('compositeOverlay');
+  exitSelectMode();
+  currentCategory = 'Custom';
+  buildPalette();
+});
+
+(async ()=>{
+  try{
+    const listRes = await window.storage.list('gs:composite:', false);
+    const keys = (listRes && listRes.keys) || [];
+    for(const key of keys){
+      try{
+        const res = await window.storage.get(key, false);
+        const def = JSON.parse(res.value);
+        if(def && def.id && !BLOCK_BY_ID[def.id]){ BLOCK_DEFS.push(def); BLOCK_BY_ID[def.id]=def; }
+      }catch(err){}
+    }
+    buildPalette();
+  }catch(err){}
+})();
+document.getElementById('openClearBtn').addEventListener('click', ()=>{ if(confirm('Clear every block on the grid? (You can still Undo afterward.)')) { clearAll(); commitHistory(); closeModal('settingsOverlay'); } });
+
+/* ---- Paint Group / Block toggle ---- */
+function setPaintGroupMode(v){
+  paintGroupMode = v;
+  document.getElementById('paintGroupBtn').classList.toggle('active', v);
+  document.getElementById('paintBlockBtn').classList.toggle('active', !v);
+}
+document.getElementById('paintGroupBtn').addEventListener('click', ()=>setPaintGroupMode(true));
+document.getElementById('paintBlockBtn').addEventListener('click', ()=>setPaintGroupMode(false));
+
+/* ---- X-Ray panel ---- */
+function applyXray(){
+  placed.forEach(b=>{
+    const mat = b.mesh.material;
+    const dist = b.mesh.position.distanceTo(camera.position) / cellSize();
+    const clipped = xrayClip > 0 && dist > xrayClip;
+    mat.transparent = xrayOpacity < 1 || clipped;
+    mat.opacity = clipped ? 0 : xrayOpacity;
+    mat.depthWrite = !mat.transparent;
+  });
+}
+document.getElementById('xrayBtn').addEventListener('click', ()=>{
+  const panel = document.getElementById('xrayPanel');
+  const showing = panel.style.display !== 'none';
+  panel.style.display = showing ? 'none' : 'block';
+  if(showing){
+    // Reset to fully opaque when closing
+    xrayOpacity = 1; xrayClip = 0;
+    placed.forEach(b=>{ b.mesh.material.transparent=false; b.mesh.material.opacity=1; b.mesh.material.depthWrite=true; });
+  }
+});
+document.getElementById('xrayCloseBtn').addEventListener('click', ()=>{
+  document.getElementById('xrayPanel').style.display = 'none';
+  xrayOpacity = 1; xrayClip = 0;
+  placed.forEach(b=>{ b.mesh.material.transparent=false; b.mesh.material.opacity=1; b.mesh.material.depthWrite=true; });
+});
+document.getElementById('xrayOpacitySlider').addEventListener('input', e=>{
+  xrayOpacity = parseInt(e.target.value)/100;
+  document.getElementById('xrayOpacityVal').textContent = e.target.value+'%';
+  applyXray();
+});
+document.getElementById('xrayDepthSlider').addEventListener('input', e=>{
+  xrayClip = parseInt(e.target.value);
+  document.getElementById('xrayDepthVal').textContent = xrayClip === 0 ? 'Off' : xrayClip+' cells';
+  applyXray();
+});
+
+/* ---- Grid size settings ---- */
+document.getElementById('applyGridSizeBtn').addEventListener('click', ()=>{
+  const w = Math.max(10, Math.min(300, parseInt(document.getElementById('gridWInput').value)||40));
+  const d = Math.max(10, Math.min(300, parseInt(document.getElementById('gridDInput').value)||40));
+  gridW = w; gridD = d;
+  document.getElementById('gridWInput').value = w;
+  document.getElementById('gridDInput').value = d;
+  buildGround();
+  closeModal('settingsOverlay');
+});
+
+/* ---- Re-save (Update) Composite from ungrouped selection ---- */
+document.getElementById('resaveCompositeBtn').addEventListener('click', ()=>{
+  const uids = Array.from(selectedSet);
+  if(!uids.length) return;
+  // Find source defId from any member
+  const sourceDefId = placed.find(b=>uids.includes(b.uid) && b.sourceDefId)?.sourceDefId;
+  if(!sourceDefId || !BLOCK_BY_ID[sourceDefId]){
+    // No known source — fall through to normal Save as Composite
+    document.getElementById('saveCompositeBtn').click();
+    return;
+  }
+  const def = BLOCK_BY_ID[sourceDefId];
+  // Rebuild the def's members from the current selection
+  const members = uids.map(uid=>placed.find(b=>b.uid===uid)).filter(Boolean);
+  const minOx=Math.min(...members.map(m=>m.ox)), minOy=Math.min(...members.map(m=>m.oy)), minOz=Math.min(...members.map(m=>m.oz));
+  const maxOx=Math.max(...members.map(m=>m.ox+m.dx)), maxOy=Math.max(...members.map(m=>m.oy+m.dy)), maxOz=Math.max(...members.map(m=>m.oz+m.dz));
+  def.dims = [maxOx-minOx, maxOy-minOy, maxOz-minOz];
+  def.members = members.map(m=>({ id:m.id, dx:m.ox-minOx, dy:m.oy-minOy, dz:m.oz-minOz, ori:m.ori.slice() }));
+  try{ window.storage.set('gs:composite:'+sourceDefId, JSON.stringify(def), false); }catch(err){}
+  exitSelectMode();
+  currentCategory = 'Custom';
+  buildPalette();
+  // Show quick confirmation
+  const btn = document.getElementById('resaveCompositeBtn');
+  const orig = btn.textContent; btn.textContent = '✓ Updated!';
+  setTimeout(()=>btn.textContent=orig, 1500);
+});
+
+function setScale(s){
+  activeScale = s;
+  document.getElementById('gridSmallBtn').classList.toggle('active', s==='small');
+  document.getElementById('gridLargeBtn').classList.toggle('active', s==='large');
+  buildGround(); refreshHud();
+}
+document.getElementById('gridSmallBtn').addEventListener('click', ()=>setScale('small'));
+document.getElementById('gridLargeBtn').addEventListener('click', ()=>setScale('large'));
+
+function rotPendingSummary(){
+  if(pendingOri.every((v,i)=>v===ORI_I[i])) return '';
+  // Show which axes have been rotated, by checking how the basis vectors map
+  const ex=oriApply(pendingOri,[1,0,0]), ey=oriApply(pendingOri,[0,1,0]);
+  const labels=[];
+  if(!(ex[0]===1&&ex[1]===0&&ex[2]===0)) labels.push('X→'+'XYZ'[ex.indexOf(ex.find(v=>v!==0))]);
+  if(!(ey[0]===0&&ey[1]===1&&ey[2]===0)) labels.push('Y→'+'XYZ'[ey.indexOf(ey.find(v=>v!==0))]);
+  return labels.length ? ' ('+labels.join(' ')+')' : ' (rotated)';
+}
+function refreshHud(){
+  document.getElementById('hudScale').textContent = activeScale.toUpperCase()+' · '+cellSize()+'m';
+  document.getElementById('hudCell').textContent = cellSize().toFixed(1)+'m/cell';
+  document.getElementById('hudCount').textContent = placed.length;
+  document.getElementById('selName').textContent = BLOCK_BY_ID[selectedBlockId].label + rotPendingSummary();
+  document.getElementById('selMode').textContent = selectMode ? 'SELECT' : eyedropperMode ? 'EYEDROP' : paintMode ? 'PAINT' : (panMode ? 'PAN' : (eraseMode?'ERASE':'PLACE'));
+  document.getElementById('selMode').style.color = selectMode ? 'var(--amber)' : eyedropperMode ? '#ffb454' : paintMode ? '#b45cff' : (panMode ? 'var(--cyan)' : (eraseMode?'var(--red)':'var(--cyan)'));
+  if(typeof refreshNextPreview === 'function') refreshNextPreview();
+}
+refreshHud();
+resetHistory(); // baseline "empty grid" snapshot — without this, the first
+                 // placement's commitHistory() becomes index 0 with nothing
+                 // before it, so Undo would stay permanently disabled.
+
+/* =========================================================================
+   SERIALIZATION + SAVE/LOAD + IMPORT/EXPORT
+========================================================================= */
+function serializeBuild(name){
+  return { version:6, name:name||'untitled', savedAt:new Date().toISOString(),
+    gridW, gridD,
+    blocks: placed.map(b=>({ id:b.id, ox:b.ox,oy:b.oy,oz:b.oz, dx:b.dx,dy:b.dy,dz:b.dz, ori:b.ori.slice(), scale:b.scale, groupUid:b.groupUid, colorOverride:b.colorOverride??null,
+      label:BLOCK_BY_ID[b.id]?.label, color:BLOCK_BY_ID[b.id]?.color, sbc:BLOCK_BY_ID[b.id]?.sbc })) };
+}
+function loadBuild(data){
+  clearAll();
+  if(data.gridW) { gridW=data.gridW; document.getElementById('gridWInput').value=gridW; }
+  if(data.gridD) { gridD=data.gridD; document.getElementById('gridDInput').value=gridD; }
+  buildGround();
+  const groupScaleByOldUid = new Map(); // oldGroupUid -> remapped groupUid
+  (data.blocks||[]).forEach(b=>{
+    const baseDef = BLOCK_BY_ID[b.id] || {id:b.id,label:b.label||b.id,color:b.color??0xaaaaaa,sbc:b.sbc||'',shape:'box'};
+    const def = (b.colorOverride!=null) ? {...baseDef, color:b.colorOverride} : baseDef;
+    const cs = SCALE[b.scale]||SCALE.small;
+    const ori = Array.isArray(b.ori) ? b.ori.slice() : legacyToOri(b.rot||{}, b.flip||{});
+    const mesh = makeBlockMesh(def,[b.dx,b.dy,b.dz],cs,ori);
+    mesh.position.set((b.ox+b.dx/2)*cs,(b.oy+b.dy/2)*cs,(b.oz+b.dz/2)*cs);
+    blockGroup.add(mesh);
+    let newGroupUid = null;
+    if(b.groupUid){
+      if(!groupScaleByOldUid.has(b.groupUid)) groupScaleByOldUid.set(b.groupUid, 'g'+(groupUidCounter++));
+      newGroupUid = groupScaleByOldUid.get(b.groupUid);
+    }
+    const entry = {uid:uidCounter++, id:b.id, ox:b.ox,oy:b.oy,oz:b.oz, dx:b.dx,dy:b.dy,dz:b.dz, ori, scale:b.scale||'small', mesh, groupUid:newGroupUid, colorOverride:b.colorOverride??null};
+    mesh.userData.uid = entry.uid;
+    placed.push(entry);
+  });
+  groupScaleByOldUid.forEach((newGroupUid)=>{
+    const memberUids = placed.filter(p=>p.groupUid===newGroupUid).map(p=>p.uid);
+    const scale = placed.find(p=>p.uid===memberUids[0])?.scale || 'small';
+    groups.set(newGroupUid, { defId:null, label:'Composite', scale, memberUids, outlineMesh:null });
+    refreshGroupOutline(newGroupUid);
+  });
+  refreshHud();
+  resetHistory();
+}
+
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('[data-close]').forEach(el=>el.addEventListener('click',()=>closeModal(el.dataset.close)));
+
+const saveList = document.getElementById('saveList');
+document.getElementById('settingsBtn').addEventListener('click', ()=>openModal('settingsOverlay'));
+document.getElementById('openSaveBtn').addEventListener('click', async ()=>{ await refreshSaveList(); closeModal('settingsOverlay'); openModal('saveOverlay'); });
+document.getElementById('openIoBtn').addEventListener('click', ()=>{ closeModal('settingsOverlay'); openModal('ioOverlay'); });
+
+async function refreshSaveList(){
+  saveList.innerHTML = '<div class="empty">Loading…</div>';
+  try{
+    const listRes = await window.storage.list('gs:build:', false);
+    const keys = (listRes && listRes.keys) || [];
+    if(!keys.length){ saveList.innerHTML='<div class="empty">No saved builds yet.</div>'; return; }
+    saveList.innerHTML = '';
+    for(const key of keys){
+      let entry;
+      try{ const res = await window.storage.get(key,false); entry = JSON.parse(res.value); } catch(err){ continue; }
+      const row = document.createElement('div'); row.className='save-row';
+      row.innerHTML = `<div class="meta"><div class="nm">${entry.name}</div><div class="sub">${(entry.blocks||[]).length} blocks · ${new Date(entry.savedAt).toLocaleString()}</div></div><div class="btn" data-act="load">Load</div><div class="btn danger" data-act="del">✕</div>`;
+      row.querySelector('[data-act=load]').addEventListener('click', ()=>{ loadBuild(entry); closeModal('saveOverlay'); });
+      row.querySelector('[data-act=del]').addEventListener('click', async ()=>{ await window.storage.delete(key,false); refreshSaveList(); });
+      saveList.appendChild(row);
+    }
+  }catch(err){ saveList.innerHTML = '<div class="empty">Storage unavailable in this session.</div>'; }
+}
+document.getElementById('saveConfirmBtn').addEventListener('click', async ()=>{
+  const input = document.getElementById('saveNameInput');
+  const name = input.value.trim() || ('build-'+Date.now());
+  const key = 'gs:build:'+name.toLowerCase().replace(/[^a-z0-9_-]+/g,'-');
+  try{ await window.storage.set(key, JSON.stringify(serializeBuild(name)), false); input.value=''; refreshSaveList(); }
+  catch(err){ alert('Could not save — storage error.'); }
+});
+
+document.getElementById('exportBtn').addEventListener('click', ()=>{
+  const data = serializeBuild('export-'+Date.now());
+  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download=data.name+'.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+});
+const importFile = document.getElementById('importFile');
+document.getElementById('importBtn').addEventListener('click', ()=>importFile.click());
+importFile.addEventListener('change', (e)=>{
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{ try{ loadBuild(JSON.parse(reader.result)); closeModal('ioOverlay'); } catch(err){ alert("That file isn't valid build JSON."); } };
+  reader.readAsText(file); importFile.value='';
+});
+
+/* =========================================================================
+   RESIZE + RENDER LOOP
+========================================================================= */
+function resize(){
+  const rect = canvas.parentElement.getBoundingClientRect();
+  renderer.setSize(rect.width, rect.height, false);
+  camera.aspect = rect.width/rect.height;
+  camera.updateProjectionMatrix();
+}
+window.addEventListener('resize', resize);
+resize();
+function animate(){
+  requestAnimationFrame(animate);
+  if(xrayClip > 0) applyXray(); // depth-clip depends on camera distance, update each frame
+  renderer.render(scene, camera);
+}
+animate();
+
+})();
+</script>
+</body>
+</html>
