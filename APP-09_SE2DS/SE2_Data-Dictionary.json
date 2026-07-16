@@ -1,0 +1,1471 @@
+{
+  "metadata": {
+    "title": "Space Engineers 2 Manufacturing & Blocks Dataset",
+    "version": "0.1.0",
+    "game": "Space Engineers 2",
+    "status": "Alpha / Early Access",
+    "notes": [
+      "Single grid system only; no small vs. large grids.",
+      "Smallest divisible unit is 0.5 meters.",
+      "Block names include their largest dimension where applicable.",
+      "This dataset currently captures only information explicitly provided by the user."
+    ],
+    "sources": [
+      {
+        "name": "User Production Flow Diagram",
+        "license": "Copyleft"
+      },
+      {
+        "name": "Space Engineers 2 Wiki (wiki.gg)",
+        "license": "CC BY-SA 4.0"
+      }
+    ]
+  },
+  "productionFlow": {
+    "rawMaterialsSelected": [
+      "Backpack",
+      "Smelter"
+    ],
+    "rawMaterialsAll": [
+      "Refinery"
+    ],
+    "flow": [
+      {
+        "from": "Raw Materials (Selected)",
+        "to": "Backpack"
+      },
+      {
+        "from": "Raw Materials (Selected)",
+        "to": "Smelter"
+      },
+      {
+        "from": "Raw Materials (All)",
+        "to": "Refinery"
+      },
+      {
+        "from": "Backpack",
+        "to": "Simple Components"
+      },
+      {
+        "from": "Smelter",
+        "to": "Simple Components"
+      },
+      {
+        "from": "Refinery",
+        "to": "Refinery Products"
+      },
+      {
+        "from": "Simple Components",
+        "to": "Assembler"
+      },
+      {
+        "from": "Refinery Products",
+        "to": "Assembler"
+      },
+      {
+        "from": "Refinery Products",
+        "to": "Fabricator"
+      },
+      {
+        "from": "Assembler",
+        "to": "Complex Components"
+      },
+      {
+        "from": "Complex Components",
+        "to": "Gearforge"
+      },
+      {
+        "from": "Complex Components",
+        "to": "Fabricator"
+      },
+      {
+        "from": "Fabricator",
+        "to": "High-tech Components"
+      },
+      {
+        "from": "High-tech Components",
+        "to": "Gearforge"
+      }
+    ]
+  },
+  "production": {
+    "simpleComponents": {
+      "producedBy": [
+        "Smelter",
+        "Backpack"
+      ],
+      "items": [
+        "Steel Plate",
+        "Steel Tube",
+        "Glass",
+        "Electronic Parts",
+        "Motor",
+        "Construction Component",
+        "Wire",
+        "Turbine Blades",
+        "Metal Grids",
+        "Magnesium Powder",
+        "Lead Bar",
+        "Gold Thread",
+        "Chrome Coating"
+      ]
+    },
+    "refineryProducts": {
+      "producedBy": [
+        "Refinery"
+      ],
+      "items": [
+        "Enriched Uranium",
+        "Platinum Electrode",
+        "Silver Rod",
+        "Titanium Sheet",
+        "Permanent Magnet",
+        "Superconductor",
+        "Radiation Shielding",
+        "Stainless Steel",
+        "Magnesium Bar"
+      ]
+    },
+    "complexComponents": {
+      "producedBy": [
+        "Assembler"
+      ],
+      "items": [
+        "Compressor",
+        "Motherboard",
+        "Combustion Chamber",
+        "Pressure Pipe",
+        "Ion Chamber",
+        "Chemical Synthesizer",
+        "Heavy-duty Plate",
+        "Radio-comm Module",
+        "Reactor Core",
+        "Hard Drive"
+      ]
+    },
+    "highTechComponents": {
+      "producedBy": [
+        "Fabricator"
+      ],
+      "items": [
+        "Mainframe",
+        "Ion Accelerator",
+        "Ultra-resistant Plate",
+        "Advanced Compressor",
+        "Gravity Core",
+        "Titanium Blades",
+        "Laser"
+      ]
+    }
+  },
+  "blocks": {
+    "notes": [
+      "SE2's Wiki.gg current category contains 317 total pages (it CLAIMS 329!)."
+    ],
+    "subcategories": [
+      "Armor",
+      "Atmospheric Thruster",
+      "Battery",
+      "Cargo Container",
+      "Catwalk",
+      "Connector",
+      "Contract Terminal",
+      "Control Panel",
+      "Control Seat",
+      "Conveyor",
+      "Corner Light",
+      "Detailing",
+      "Drill",
+      "Event Controller",
+      "Gravity Generator",
+      "Handrail",
+      "Heavy Armor",
+      "Hinge",
+      "Hydrogen Thruster",
+      "Ion Thruster",
+      "Light Armor",
+      "Piston",
+      "Rotor",
+      "Sensor",
+      "Solar Panel",
+      "Structures",
+      "Survival Kit",
+      "Timer",
+      "Utility",
+      "Warhead",
+      "Wheel Suspension",
+      "Wind Turbine",
+      "Window"
+    ],
+    "items": [
+      {
+        "name": "Antenna",
+        "largestDimensionM": 1.5
+      },
+      {
+        "name": "Antenna",
+        "largestDimensionM": 12.5
+      },
+      {
+        "name": "Assembler",
+        "largestDimensionM": 5.0
+      },
+      {
+        "name": "Atmospheric Thruster",
+        "largestDimensionM": 1.0
+      },
+      {
+        "name": "Atmospheric Thruster",
+        "largestDimensionM": 2.0
+      },
+      {
+        "name": "Atmospheric Thruster",
+        "largestDimensionM": 5.0
+      },
+      {
+        "name": "Atmospheric Thruster",
+        "largestDimensionM": 10.0
+      },
+      {
+        "name": "Barrel",
+        "largestDimensionM": 1.25
+      },
+      {
+        "name": "Battery",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Battery",
+        "largestDimensionM": 1.5
+      },
+      {
+        "name": "Battery",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Bed",
+        "largestDimensionM": 2.0
+      },
+      {
+        "name": "Button",
+        "largestDimensionM": 0.25
+      },
+      {
+        "name": "Button Panel",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Cargo Container",
+        "largestDimensionM": 1.5
+      },
+      {
+        "name": "Cargo Container",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Cargo Container",
+        "largestDimensionM": 7.5
+      },
+      {
+        "name": "Catwalk Corner Base",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Catwalk Narrow Base",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Catwalk Square Base",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Catwalk Stairs",
+        "largestDimensionM": null
+      },
+      {
+        "name": "Catwalk Stairs Narrow",
+        "largestDimensionM": 3.5
+      },
+      {
+        "name": "Catwalk Stairs Narrow Half",
+        "largestDimensionM": 2.25
+      },
+      {
+        "name": "Catwalk Stairs Wide",
+        "largestDimensionM": 3.5
+      },
+      {
+        "name": "Catwalk Stairs Wide Half",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Cockpit",
+        "largestDimensionM": null
+      },
+      {
+        "name": "Cockpit",
+        "largestDimensionM": 1.5
+      },
+      {
+        "name": "Connector",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Connector",
+        "largestDimensionM": 1.5
+      },
+      {
+        "name": "Contract Terminal",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Control Panel",
+        "largestDimensionM": 0.25
+      },
+      {
+        "name": "Control Seat",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Conveyor Adaptor End",
+        "largestDimensionM": 1.5
+      },
+      {
+        "name": "Conveyor Adaptor Straight",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Conveyor Cross Junction",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Conveyor Cross Junction",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Conveyor Curved",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Conveyor Curved",
+        "largestDimensionM": 2.0
+      },
+      {
+        "name": "Conveyor Node Junction",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Conveyor Node Junction",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Conveyor Short",
+        "largestDimensionM": 1.5
+      },
+      {
+        "name": "Conveyor Slice",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Conveyor Slice",
+        "largestDimensionM": 1.5
+      },
+      {
+        "name": "Conveyor Sorter",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Conveyor Sorter",
+        "largestDimensionM": 1.5
+      },
+      {
+        "name": "Conveyor Straight",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Conveyor Straight",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Conveyor T-Junction",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Conveyor T-Junction",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Corner Light",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Cover Wall Half",
+        "largestDimensionM": 1.25
+      },
+      {
+        "name": "Crate",
+        "largestDimensionM": null
+      },
+      {
+        "name": "Crate",
+        "largestDimensionM": 1.0
+      },
+      {
+        "name": "Deck Panel",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Desk",
+        "largestDimensionM": null
+      },
+      {
+        "name": "Detailing Corner",
+        "largestDimensionM": 0.25
+      },
+      {
+        "name": "Detailing Cube",
+        "largestDimensionM": null
+      },
+      {
+        "name": "Detailing Cube",
+        "largestDimensionM": 0.25
+      },
+      {
+        "name": "Detailing Inverted Corner",
+        "largestDimensionM": 0.25
+      },
+      {
+        "name": "Detailing Slope",
+        "largestDimensionM": 0.25
+      },
+      {
+        "name": "Double Window Passage",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Drill",
+        "largestDimensionM": 3.5
+      },
+      {
+        "name": "Drill",
+        "largestDimensionM": 5.25
+      },
+      {
+        "name": "Event Controller",
+        "largestDimensionM": 1.0
+      },
+      {
+        "name": "Fabricator",
+        "largestDimensionM": 10.0
+      },
+      {
+        "name": "Gatling Cannon",
+        "largestDimensionM": 2.0
+      },
+      {
+        "name": "Gatling Turret",
+        "largestDimensionM": 5.5
+      },
+      {
+        "name": "Gearforge",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Gravity Generator",
+        "largestDimensionM": 5.0
+      },
+      {
+        "name": "Grinder",
+        "largestDimensionM": 3.5
+      },
+      {
+        "name": "Grinder",
+        "largestDimensionM": 4.0
+      },
+      {
+        "name": "Gyroscope",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Gyroscope",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Gyroscope",
+        "largestDimensionM": 7.5
+      },
+      {
+        "name": "Half Cover Wall",
+        "largestDimensionM": null
+      },
+      {
+        "name": "Handrail",
+        "largestDimensionM": 1.25
+      },
+      {
+        "name": "Handrail",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Handrail Corner",
+        "largestDimensionM": 1.25
+      },
+      {
+        "name": "Handrail Corner",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Handrail Diagonal",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Heavy Armor Corner",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Heavy Armor Corner",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Heavy Armor Cube",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Heavy Armor Cube",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Heavy Armor Half",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Heavy Armor Half",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Heavy Armor Half Corner",
+        "largestDimensionM": 0.25
+      },
+      {
+        "name": "Heavy Armor Half Corner",
+        "largestDimensionM": 1.25
+      },
+      {
+        "name": "Heavy Armor Half Long Slope",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Heavy Armor Half Long Slope",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Heavy Armor Half Slope Corner Inverted",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Heavy Armor Half Slope Corner Inverted",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Heavy Armor Half Slope Inverted",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Heavy Armor Half Slope Inverted",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Heavy Armor Half Tall Slope",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Heavy Armor Half Tall Slope",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Heavy Armor Inverted Corner",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Heavy Armor Inverted Corner",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Heavy Armor Long Slope Corner Base",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Heavy Armor Long Slope Corner Base",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Heavy Armor Long Slope Corner Tip",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Heavy Armor Long Slope Corner Tip",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Heavy Armor Long Slope Inverted Corner Base",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Heavy Armor Long Slope Inverted Corner Base",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Heavy Armor Long Slope Inverted Corner Tip",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Heavy Armor Long Slope Inverted Corner Tip",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Heavy Armor Slope",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Heavy Armor Slope",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Heavy Armor Slope Transition",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Heavy Armor Slope Transition",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Heavy Armor Slope Transition Base",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Heavy Armor Slope Transition Base",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Heavy Armor Slope Transition Base Mirrored",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Heavy Armor Slope Transition Base Mirrored",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Heavy Armor Slope Transition Mirrored",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Heavy Armor Slope Transition Mirrored",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Heavy Armor Slope Transition Tip",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Heavy Armor Slope Transition Tip",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Heavy Armor Slope Transition Tip Mirrored",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Heavy Armor Slope Transition Tip Mirrored",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Heavy Armor Wide Half Corner Base",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Heavy Armor Wide Half Corner Base",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Heavy Armor Wide Half Corner Tip",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Heavy Armor Wide Half Corner Tip",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Heavy Armor Wide Half Slope",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Heavy Armor Wide Half Slope",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Hinge",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Hinge",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Hinge Head",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Hinge Head",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Hydrogen Tank",
+        "largestDimensionM": 1.5
+      },
+      {
+        "name": "Hydrogen Tank",
+        "largestDimensionM": 12.5
+      },
+      {
+        "name": "Hydrogen Tank",
+        "largestDimensionM": 5.0
+      },
+      {
+        "name": "Hydrogen Thruster",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Hydrogen Thruster",
+        "largestDimensionM": 2.0
+      },
+      {
+        "name": "Hydrogen Thruster",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Hydrogen Thruster",
+        "largestDimensionM": 7.5
+      },
+      {
+        "name": "Interior Light",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Interior Wall",
+        "largestDimensionM": null
+      },
+      {
+        "name": "Interior Wall Corner",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Interior Wall Corner with Side",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Interior Wall Cutout",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Interior Wall Flat",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Interior Wall Flat Half",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Interior Wall Pillar",
+        "largestDimensionM": null
+      },
+      {
+        "name": "Interior Wall Pillar Curved Thick",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Interior Wall Pillar Curved Thin",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Interior Wall Pillar Flat",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Interior Wall Pillar Slope",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Ion Thruster",
+        "largestDimensionM": 1.0
+      },
+      {
+        "name": "Ion Thruster",
+        "largestDimensionM": 1.5
+      },
+      {
+        "name": "Ion Thruster",
+        "largestDimensionM": 5.0
+      },
+      {
+        "name": "Ion Thruster",
+        "largestDimensionM": 7.5
+      },
+      {
+        "name": "Ion Thrusters",
+        "largestDimensionM": null
+      },
+      {
+        "name": "Landing Gear",
+        "largestDimensionM": 1.0
+      },
+      {
+        "name": "Landing Gear",
+        "largestDimensionM": 5.0
+      },
+      {
+        "name": "LCD Corner",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "LCD Corner",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "LCD Narrow",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "LCD Narrow",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "LCD Square",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "LCD Square",
+        "largestDimensionM": 1.5
+      },
+      {
+        "name": "LCD Square",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "LCD Wide",
+        "largestDimensionM": 1.5
+      },
+      {
+        "name": "LCD Wide",
+        "largestDimensionM": 3.0
+      },
+      {
+        "name": "LCD Wide",
+        "largestDimensionM": 5.0
+      },
+      {
+        "name": "Light Armor Corner",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Light Armor Corner",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Light Armor Cube",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Light Armor Cube",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Light Armor Half",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Light Armor Half",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Light Armor Half Corner",
+        "largestDimensionM": 0.25
+      },
+      {
+        "name": "Light Armor Half Corner",
+        "largestDimensionM": 1.25
+      },
+      {
+        "name": "Light Armor Half Long Slope",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Light Armor Half Long Slope",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Light Armor Half Slope Corner Inverted",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Light Armor Half Slope Corner Inverted",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Light Armor Half Slope Inverted",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Light Armor Half Slope Inverted",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Light Armor Half Tall Slope",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Light Armor Half Tall Slope",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Light Armor Inverted Corner",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Light Armor Inverted Corner",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Light Armor Long Slope Corner Base",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Light Armor Long Slope Corner Base",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Light Armor Long Slope Corner Tip",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Light Armor Long Slope Corner Tip",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Light Armor Long Slope Inverted Corner Base",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Light Armor Long Slope Inverted Corner Base",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Light Armor Long Slope Inverted Corner Tip",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Light Armor Long Slope Inverted Corner Tip",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Light Armor Slope",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Light Armor Slope",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Light Armor Slope Transition",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Light Armor Slope Transition",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Light Armor Slope Transition Base",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Light Armor Slope Transition Base",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Light Armor Slope Transition Base Mirrored",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Light Armor Slope Transition Base Mirrored",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Light Armor Slope Transition Mirrored",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Light Armor Slope Transition Mirrored",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Light Armor Slope Transition Tip",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Light Armor Slope Transition Tip",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Light Armor Slope Transition Tip Mirrored",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Light Armor Slope Transition Tip Mirrored",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Light Armor Wide Half Corner Base",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Light Armor Wide Half Corner Base",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Light Armor Wide Half Corner Tip",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Light Armor Wide Half Corner Tip",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Light Armor Wide Half Slope",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Light Armor Wide Half Slope",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Locker",
+        "largestDimensionM": 2.0
+      },
+      {
+        "name": "Medical Room",
+        "largestDimensionM": 5.0
+      },
+      {
+        "name": "Narrow Sliding Door",
+        "largestDimensionM": null
+      },
+      {
+        "name": "Narrow Sliding Door",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "O2 H2 Generator",
+        "largestDimensionM": 1.5
+      },
+      {
+        "name": "O2 H2 Generator",
+        "largestDimensionM": 5.0
+      },
+      {
+        "name": "Ore Detector",
+        "largestDimensionM": 1.0
+      },
+      {
+        "name": "Ore Detector",
+        "largestDimensionM": 5.0
+      },
+      {
+        "name": "Oxygen Tank",
+        "largestDimensionM": 1.5
+      },
+      {
+        "name": "Passage Arch",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Passage Corner",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Passage Half Arch",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Passage Junction",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Passage T-Junction",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Pillar",
+        "largestDimensionM": null
+      },
+      {
+        "name": "Piston",
+        "largestDimensionM": 1.25
+      },
+      {
+        "name": "Piston",
+        "largestDimensionM": 4.75
+      },
+      {
+        "name": "Piston Head",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Piston Head",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Ramp",
+        "largestDimensionM": 5.0
+      },
+      {
+        "name": "Reactor",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Reactor",
+        "largestDimensionM": 7.5
+      },
+      {
+        "name": "Refinery",
+        "largestDimensionM": 7.5
+      },
+      {
+        "name": "Rocket Launcher",
+        "largestDimensionM": 2.0
+      },
+      {
+        "name": "Rocket Launcher",
+        "largestDimensionM": 5.0
+      },
+      {
+        "name": "Rocket Turret",
+        "largestDimensionM": 2.0
+      },
+      {
+        "name": "Rocket Turret",
+        "largestDimensionM": 5.0
+      },
+      {
+        "name": "Rotor",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Rotor",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Rotor Head",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Rotor Head",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Seat",
+        "largestDimensionM": 1.5
+      },
+      {
+        "name": "Sensor",
+        "largestDimensionM": 0.25
+      },
+      {
+        "name": "Short Passage",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Shower",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Single Window Passage",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Sink",
+        "largestDimensionM": 1.0
+      },
+      {
+        "name": "Smelter",
+        "largestDimensionM": null
+      },
+      {
+        "name": "Smelter",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Solar Panel",
+        "largestDimensionM": 10.0
+      },
+      {
+        "name": "Solar Panel",
+        "largestDimensionM": 5.0
+      },
+      {
+        "name": "Sound Block",
+        "largestDimensionM": 0.25
+      },
+      {
+        "name": "Spotlight",
+        "largestDimensionM": null
+      },
+      {
+        "name": "Spotlight",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Spotlight",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Stairs",
+        "largestDimensionM": 5.0
+      },
+      {
+        "name": "Stairway",
+        "largestDimensionM": null
+      },
+      {
+        "name": "Straight Passage",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Structural Support",
+        "largestDimensionM": null
+      },
+      {
+        "name": "Structural Support Straight",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Structural Support Wide",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Survival Kit",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Table",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Timer",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Toilet",
+        "largestDimensionM": null
+      },
+      {
+        "name": "Toilet",
+        "largestDimensionM": 1.0
+      },
+      {
+        "name": "Trade Terminal",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Truss",
+        "largestDimensionM": null
+      },
+      {
+        "name": "Truss Block",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Truss Block",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Wall Insert Conveyor",
+        "largestDimensionM": 1.5
+      },
+      {
+        "name": "Wall Insert Panel",
+        "largestDimensionM": 1.5
+      },
+      {
+        "name": "Wall Insert Pipes",
+        "largestDimensionM": 1.5
+      },
+      {
+        "name": "Wall Insert Vent",
+        "largestDimensionM": 1.5
+      },
+      {
+        "name": "Wall Insert Window",
+        "largestDimensionM": 1.5
+      },
+      {
+        "name": "Warhead",
+        "largestDimensionM": 0.5
+      },
+      {
+        "name": "Warhead",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Welder",
+        "largestDimensionM": 3.5
+      },
+      {
+        "name": "Welder",
+        "largestDimensionM": 4.0
+      },
+      {
+        "name": "Wheel Suspension",
+        "largestDimensionM": 1.0
+      },
+      {
+        "name": "Wheel Suspension",
+        "largestDimensionM": 1.5
+      },
+      {
+        "name": "Wheel Suspension",
+        "largestDimensionM": 12.5
+      },
+      {
+        "name": "Wheel Suspension",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Wheel Suspension",
+        "largestDimensionM": 5.0
+      },
+      {
+        "name": "Wheel Suspension",
+        "largestDimensionM": 7.5
+      },
+      {
+        "name": "Wind Turbine",
+        "largestDimensionM": 7.5
+      },
+      {
+        "name": "Window Corner",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Window Corner with Side",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Window Curved",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Window Curved Inward Triangle",
+        "largestDimensionM": 2.75
+      },
+      {
+        "name": "Window Curved with Side Left",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Window Curved with Side Right",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Window Flat",
+        "largestDimensionM": 1.25
+      },
+      {
+        "name": "Window Flat",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Window Flat Half",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Window Quarter Sphere",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Window Round Face",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Window Slanted Long",
+        "largestDimensionM": 5.0
+      },
+      {
+        "name": "Window Slanted Long Inverted",
+        "largestDimensionM": 5.0
+      },
+      {
+        "name": "Window Slope",
+        "largestDimensionM": 1.25
+      },
+      {
+        "name": "Window Slope",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Window Slope Half",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Window Slope Long",
+        "largestDimensionM": 5.0
+      },
+      {
+        "name": "Window Slope Long with Side Left",
+        "largestDimensionM": 5.0
+      },
+      {
+        "name": "Window Slope Long with Side Right",
+        "largestDimensionM": 5.0
+      },
+      {
+        "name": "Window Slope With Side",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Window Triangle Side",
+        "largestDimensionM": 1.25
+      },
+      {
+        "name": "Window Triangle Side",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Window Triangle Side Large",
+        "largestDimensionM": 5.0
+      },
+      {
+        "name": "Window Triangle Slanted",
+        "largestDimensionM": 1.25
+      },
+      {
+        "name": "Window Triangle Slanted",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Window Triangle Slanted Inverted",
+        "largestDimensionM": 1.25
+      },
+      {
+        "name": "Window Triangle Slanted Inverted",
+        "largestDimensionM": 2.5
+      },
+      {
+        "name": "Window Triangle Slanted Large",
+        "largestDimensionM": 5.0
+      },
+      {
+        "name": "Window Triangle Slanted Large Inverted",
+        "largestDimensionM": 5.0
+      }
+    ]
+  }
+}

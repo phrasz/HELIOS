@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SE2 Data Studio</title>
+<style>
+:root{
+  --bg:#0B0E0F;
+  --bg-grid:#10151670;
+  --panel:#151A1C;
+  --panel2:#1B2225;
+  --panel3:#20292C;
+  --line:rgba(140,170,160,0.14);
+  --line-strong:rgba(140,170,160,0.28);
+  --amber:#FFB020;
+  --amber-dim:#8a611c;
+  --cyan:#49D3D9;
+  --cyan-dim:#1c4a4c;
+  --lime:#8BD450;
+  --red:#E85C4A;
+  --text:#E7ECE9;
+  --text-dim:#8A9490;
+  --mono: ui-monospace, "Cascadia Code", "SF Mono", "JetBrains Mono", Consolas, monospace;
+  --sans: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+html[data-theme="light"]{
+  --bg:#EDEFEA;
+  --bg-grid:#c9d0c840;
+  --panel:#FFFFFF;
+  --panel2:#F3F5F0;
+  --panel3:#E8ECE4;
+  --line:rgba(40,55,45,0.14);
+  --line-strong:rgba(40,55,45,0.30);
+  --amber:#B36B00;
+  --amber-dim:#e2b46c;
+  --cyan:#0E7C82;
+  --cyan-dim:#bfe2e2;
+  --lime:#3E7A25;
+  --red:#B3402C;
+  --text:#171B19;
+  --text-dim:#5B655F;
+}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:var(--sans); font-size:14px;
+  background-image:
+    repeating-linear-gradient(0deg, var(--bg-grid) 0px, transparent 1px, transparent 28px, var(--bg-grid) 29px),
+    repeating-linear-gradient(90deg, var(--bg-grid) 0px, transparent 1px, transparent 28px, var(--bg-grid) 29px);
+  transition:background-color .15s, color .15s;
+}
+.app{display:grid; grid-template-columns:220px 1fr; grid-template-rows:56px 1fr 30px; height:100vh; grid-template-areas:"topbar topbar" "nav main" "nav status";}
+.topbar{grid-area:topbar; display:flex; align-items:center; justify-content:space-between; padding:0 18px; border-bottom:1px solid var(--line-strong); background:linear-gradient(180deg,var(--panel2),var(--panel));}
+.brand{display:flex; align-items:center; gap:10px;}
+.brand-mark{width:26px;height:26px; position:relative; border:2px solid var(--amber); transform:rotate(45deg); flex:none;}
+.brand-mark::after{content:""; position:absolute; inset:4px; border:1px solid var(--amber); opacity:.6;}
+.brand-text{font-family:var(--mono); letter-spacing:2px; text-transform:uppercase; font-size:13px; color:var(--text);}
+.brand-text b{color:var(--amber);}
+.brand-sub{font-family:var(--mono); font-size:10px; color:var(--text-dim); letter-spacing:1px; margin-top:1px;}
+.topbar-actions{display:flex; gap:8px; align-items:center;}
+.btn{
+  font-family:var(--mono); font-size:11px; letter-spacing:.5px; text-transform:uppercase;
+  background:var(--panel3); color:var(--text); border:1px solid var(--line-strong);
+  padding:7px 12px; cursor:pointer; clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px);
+  transition:border-color .15s, color .15s;
+}
+.btn:hover{border-color:var(--amber); color:var(--amber);}
+.btn.primary{border-color:var(--amber); color:var(--amber);}
+.btn.danger:hover{border-color:var(--red); color:var(--red);}
+.btn.small{padding:3px 8px; font-size:10px;}
+.btn:disabled{opacity:.35; cursor:not-allowed;}
+input[type=file]{display:none;}
+
+.nav{grid-area:nav; background:var(--panel); border-right:1px solid var(--line-strong); padding:14px 10px; display:flex; flex-direction:column; gap:6px;}
+.nav-item{
+  display:flex; align-items:center; gap:10px; padding:10px 10px; cursor:pointer;
+  border:1px solid transparent; color:var(--text-dim); font-family:var(--mono); font-size:12px; letter-spacing:.5px; text-transform:uppercase;
+  position:relative;
+}
+.nav-item .idx{font-size:10px; color:var(--text-dim); width:18px; flex:none;}
+.nav-item:hover{color:var(--text); background:var(--panel2);}
+.nav-item.active{color:var(--amber); border-color:var(--line-strong); background:var(--panel2); border-left:3px solid var(--amber); padding-left:7px;}
+.nav-item.active .idx{color:var(--amber);}
+.nav-sep{height:1px; background:var(--line); margin:8px 4px;}
+.nav-hint{font-family:var(--mono); font-size:10px; color:var(--text-dim); padding:8px 10px; line-height:1.5; opacity:.8;}
+
+.main{grid-area:main; overflow:auto; padding:20px 24px;}
+.status{grid-area:status; border-top:1px solid var(--line); background:var(--panel); display:flex; align-items:center; padding:0 16px; gap:18px; font-family:var(--mono); font-size:10px; color:var(--text-dim); letter-spacing:.5px;}
+.status b{color:var(--cyan);}
+
+.panel{
+  border:1px solid var(--line-strong); background:var(--panel); position:relative; padding:16px; margin-bottom:16px;
+}
+.panel::before, .panel::after{content:""; position:absolute; width:10px; height:10px; border-top:2px solid var(--amber); border-left:2px solid var(--amber); top:-1px; left:-1px;}
+.panel::after{left:auto; right:-1px; top:auto; bottom:-1px; border-top:none; border-left:none; border-bottom:2px solid var(--amber); border-right:2px solid var(--amber);}
+
+.section-title{font-family:var(--mono); text-transform:uppercase; letter-spacing:2px; font-size:12px; color:var(--amber); margin:0 0 12px 0; display:flex; align-items:center; gap:8px;}
+.section-title .n{color:var(--text-dim); font-weight:normal;}
+
+.breadcrumb{display:flex; flex-wrap:wrap; gap:4px; align-items:center; font-family:var(--mono); font-size:12px; margin-bottom:14px;}
+.crumb{color:var(--cyan); cursor:pointer; padding:3px 6px; border:1px solid transparent;}
+.crumb:hover{border-color:var(--line-strong); background:var(--panel2);}
+.crumb.current{color:var(--text); cursor:default;}
+.crumb.current:hover{border-color:transparent; background:none;}
+.crumb-sep{color:var(--text-dim);}
+
+.row-table{width:100%; border-collapse:collapse;}
+.row-table tr{border-bottom:1px solid var(--line);}
+.row-table tr:hover{background:var(--panel2);}
+.row-table td{padding:7px 8px; vertical-align:middle;}
+.node-key{font-family:var(--mono); color:var(--cyan); font-size:12.5px; white-space:nowrap;}
+.node-key.editable{cursor:text; border-bottom:1px dashed transparent;}
+.node-key.editable:hover{border-bottom-color:var(--cyan);}
+.type-badge{font-family:var(--mono); font-size:9px; text-transform:uppercase; color:var(--text-dim); border:1px solid var(--line); padding:1px 5px; margin-left:6px;}
+.val-input{
+  background:var(--panel3); border:1px solid var(--line-strong); color:var(--text); font-family:var(--mono);
+  padding:5px 7px; font-size:12.5px; width:100%; min-width:120px;
+}
+.val-input:focus{outline:none; border-color:var(--cyan);}
+.child-ref{font-family:var(--mono); color:var(--text-dim); font-size:12px;}
+.add-row{display:flex; gap:8px; align-items:center; margin-top:12px; padding-top:12px; border-top:1px dashed var(--line);}
+.add-row input, .add-row select{
+  background:var(--panel3); border:1px solid var(--line-strong); color:var(--text); font-family:var(--mono);
+  padding:6px 8px; font-size:12px;
+}
+.add-row input{flex:1; min-width:80px;}
+
+.chip{display:inline-flex; align-items:center; gap:6px; background:var(--panel3); border:1px solid var(--line-strong); padding:4px 8px; font-family:var(--mono); font-size:11.5px; margin:3px 4px 3px 0;}
+.chip .x{cursor:pointer; color:var(--red); font-weight:bold;}
+.chip.active{border-color:var(--amber); color:var(--amber);}
+.chip.tog{cursor:pointer;}
+
+/* FLOW */
+.flow-wrap{overflow:auto; border:1px solid var(--line); background:radial-gradient(circle at 20% 10%, #0f1517 0%, #0b0e0f 70%); min-height:420px;}
+.flow-node-box{fill:var(--panel3); stroke:var(--cyan); stroke-width:1.4;}
+.flow-node-box:hover{stroke:var(--amber);}
+.flow-node-text{fill:var(--text); font-family:var(--mono); font-size:11px;}
+.flow-edge{stroke:var(--cyan-dim); stroke-width:1.6; fill:none; cursor:pointer;}
+.flow-edge:hover{stroke:var(--red);}
+
+/* PIPELINE */
+.pipe-row{display:flex; gap:14px; overflow-x:auto; padding-bottom:10px;}
+.pipe-card{flex:0 0 260px; border:1px solid var(--line-strong); background:var(--panel2); padding:12px; position:relative;}
+.pipe-badge{position:absolute; top:-10px; left:10px; background:var(--amber); color:#1a1300; font-family:var(--mono); font-weight:bold; font-size:11px; padding:2px 7px;}
+.pipe-title{font-family:var(--mono); text-transform:uppercase; letter-spacing:1px; font-size:12.5px; color:var(--text); margin:6px 0 10px 0; display:flex; justify-content:space-between; align-items:center;}
+.pipe-sub{font-family:var(--mono); font-size:10px; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px; margin:10px 0 4px 0;}
+.pipe-add-stage{flex:0 0 180px; border:1px dashed var(--line-strong); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-dim); font-family:var(--mono); font-size:12px; text-transform:uppercase;}
+.pipe-add-stage:hover{color:var(--amber); border-color:var(--amber);}
+.item-line{display:flex; gap:6px; align-items:center; margin-bottom:4px;}
+.item-line input{flex:1;}
+
+/* BLOCKS */
+.blocks-layout{display:grid; grid-template-columns:230px 1fr 300px; gap:14px; align-items:start;}
+.block-search{width:100%; background:var(--panel3); border:1px solid var(--line-strong); color:var(--text); font-family:var(--mono); padding:7px 9px; font-size:12px; margin-bottom:10px;}
+.cat-chip-wrap{display:flex; flex-wrap:wrap;}
+.block-table-wrap{max-height:70vh; overflow:auto; border:1px solid var(--line);}
+.block-row{display:flex; justify-content:space-between; padding:8px 10px; border-bottom:1px solid var(--line); cursor:pointer; font-family:var(--mono); font-size:12px;}
+.block-row:hover{background:var(--panel2);}
+.block-row.sel{background:var(--panel3); border-left:3px solid var(--amber); padding-left:7px;}
+.block-row .dim{color:var(--text-dim);}
+.detail-field{margin-bottom:10px;}
+.detail-label{font-family:var(--mono); font-size:10px; text-transform:uppercase; color:var(--text-dim); letter-spacing:1px; margin-bottom:4px;}
+.empty-hint{font-family:var(--mono); font-size:12px; color:var(--text-dim); padding:20px 0; text-align:center; border:1px dashed var(--line);}
+.field-del{color:var(--red); cursor:pointer; font-size:11px; margin-left:6px;}
+
+/* NESTED VALUE EDITOR (block manager dict/array fields) */
+.nested-box{border-left:2px solid var(--line-strong); margin:4px 0 4px 2px; padding-left:12px;}
+.nested-row{display:flex; align-items:flex-start; gap:8px; margin-bottom:6px;}
+.nested-key{font-family:var(--mono); color:var(--cyan); font-size:11.5px; min-width:100px; padding-top:6px; cursor:text; border-bottom:1px dashed transparent;}
+.nested-key:hover{border-bottom-color:var(--cyan);}
+.nested-val{flex:1;}
+.nested-add{display:flex; gap:6px; margin-top:4px;}
+
+/* GEAR / SETTINGS DRAWER */
+.gear-btn{
+  width:34px; height:34px; display:flex; align-items:center; justify-content:center;
+  background:var(--panel3); border:1px solid var(--line-strong); color:var(--text-dim); cursor:pointer;
+  clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px);
+  transition:color .15s, border-color .15s, transform .2s;
+}
+.gear-btn:hover{color:var(--amber); border-color:var(--amber);}
+.gear-btn.spin svg{transition:transform .3s;}
+.gear-btn:hover svg{transform:rotate(35deg);}
+
+.drawer-backdrop{position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:90; opacity:0; pointer-events:none; transition:opacity .2s;}
+.drawer-backdrop.open{opacity:1; pointer-events:auto;}
+.drawer{
+  position:fixed; top:0; right:0; height:100vh; width:340px; max-width:88vw;
+  background:var(--panel); border-left:1px solid var(--line-strong); z-index:91;
+  transform:translateX(100%); transition:transform .22s ease; overflow-y:auto; padding:18px;
+  box-shadow:-8px 0 30px rgba(0,0,0,0.3);
+}
+.drawer.open{transform:translateX(0);}
+.drawer-header{display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid var(--line-strong);}
+.drawer-title{font-family:var(--mono); text-transform:uppercase; letter-spacing:2px; font-size:13px; color:var(--amber);}
+.drawer-section{margin-bottom:22px;}
+.drawer-section-title{font-family:var(--mono); text-transform:uppercase; letter-spacing:1.5px; font-size:11px; color:var(--text-dim); margin-bottom:10px;}
+.drawer-row{display:flex; gap:8px; align-items:center; margin-bottom:8px; flex-wrap:wrap;}
+.drawer-desc{font-family:var(--mono); font-size:10.5px; color:var(--text-dim); line-height:1.5; margin-top:4px;}
+.seg-group{display:flex; border:1px solid var(--line-strong);}
+.seg-btn{
+  font-family:var(--mono); font-size:11px; text-transform:uppercase; padding:7px 12px; cursor:pointer;
+  background:var(--panel3); color:var(--text-dim); border:none; border-right:1px solid var(--line-strong);
+}
+.seg-btn:last-child{border-right:none;}
+.seg-btn.active{background:var(--amber); color:#1a1300;}
+.depth-stepper{display:flex; align-items:center; gap:10px;}
+.depth-stepper button{width:28px; height:28px;}
+.depth-val{font-family:var(--mono); font-size:16px; color:var(--amber); min-width:20px; text-align:center;}
+
+/* TOOLTIP */
+.tooltip-wrap{position:relative; display:inline-flex; align-items:center; margin-left:7px; cursor:help; vertical-align:middle;}
+.tooltip-icon{width:15px; height:15px; border:1px solid var(--text-dim); border-radius:50%; font-size:10px; font-style:normal;
+  display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-family:var(--mono);}
+.tooltip-wrap:hover .tooltip-icon{border-color:var(--amber); color:var(--amber);}
+.tooltip-box{
+  visibility:hidden; opacity:0; position:absolute; left:20px; top:-8px; width:250px;
+  background:var(--panel3); border:1px solid var(--line-strong); padding:9px 11px;
+  font-family:var(--mono); font-size:10.5px; line-height:1.55; color:var(--text); z-index:30;
+  transition:opacity .15s; box-shadow:0 6px 18px rgba(0,0,0,0.35); text-transform:none; letter-spacing:0;
+}
+.tooltip-wrap:hover .tooltip-box{visibility:visible; opacity:1;}
+
+/* FLOW HIGHLIGHT-ON-HOVER */
+.flow-node-group{transition:opacity .15s;}
+.flow-node-group.fdim{opacity:.2;}
+.flow-node-group.fhl .flow-node-box{stroke:var(--amber); stroke-width:2.4;}
+.flow-edge{transition:opacity .15s, stroke .15s, stroke-width .15s;}
+.flow-edge.fdim{opacity:.1;}
+.flow-edge.fhl{stroke:var(--amber); stroke-width:2.6;}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<script id="default-data" type="application/json">{"metadata": {"title": "Space Engineers 2 Manufacturing & Blocks Dataset", "version": "0.1.0", "game": "Space Engineers 2", "status": "Alpha / Early Access", "notes": ["Single grid system only; no small vs. large grids.", "Smallest divisible unit is 0.5 meters.", "Block names include their largest dimension where applicable.", "This dataset currently captures only information explicitly provided by the user."], "sources": [{"name": "User Production Flow Diagram", "license": "Copyleft"}, {"name": "Space Engineers 2 Wiki (wiki.gg)", "license": "CC BY-SA 4.0"}]}, "productionFlow": {"rawMaterialsSelected": ["Backpack", "Smelter"], "rawMaterialsAll": ["Refinery"], "flow": [{"from": "Raw Materials (Selected)", "to": "Backpack"}, {"from": "Raw Materials (Selected)", "to": "Smelter"}, {"from": "Raw Materials (All)", "to": "Refinery"}, {"from": "Backpack", "to": "Simple Components"}, {"from": "Smelter", "to": "Simple Components"}, {"from": "Refinery", "to": "Refinery Products"}, {"from": "Simple Components", "to": "Assembler"}, {"from": "Refinery Products", "to": "Assembler"}, {"from": "Refinery Products", "to": "Fabricator"}, {"from": "Assembler", "to": "Complex Components"}, {"from": "Complex Components", "to": "Gearforge"}, {"from": "Complex Components", "to": "Fabricator"}, {"from": "Fabricator", "to": "High-tech Components"}, {"from": "High-tech Components", "to": "Gearforge"}]}, "production": {"simpleComponents": {"producedBy": ["Smelter", "Backpack"], "items": ["Steel Plate", "Steel Tube", "Glass", "Electronic Parts", "Motor", "Construction Component", "Wire", "Turbine Blades", "Metal Grids", "Magnesium Powder", "Lead Bar", "Gold Thread", "Chrome Coating"]}, "refineryProducts": {"producedBy": ["Refinery"], "items": ["Enriched Uranium", "Platinum Electrode", "Silver Rod", "Titanium Sheet", "Permanent Magnet", "Superconductor", "Radiation Shielding", "Stainless Steel", "Magnesium Bar"]}, "complexComponents": {"producedBy": ["Assembler"], "items": ["Compressor", "Motherboard", "Combustion Chamber", "Pressure Pipe", "Ion Chamber", "Chemical Synthesizer", "Heavy-duty Plate", "Radio-comm Module", "Reactor Core", "Hard Drive"]}, "highTechComponents": {"producedBy": ["Fabricator"], "items": ["Mainframe", "Ion Accelerator", "Ultra-resistant Plate", "Advanced Compressor", "Gravity Core", "Titanium Blades", "Laser"]}}, "blocks": {"notes": ["SE2's Wiki.gg current category contains 317 total pages (it CLAIMS 329!)."], "subcategories": ["Armor", "Atmospheric Thruster", "Battery", "Cargo Container", "Catwalk", "Connector", "Contract Terminal", "Control Panel", "Control Seat", "Conveyor", "Corner Light", "Detailing", "Drill", "Event Controller", "Gravity Generator", "Handrail", "Heavy Armor", "Hinge", "Hydrogen Thruster", "Ion Thruster", "Light Armor", "Piston", "Rotor", "Sensor", "Solar Panel", "Structures", "Survival Kit", "Timer", "Utility", "Warhead", "Wheel Suspension", "Wind Turbine", "Window"], "items": [{"name": "Antenna", "largestDimensionM": 1.5}, {"name": "Antenna", "largestDimensionM": 12.5}, {"name": "Assembler", "largestDimensionM": 5.0}, {"name": "Atmospheric Thruster", "largestDimensionM": 1.0}, {"name": "Atmospheric Thruster", "largestDimensionM": 10.0}, {"name": "Atmospheric Thruster", "largestDimensionM": 2.0}, {"name": "Atmospheric Thruster", "largestDimensionM": 5.0}, {"name": "Barrel", "largestDimensionM": 1.25}, {"name": "Battery", "largestDimensionM": 0.5}, {"name": "Battery", "largestDimensionM": 1.5}, {"name": "Battery", "largestDimensionM": 2.5}, {"name": "Bed", "largestDimensionM": 2.0}, {"name": "Button", "largestDimensionM": 0.25}, {"name": "Button Panel", "largestDimensionM": 2.5}, {"name": "Cargo Container", "largestDimensionM": 1.5}, {"name": "Cargo Container", "largestDimensionM": 2.5}, {"name": "Cargo Container", "largestDimensionM": 7.5}, {"name": "Catwalk Corner Base", "largestDimensionM": 2.5}, {"name": "Catwalk Narrow Base", "largestDimensionM": 2.5}, {"name": "Catwalk Square Base", "largestDimensionM": 2.5}, {"name": "Catwalk Stairs", "largestDimensionM": null}, {"name": "Catwalk Stairs Narrow", "largestDimensionM": 3.5}, {"name": "Catwalk Stairs Narrow Half", "largestDimensionM": 2.25}, {"name": "Catwalk Stairs Wide", "largestDimensionM": 3.5}, {"name": "Catwalk Stairs Wide Half", "largestDimensionM": 2.5}, {"name": "Cockpit", "largestDimensionM": null}, {"name": "Cockpit", "largestDimensionM": 1.5}, {"name": "Connector", "largestDimensionM": 0.5}, {"name": "Connector", "largestDimensionM": 1.5}, {"name": "Contract Terminal", "largestDimensionM": 2.5}, {"name": "Control Panel", "largestDimensionM": 0.25}, {"name": "Control Seat", "largestDimensionM": 2.5}, {"name": "Conveyor Adaptor End", "largestDimensionM": 1.5}, {"name": "Conveyor Adaptor Straight", "largestDimensionM": 2.5}, {"name": "Conveyor Cross Junction", "largestDimensionM": 0.5}, {"name": "Conveyor Cross Junction", "largestDimensionM": 2.5}, {"name": "Conveyor Curved", "largestDimensionM": 0.5}, {"name": "Conveyor Curved", "largestDimensionM": 2.0}, {"name": "Conveyor Node Junction", "largestDimensionM": 0.5}, {"name": "Conveyor Node Junction", "largestDimensionM": 2.5}, {"name": "Conveyor Short", "largestDimensionM": 1.5}, {"name": "Conveyor Slice", "largestDimensionM": 0.5}, {"name": "Conveyor Slice", "largestDimensionM": 1.5}, {"name": "Conveyor Sorter", "largestDimensionM": 0.5}, {"name": "Conveyor Sorter", "largestDimensionM": 1.5}, {"name": "Conveyor Straight", "largestDimensionM": 0.5}, {"name": "Conveyor Straight", "largestDimensionM": 2.5}, {"name": "Conveyor T-Junction", "largestDimensionM": 0.5}, {"name": "Conveyor T-Junction", "largestDimensionM": 2.5}, {"name": "Corner Light", "largestDimensionM": 0.5}, {"name": "Cover Wall Half", "largestDimensionM": 1.25}, {"name": "Crate", "largestDimensionM": null}, {"name": "Crate", "largestDimensionM": 1.0}, {"name": "Deck Panel", "largestDimensionM": 2.5}, {"name": "Desk", "largestDimensionM": null}, {"name": "Detailing Corner", "largestDimensionM": 0.25}, {"name": "Detailing Cube", "largestDimensionM": null}, {"name": "Detailing Cube", "largestDimensionM": 0.25}, {"name": "Detailing Inverted Corner", "largestDimensionM": 0.25}, {"name": "Detailing Slope", "largestDimensionM": 0.25}, {"name": "Double Window Passage", "largestDimensionM": 2.5}, {"name": "Drill", "largestDimensionM": 3.5}, {"name": "Drill", "largestDimensionM": 5.25}, {"name": "Event Controller", "largestDimensionM": 1.0}, {"name": "Fabricator", "largestDimensionM": 10.0}, {"name": "Gatling Cannon", "largestDimensionM": 2.0}, {"name": "Gatling Turret", "largestDimensionM": 5.5}, {"name": "Gearforge", "largestDimensionM": 2.5}, {"name": "Gravity Generator", "largestDimensionM": 5.0}, {"name": "Grinder", "largestDimensionM": 3.5}, {"name": "Grinder", "largestDimensionM": 4.0}, {"name": "Gyroscope", "largestDimensionM": 0.5}, {"name": "Gyroscope", "largestDimensionM": 2.5}, {"name": "Gyroscope", "largestDimensionM": 7.5}, {"name": "Half Cover Wall", "largestDimensionM": null}, {"name": "Handrail", "largestDimensionM": 1.25}, {"name": "Handrail", "largestDimensionM": 2.5}, {"name": "Handrail Corner", "largestDimensionM": 1.25}, {"name": "Handrail Corner", "largestDimensionM": 2.5}, {"name": "Handrail Diagonal", "largestDimensionM": 2.5}, {"name": "Heavy Armor Corner", "largestDimensionM": 0.5}, {"name": "Heavy Armor Corner", "largestDimensionM": 2.5}, {"name": "Heavy Armor Cube", "largestDimensionM": 0.5}, {"name": "Heavy Armor Cube", "largestDimensionM": 2.5}, {"name": "Heavy Armor Half", "largestDimensionM": 0.5}, {"name": "Heavy Armor Half", "largestDimensionM": 2.5}, {"name": "Heavy Armor Half Corner", "largestDimensionM": 0.25}, {"name": "Heavy Armor Half Corner", "largestDimensionM": 1.25}, {"name": "Heavy Armor Half Long Slope", "largestDimensionM": 0.5}, {"name": "Heavy Armor Half Long Slope", "largestDimensionM": 2.5}, {"name": "Heavy Armor Half Slope Corner Inverted", "largestDimensionM": 0.5}, {"name": "Heavy Armor Half Slope Corner Inverted", "largestDimensionM": 2.5}, {"name": "Heavy Armor Half Slope Inverted", "largestDimensionM": 0.5}, {"name": "Heavy Armor Half Slope Inverted", "largestDimensionM": 2.5}, {"name": "Heavy Armor Half Tall Slope", "largestDimensionM": 0.5}, {"name": "Heavy Armor Half Tall Slope", "largestDimensionM": 2.5}, {"name": "Heavy Armor Inverted Corner", "largestDimensionM": 0.5}, {"name": "Heavy Armor Inverted Corner", "largestDimensionM": 2.5}, {"name": "Heavy Armor Long Slope Corner Base", "largestDimensionM": 0.5}, {"name": "Heavy Armor Long Slope Corner Base", "largestDimensionM": 2.5}, {"name": "Heavy Armor Long Slope Corner Tip", "largestDimensionM": 0.5}, {"name": "Heavy Armor Long Slope Corner Tip", "largestDimensionM": 2.5}, {"name": "Heavy Armor Long Slope Inverted Corner Base", "largestDimensionM": 0.5}, {"name": "Heavy Armor Long Slope Inverted Corner Base", "largestDimensionM": 2.5}, {"name": "Heavy Armor Long Slope Inverted Corner Tip", "largestDimensionM": 0.5}, {"name": "Heavy Armor Long Slope Inverted Corner Tip", "largestDimensionM": 2.5}, {"name": "Heavy Armor Slope", "largestDimensionM": 0.5}, {"name": "Heavy Armor Slope", "largestDimensionM": 2.5}, {"name": "Heavy Armor Slope Transition", "largestDimensionM": 0.5}, {"name": "Heavy Armor Slope Transition", "largestDimensionM": 2.5}, {"name": "Heavy Armor Slope Transition Base", "largestDimensionM": 0.5}, {"name": "Heavy Armor Slope Transition Base", "largestDimensionM": 2.5}, {"name": "Heavy Armor Slope Transition Base Mirrored", "largestDimensionM": 0.5}, {"name": "Heavy Armor Slope Transition Base Mirrored", "largestDimensionM": 2.5}, {"name": "Heavy Armor Slope Transition Mirrored", "largestDimensionM": 0.5}, {"name": "Heavy Armor Slope Transition Mirrored", "largestDimensionM": 2.5}, {"name": "Heavy Armor Slope Transition Tip", "largestDimensionM": 0.5}, {"name": "Heavy Armor Slope Transition Tip", "largestDimensionM": 2.5}, {"name": "Heavy Armor Slope Transition Tip Mirrored", "largestDimensionM": 0.5}, {"name": "Heavy Armor Slope Transition Tip Mirrored", "largestDimensionM": 2.5}, {"name": "Heavy Armor Wide Half Corner Base", "largestDimensionM": 0.5}, {"name": "Heavy Armor Wide Half Corner Base", "largestDimensionM": 2.5}, {"name": "Heavy Armor Wide Half Corner Tip", "largestDimensionM": 0.5}, {"name": "Heavy Armor Wide Half Corner Tip", "largestDimensionM": 2.5}, {"name": "Heavy Armor Wide Half Slope", "largestDimensionM": 0.5}, {"name": "Heavy Armor Wide Half Slope", "largestDimensionM": 2.5}, {"name": "Hinge", "largestDimensionM": 0.5}, {"name": "Hinge", "largestDimensionM": 2.5}, {"name": "Hinge Head", "largestDimensionM": 0.5}, {"name": "Hinge Head", "largestDimensionM": 2.5}, {"name": "Hydrogen Tank", "largestDimensionM": 1.5}, {"name": "Hydrogen Tank", "largestDimensionM": 12.5}, {"name": "Hydrogen Tank", "largestDimensionM": 5.0}, {"name": "Hydrogen Thruster", "largestDimensionM": 0.5}, {"name": "Hydrogen Thruster", "largestDimensionM": 2.0}, {"name": "Hydrogen Thruster", "largestDimensionM": 2.5}, {"name": "Hydrogen Thruster", "largestDimensionM": 7.5}, {"name": "Interior Light", "largestDimensionM": 0.5}, {"name": "Interior Wall", "largestDimensionM": null}, {"name": "Interior Wall Corner", "largestDimensionM": 2.5}, {"name": "Interior Wall Corner with Side", "largestDimensionM": 2.5}, {"name": "Interior Wall Cutout", "largestDimensionM": 2.5}, {"name": "Interior Wall Flat", "largestDimensionM": 2.5}, {"name": "Interior Wall Flat Half", "largestDimensionM": 2.5}, {"name": "Interior Wall Pillar", "largestDimensionM": null}, {"name": "Interior Wall Pillar Curved Thick", "largestDimensionM": 2.5}, {"name": "Interior Wall Pillar Curved Thin", "largestDimensionM": 2.5}, {"name": "Interior Wall Pillar Flat", "largestDimensionM": 2.5}, {"name": "Interior Wall Pillar Slope", "largestDimensionM": 2.5}, {"name": "Ion Thruster", "largestDimensionM": 1.0}, {"name": "Ion Thruster", "largestDimensionM": 1.5}, {"name": "Ion Thruster", "largestDimensionM": 5.0}, {"name": "Ion Thruster", "largestDimensionM": 7.5}, {"name": "Ion Thrusters", "largestDimensionM": null}, {"name": "Landing Gear", "largestDimensionM": 1.0}, {"name": "Landing Gear", "largestDimensionM": 5.0}, {"name": "LCD Corner", "largestDimensionM": 0.5}, {"name": "LCD Corner", "largestDimensionM": 2.5}, {"name": "LCD Narrow", "largestDimensionM": 0.5}, {"name": "LCD Narrow", "largestDimensionM": 2.5}, {"name": "LCD Square", "largestDimensionM": 0.5}, {"name": "LCD Square", "largestDimensionM": 1.5}, {"name": "LCD Square", "largestDimensionM": 2.5}, {"name": "LCD Wide", "largestDimensionM": 1.5}, {"name": "LCD Wide", "largestDimensionM": 3.0}, {"name": "LCD Wide", "largestDimensionM": 5.0}, {"name": "Light Armor Corner", "largestDimensionM": 0.5}, {"name": "Light Armor Corner", "largestDimensionM": 2.5}, {"name": "Light Armor Cube", "largestDimensionM": 0.5}, {"name": "Light Armor Cube", "largestDimensionM": 2.5}, {"name": "Light Armor Half", "largestDimensionM": 0.5}, {"name": "Light Armor Half", "largestDimensionM": 2.5}, {"name": "Light Armor Half Corner", "largestDimensionM": 0.25}, {"name": "Light Armor Half Corner", "largestDimensionM": 1.25}, {"name": "Light Armor Half Long Slope", "largestDimensionM": 0.5}, {"name": "Light Armor Half Long Slope", "largestDimensionM": 2.5}, {"name": "Light Armor Half Slope Corner Inverted", "largestDimensionM": 0.5}, {"name": "Light Armor Half Slope Corner Inverted", "largestDimensionM": 2.5}, {"name": "Light Armor Half Slope Inverted", "largestDimensionM": 0.5}, {"name": "Light Armor Half Slope Inverted", "largestDimensionM": 2.5}, {"name": "Light Armor Half Tall Slope", "largestDimensionM": 0.5}, {"name": "Light Armor Half Tall Slope", "largestDimensionM": 2.5}, {"name": "Light Armor Inverted Corner", "largestDimensionM": 0.5}, {"name": "Light Armor Inverted Corner", "largestDimensionM": 2.5}, {"name": "Light Armor Long Slope Corner Base", "largestDimensionM": 0.5}, {"name": "Light Armor Long Slope Corner Base", "largestDimensionM": 2.5}, {"name": "Light Armor Long Slope Corner Tip", "largestDimensionM": 0.5}, {"name": "Light Armor Long Slope Corner Tip", "largestDimensionM": 2.5}, {"name": "Light Armor Long Slope Inverted Corner Base", "largestDimensionM": 0.5}, {"name": "Light Armor Long Slope Inverted Corner Base", "largestDimensionM": 2.5}, {"name": "Light Armor Long Slope Inverted Corner Tip", "largestDimensionM": 0.5}, {"name": "Light Armor Long Slope Inverted Corner Tip", "largestDimensionM": 2.5}, {"name": "Light Armor Slope", "largestDimensionM": 0.5}, {"name": "Light Armor Slope", "largestDimensionM": 2.5}, {"name": "Light Armor Slope Transition", "largestDimensionM": 0.5}, {"name": "Light Armor Slope Transition", "largestDimensionM": 2.5}, {"name": "Light Armor Slope Transition Base", "largestDimensionM": 0.5}, {"name": "Light Armor Slope Transition Base", "largestDimensionM": 2.5}, {"name": "Light Armor Slope Transition Base Mirrored", "largestDimensionM": 0.5}, {"name": "Light Armor Slope Transition Base Mirrored", "largestDimensionM": 2.5}, {"name": "Light Armor Slope Transition Mirrored", "largestDimensionM": 0.5}, {"name": "Light Armor Slope Transition Mirrored", "largestDimensionM": 2.5}, {"name": "Light Armor Slope Transition Tip", "largestDimensionM": 0.5}, {"name": "Light Armor Slope Transition Tip", "largestDimensionM": 2.5}, {"name": "Light Armor Slope Transition Tip Mirrored", "largestDimensionM": 0.5}, {"name": "Light Armor Slope Transition Tip Mirrored", "largestDimensionM": 2.5}, {"name": "Light Armor Wide Half Corner Base", "largestDimensionM": 0.5}, {"name": "Light Armor Wide Half Corner Base", "largestDimensionM": 2.5}, {"name": "Light Armor Wide Half Corner Tip", "largestDimensionM": 0.5}, {"name": "Light Armor Wide Half Corner Tip", "largestDimensionM": 2.5}, {"name": "Light Armor Wide Half Slope", "largestDimensionM": 0.5}, {"name": "Light Armor Wide Half Slope", "largestDimensionM": 2.5}, {"name": "Locker", "largestDimensionM": 2.0}, {"name": "Medical Room", "largestDimensionM": 5.0}, {"name": "Narrow Sliding Door", "largestDimensionM": null}, {"name": "Narrow Sliding Door", "largestDimensionM": 2.5}, {"name": "O2 H2 Generator", "largestDimensionM": 1.5}, {"name": "O2 H2 Generator", "largestDimensionM": 5.0}, {"name": "Ore Detector", "largestDimensionM": 1.0}, {"name": "Ore Detector", "largestDimensionM": 5.0}, {"name": "Oxygen Tank", "largestDimensionM": 1.5}, {"name": "Passage Arch", "largestDimensionM": 2.5}, {"name": "Passage Corner", "largestDimensionM": 2.5}, {"name": "Passage Half Arch", "largestDimensionM": 2.5}, {"name": "Passage Junction", "largestDimensionM": 2.5}, {"name": "Passage T-Junction", "largestDimensionM": 2.5}, {"name": "Pillar", "largestDimensionM": null}, {"name": "Piston", "largestDimensionM": 1.25}, {"name": "Piston", "largestDimensionM": 4.75}, {"name": "Piston Head", "largestDimensionM": 0.5}, {"name": "Piston Head", "largestDimensionM": 2.5}, {"name": "Ramp", "largestDimensionM": 5.0}, {"name": "Reactor", "largestDimensionM": 2.5}, {"name": "Reactor", "largestDimensionM": 7.5}, {"name": "Refinery", "largestDimensionM": 7.5}, {"name": "Rocket Launcher", "largestDimensionM": 2.0}, {"name": "Rocket Launcher", "largestDimensionM": 5.0}, {"name": "Rocket Turret", "largestDimensionM": 2.0}, {"name": "Rocket Turret", "largestDimensionM": 5.0}, {"name": "Rotor", "largestDimensionM": 0.5}, {"name": "Rotor", "largestDimensionM": 2.5}, {"name": "Rotor Head", "largestDimensionM": 0.5}, {"name": "Rotor Head", "largestDimensionM": 2.5}, {"name": "Seat", "largestDimensionM": 1.5}, {"name": "Sensor", "largestDimensionM": 0.25}, {"name": "Short Passage", "largestDimensionM": 2.5}, {"name": "Shower", "largestDimensionM": 2.5}, {"name": "Single Window Passage", "largestDimensionM": 2.5}, {"name": "Sink", "largestDimensionM": 1.0}, {"name": "Smelter", "largestDimensionM": null}, {"name": "Smelter", "largestDimensionM": 2.5}, {"name": "Solar Panel", "largestDimensionM": 10.0}, {"name": "Solar Panel", "largestDimensionM": 5.0}, {"name": "Sound Block", "largestDimensionM": 0.25}, {"name": "Spotlight", "largestDimensionM": null}, {"name": "Spotlight", "largestDimensionM": 0.5}, {"name": "Spotlight", "largestDimensionM": 2.5}, {"name": "Stairs", "largestDimensionM": 5.0}, {"name": "Stairway", "largestDimensionM": null}, {"name": "Straight Passage", "largestDimensionM": 2.5}, {"name": "Structural Support", "largestDimensionM": null}, {"name": "Structural Support Straight", "largestDimensionM": 2.5}, {"name": "Structural Support Wide", "largestDimensionM": 2.5}, {"name": "Survival Kit", "largestDimensionM": 2.5}, {"name": "Table", "largestDimensionM": 2.5}, {"name": "Timer", "largestDimensionM": 0.5}, {"name": "Toilet", "largestDimensionM": null}, {"name": "Toilet", "largestDimensionM": 1.0}, {"name": "Trade Terminal", "largestDimensionM": 2.5}, {"name": "Truss", "largestDimensionM": null}, {"name": "Truss Block", "largestDimensionM": 0.5}, {"name": "Truss Block", "largestDimensionM": 2.5}, {"name": "Wall Insert Conveyor", "largestDimensionM": 1.5}, {"name": "Wall Insert Panel", "largestDimensionM": 1.5}, {"name": "Wall Insert Pipes", "largestDimensionM": 1.5}, {"name": "Wall Insert Vent", "largestDimensionM": 1.5}, {"name": "Wall Insert Window", "largestDimensionM": 1.5}, {"name": "Warhead", "largestDimensionM": 0.5}, {"name": "Warhead", "largestDimensionM": 2.5}, {"name": "Welder", "largestDimensionM": 3.5}, {"name": "Welder", "largestDimensionM": 4.0}, {"name": "Wheel Suspension", "largestDimensionM": 1.0}, {"name": "Wheel Suspension", "largestDimensionM": 1.5}, {"name": "Wheel Suspension", "largestDimensionM": 12.5}, {"name": "Wheel Suspension", "largestDimensionM": 2.5}, {"name": "Wheel Suspension", "largestDimensionM": 5.0}, {"name": "Wheel Suspension", "largestDimensionM": 7.5}, {"name": "Wind Turbine", "largestDimensionM": 7.5}, {"name": "Window Corner", "largestDimensionM": 2.5}, {"name": "Window Corner with Side", "largestDimensionM": 2.5}, {"name": "Window Curved", "largestDimensionM": 2.5}, {"name": "Window Curved Inward Triangle", "largestDimensionM": 2.75}, {"name": "Window Curved with Side Left", "largestDimensionM": 2.5}, {"name": "Window Curved with Side Right", "largestDimensionM": 2.5}, {"name": "Window Flat", "largestDimensionM": 1.25}, {"name": "Window Flat", "largestDimensionM": 2.5}, {"name": "Window Flat Half", "largestDimensionM": 2.5}, {"name": "Window Quarter Sphere", "largestDimensionM": 2.5}, {"name": "Window Round Face", "largestDimensionM": 2.5}, {"name": "Window Slanted Long", "largestDimensionM": 5.0}, {"name": "Window Slanted Long Inverted", "largestDimensionM": 5.0}, {"name": "Window Slope", "largestDimensionM": 1.25}, {"name": "Window Slope", "largestDimensionM": 2.5}, {"name": "Window Slope Half", "largestDimensionM": 2.5}, {"name": "Window Slope Long", "largestDimensionM": 5.0}, {"name": "Window Slope Long with Side Left", "largestDimensionM": 5.0}, {"name": "Window Slope Long with Side Right", "largestDimensionM": 5.0}, {"name": "Window Slope With Side", "largestDimensionM": 2.5}, {"name": "Window Triangle Side", "largestDimensionM": 1.25}, {"name": "Window Triangle Side", "largestDimensionM": 2.5}, {"name": "Window Triangle Side Large", "largestDimensionM": 5.0}, {"name": "Window Triangle Slanted", "largestDimensionM": 1.25}, {"name": "Window Triangle Slanted", "largestDimensionM": 2.5}, {"name": "Window Triangle Slanted Inverted", "largestDimensionM": 1.25}, {"name": "Window Triangle Slanted Inverted", "largestDimensionM": 2.5}, {"name": "Window Triangle Slanted Large", "largestDimensionM": 5.0}, {"name": "Window Triangle Slanted Large Inverted", "largestDimensionM": 5.0}]}}</script>
+<script>(function(){
+"use strict";
+
+var SAMPLE = JSON.parse(document.getElementById('default-data').textContent);
+var DATA = {};
+var typeRegistry = {}; // pathKey string -> 'flow' | 'pipeline' | 'blocks'
+var VIEW = 'node';
+var focusPath = []; // node editor pivot
+var flowFocus = null, pipelineFocus = null, blocksFocus = null; // path arrays
+var blockFilter = { search:'', cats:new Set() };
+var selectedBlockIdx = null;
+var manageCats = false;
+var flowOrientation = 'LR';
+var settings = { theme:'dark', previewDepth:1, flowRouting:'orthogonal', flowHighlight:true };
+var drawerOpen = false;
+var STORAGE_KEY = 'se2-workspace-v1';
+var persistTimer = null;
+var lastSaveOk = null;
+var lastSaveAt = null;
+
+function hasStorage(){
+  try{
+    var test = '__test__';
+    localStorage.setItem(test, test);
+    localStorage.removeItem(test);
+    return true;
+  }catch(e){ return false; }
+}
+function schedulePersist(){
+  if(!hasStorage()) return;
+  clearTimeout(persistTimer);
+  persistTimer = setTimeout(doPersist, 350);
+}
+function doPersist(){
+  if(!hasStorage()) return;
+  var snapshot = {
+    DATA: DATA, typeRegistry: typeRegistry, settings: settings,
+    flowFocus: flowFocus, pipelineFocus: pipelineFocus, blocksFocus: blocksFocus,
+    flowOrientation: flowOrientation, VIEW: VIEW, focusPath: focusPath
+  };
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+    lastSaveOk = true; lastSaveAt = new Date();
+    var s = $('.status'); if(s) s.replaceWith(buildStatus());
+  }catch(err){
+    lastSaveOk = false;
+    var s = $('.status'); if(s) s.replaceWith(buildStatus());
+    console.error('Autosave failed:', err);
+  }
+}
+function loadPersisted(){
+  return new Promise(function(resolve){
+    if(hasStorage()){
+      try{
+        var stored = localStorage.getItem(STORAGE_KEY);
+        if(stored){
+          var snap = JSON.parse(stored);
+          DATA = snap.DATA || {};
+          typeRegistry = snap.typeRegistry || {};
+          settings = Object.assign(settings, snap.settings || {});
+          flowFocus = snap.flowFocus || null;
+          pipelineFocus = snap.pipelineFocus || null;
+          blocksFocus = snap.blocksFocus || null;
+          flowOrientation = snap.flowOrientation || 'LR';
+          VIEW = snap.VIEW || 'node';
+          focusPath = snap.focusPath || [];
+          resolve('restored');
+        } else {
+          resolve('empty');
+        }
+      }catch(e){ resolve('empty'); }
+    } else {
+      resolve('unavailable');
+    }
+  });
+}
+function showBanner(text, tone){
+  var old = $('#bootBanner'); if(old) old.remove();
+  var b = el('div',{id:'bootBanner', style:
+    'position:fixed; top:14px; left:50%; transform:translateX(-50%); z-index:200;'+
+    'font-family:var(--mono); font-size:11.5px; letter-spacing:.4px; padding:9px 16px;'+
+    'border:1px solid '+(tone==='warn'?'var(--red)':'var(--amber)')+'; background:var(--panel2); color:var(--text);'+
+    'box-shadow:0 6px 20px rgba(0,0,0,0.35); display:flex; align-items:center; gap:12px;'
+  },[
+    el('span',{},[txt(text)]),
+    el('span',{style:'cursor:pointer; color:var(--text-dim);', onclick:function(){ b.remove(); }},[txt('\u2715')])
+  ]);
+  document.body.appendChild(b);
+  setTimeout(function(){ if(b.parentNode) b.remove(); }, 7000);
+}
+
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme', settings.theme);
+}
+function tooltip(text){
+  var wrap = el('span',{class:'tooltip-wrap'});
+  wrap.appendChild(el('span',{class:'tooltip-icon'},[txt('i')]));
+  wrap.appendChild(el('span',{class:'tooltip-box'},[txt(text)]));
+  return wrap;
+}
+
+function $(sel, root){ return (root||document).querySelector(sel); }
+function el(tag, attrs, children){
+  var e = document.createElement(tag);
+  attrs = attrs || {};
+  Object.keys(attrs).forEach(function(k){
+    if(k === 'class') e.className = attrs[k];
+    else if(k === 'html') e.innerHTML = attrs[k];
+    else if(k === 'style') e.setAttribute('style', attrs[k]);
+    else if(k.indexOf('on') === 0) e.addEventListener(k.slice(2), attrs[k]);
+    else e.setAttribute(k, attrs[k]);
+  });
+  (children||[]).forEach(function(c){ if(c) e.appendChild(c); });
+  return e;
+}
+function txt(s){ return document.createTextNode(s == null ? '' : s); }
+function titleCase(s){
+  return String(s).replace(/([a-z0-9])([A-Z])/g,'$1 $2').replace(/[_\-]+/g,' ')
+    .replace(/^./,function(c){return c.toUpperCase();}).trim();
+}
+function typeOf(v){
+  if(v === null || v === undefined) return 'null';
+  if(Array.isArray(v)) return 'array';
+  return typeof v;
+}
+function pathKey(arr){ return arr.join('.'); }
+function parsePathKey(str){
+  if(!str) return [];
+  return str.split('.').map(function(s){
+    return (/^\d+$/.test(s)) ? parseInt(s,10) : s;
+  });
+}
+function getAtPath(path){
+  var node = DATA;
+  for(var i=0;i<path.length;i++){ if(node == null) return undefined; node = node[path[i]]; }
+  return node;
+}
+function pathExists(path){
+  var n = getAtPath(path);
+  return n !== undefined;
+}
+function defaultForType(t){
+  if(t === 'string') return '';
+  if(t === 'number') return 0;
+  if(t === 'boolean') return false;
+  if(t === 'object') return {};
+  if(t === 'array') return [];
+  return null;
+}
+function defaultShapeFor(type){
+  if(type === 'flow') return {flow:[], isolatedNodes:[]};
+  if(type === 'pipeline') return {};
+  if(type === 'blocks') return {subcategories:[], items:[]};
+  return {};
+}
+function previewValue(v, depthOverride){
+  var depth = depthOverride || settings.previewDepth || 1;
+  if(Array.isArray(v)){
+    if(v.length === 0) return '[ empty ]';
+    var shownArr = v.slice(0, depth).map(function(item){
+      return (item && typeof item === 'object') ? previewValue(item, 1) : String(item);
+    });
+    var moreArr = v.length > depth ? ', \u2026' : '';
+    return '[ '+v.length+' items: '+shownArr.join(', ')+moreArr+' ]';
+  }
+  if(v && typeof v === 'object'){
+    var keys = Object.keys(v);
+    if(keys.length === 0) return '{ empty }';
+    var shown = keys.slice(0, depth).map(function(k){
+      var val = v[k];
+      var vs = (val && typeof val === 'object') ? previewValue(val, 1) : String(val);
+      if(vs.length > 22) vs = vs.slice(0,20)+'\u2026';
+      return k+': '+vs;
+    });
+    var more = keys.length > depth ? ', \u2026 ('+keys.length+' total)' : '';
+    return '{ '+shown.join(', ')+more+' }';
+  }
+  return String(v);
+}
+/* Generic recursive editor for a value living at holder[key].
+   Renders primitives as inline inputs, and objects/arrays as an
+   indented, fully editable nested box (add/rename/delete sub-fields). */
+function buildValueEditor(holder, key, onChange){
+  var value = holder[key];
+  var vt = typeOf(value);
+
+  if(vt === 'object'){
+    var box = el('div',{class:'nested-box'});
+    Object.keys(value).forEach(function(k){
+      var row = el('div',{class:'nested-row'});
+      var keyLabel = el('span',{class:'nested-key'},[txt(k)]);
+      keyLabel.addEventListener('click', function(){
+        var nn = window.prompt('Rename key:', k);
+        if(nn && nn !== k && !value.hasOwnProperty(nn)){ value[nn] = value[k]; delete value[k]; onChange(); }
+      });
+      row.appendChild(keyLabel);
+      var valWrap = el('div',{class:'nested-val'});
+      valWrap.appendChild(buildValueEditor(value, k, onChange));
+      row.appendChild(valWrap);
+      row.appendChild(el('span',{class:'field-del', onclick:function(){ delete value[k]; onChange(); }},[txt('\u2715')]));
+      box.appendChild(row);
+    });
+    var addRow = el('div',{class:'nested-add'});
+    var nmInp = el('input',{class:'val-input', placeholder:'key', style:'max-width:110px;'});
+    var tySel = el('select',{class:'val-input'});
+    ['number','string','boolean','object','array'].forEach(function(o){ tySel.appendChild(el('option',{value:o},[txt(o)])); });
+    addRow.appendChild(nmInp); addRow.appendChild(tySel);
+    addRow.appendChild(el('button',{class:'btn small', onclick:function(){
+      var nm = nmInp.value.trim();
+      if(!nm) return;
+      if(value.hasOwnProperty(nm)){ alert('Key already exists'); return; }
+      value[nm] = defaultForType(tySel.value);
+      onChange();
+    }},[txt('+')]));
+    box.appendChild(addRow);
+    return box;
+  }
+
+  if(vt === 'array'){
+    var abox = el('div',{class:'nested-box'});
+    value.forEach(function(item, i){
+      var row = el('div',{class:'nested-row'});
+      row.appendChild(el('span',{class:'nested-key'},[txt('['+i+']')]));
+      var valWrap = el('div',{class:'nested-val'});
+      valWrap.appendChild(buildValueEditor(value, i, onChange));
+      row.appendChild(valWrap);
+      row.appendChild(el('span',{class:'field-del', onclick:function(){ value.splice(i,1); onChange(); }},[txt('\u2715')]));
+      abox.appendChild(row);
+    });
+    var addRow2 = el('div',{class:'nested-add'});
+    var tySel2 = el('select',{class:'val-input'});
+    ['string','number','boolean','object','array'].forEach(function(o){ tySel2.appendChild(el('option',{value:o},[txt(o)])); });
+    addRow2.appendChild(tySel2);
+    addRow2.appendChild(el('button',{class:'btn small', onclick:function(){ value.push(defaultForType(tySel2.value)); onChange(); }},[txt('+ add item')]));
+    abox.appendChild(addRow2);
+    return abox;
+  }
+
+  if(vt === 'boolean'){
+    var cb = el('input',{type:'checkbox'});
+    cb.checked = value;
+    cb.addEventListener('change', function(){ holder[key] = cb.checked; onChange(); });
+    return cb;
+  }
+
+  if(vt === 'null'){
+    return el('button',{class:'btn small', onclick:function(){ holder[key] = ''; onChange(); }},[txt('null \u2014 set value')]);
+  }
+
+  var isNum = vt === 'number';
+  var inp = el('input',{class:'val-input', value:String(value), type:isNum?'number':'text', step:'any'});
+  inp.addEventListener('change', function(){ holder[key] = isNum ? (parseFloat(inp.value)||0) : inp.value; onChange(); });
+  return inp;
+}
+
+function download(filename, content){
+  var blob = new Blob([content], {type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = el('a', {href:url, download:filename});
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function deepMerge(target, src){
+  if(Array.isArray(target) && Array.isArray(src)){
+    src.forEach(function(item){ if(target.indexOf(item) === -1) target.push(item); });
+    return target;
+  }
+  if(target && typeof target === 'object' && src && typeof src === 'object' && !Array.isArray(src)){
+    Object.keys(src).forEach(function(k){
+      if(target.hasOwnProperty(k) && target[k] && typeof target[k] === 'object' && src[k] && typeof src[k] === 'object'){
+        target[k] = deepMerge(target[k], src[k]);
+      } else {
+        target[k] = src[k];
+      }
+    });
+    return target;
+  }
+  return src;
+}
+
+/* ---------- TYPE REGISTRY HELPERS ---------- */
+function registeredPathsOfType(type){
+  return Object.keys(typeRegistry).filter(function(k){ return typeRegistry[k] === type; });
+}
+function autoDetectAndRegister(){
+  if(DATA.productionFlow && DATA.productionFlow.flow && !typeRegistry['productionFlow']) typeRegistry['productionFlow'] = 'flow';
+  if(DATA.production && typeof DATA.production === 'object' && !Array.isArray(DATA.production) && !typeRegistry['production']) typeRegistry['production'] = 'pipeline';
+  if(DATA.blocks && DATA.blocks.items && !typeRegistry['blocks']) typeRegistry['blocks'] = 'blocks';
+}
+function ensureFocus(){
+  var fp = registeredPathsOfType('flow');
+  if(!flowFocus || !pathExists(flowFocus) || typeRegistry[pathKey(flowFocus)] !== 'flow'){
+    flowFocus = fp.length ? parsePathKey(fp[0]) : null;
+  }
+  var pp = registeredPathsOfType('pipeline');
+  if(!pipelineFocus || !pathExists(pipelineFocus) || typeRegistry[pathKey(pipelineFocus)] !== 'pipeline'){
+    pipelineFocus = pp.length ? parsePathKey(pp[0]) : null;
+  }
+  var bp = registeredPathsOfType('blocks');
+  if(!blocksFocus || !pathExists(blocksFocus) || typeRegistry[pathKey(blocksFocus)] !== 'blocks'){
+    blocksFocus = bp.length ? parsePathKey(bp[0]) : null;
+  }
+}
+function createNewTyped(type){
+  var name = window.prompt('Name for the new '+titleCase(type)+' node.\nUse a plain name for a root key, or "group.name" to nest it inside an existing object.', '');
+  if(!name) return null;
+  var parts = name.trim().split('.').filter(Boolean);
+  if(parts.length === 0) return null;
+  var node = DATA;
+  for(var i=0;i<parts.length-1;i++){
+    if(typeof node[parts[i]] !== 'object' || node[parts[i]] === null || Array.isArray(node[parts[i]])){
+      node[parts[i]] = {};
+    }
+    node = node[parts[i]];
+  }
+  var leafKey = parts[parts.length-1];
+  if(node.hasOwnProperty(leafKey)){ alert('That path already exists \u2014 pick a different name.'); return null; }
+  node[leafKey] = defaultShapeFor(type);
+  typeRegistry[pathKey(parts)] = type;
+  return parts;
+}
+function buildFocusBar(type, currentFocus, onChange){
+  var bar = el('div',{style:'display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap;'});
+  bar.appendChild(el('span',{class:'pipe-sub', style:'margin:0;'},[txt('Focus')]));
+  var paths = registeredPathsOfType(type);
+  var sel = el('select',{class:'val-input'});
+  if(paths.length === 0){
+    sel.appendChild(el('option',{value:''},[txt('\u2014 none yet \u2014')]));
+  }
+  paths.forEach(function(p){
+    var opt = el('option',{value:p},[txt('ROOT.'+p)]);
+    if(currentFocus && pathKey(currentFocus) === p) opt.setAttribute('selected','selected');
+    sel.appendChild(opt);
+  });
+  sel.addEventListener('change', function(){ onChange(parsePathKey(sel.value)); renderView(); refreshStatusBar(); });
+  bar.appendChild(sel);
+  bar.appendChild(el('button',{class:'btn small primary', onclick:function(){
+    var np = createNewTyped(type);
+    if(np){ onChange(np); renderView(); refreshStatusBar(); }
+  }},[txt('+ New '+titleCase(type))]));
+  if(currentFocus){
+    bar.appendChild(el('button',{class:'btn small danger', onclick:function(){
+      if(!window.confirm('Remove this '+type+' node (ROOT.'+pathKey(currentFocus)+') entirely? This deletes its data.')) return;
+      var parent = getAtPath(currentFocus.slice(0,-1));
+      var lastKey = currentFocus[currentFocus.length-1];
+      if(Array.isArray(parent)) parent.splice(lastKey,1); else delete parent[lastKey];
+      delete typeRegistry[pathKey(currentFocus)];
+      onChange(null); renderView(); refreshStatusBar();
+    }},[txt('Delete this node')]));
+  }
+  return bar;
+}
+
+/* ---------- SHELL ---------- */
+function renderShell(){
+  applyTheme();
+  var app = $('#app');
+  app.innerHTML = '';
+  app.appendChild(buildTopbar());
+  app.appendChild(buildNav());
+  var main = el('div',{class:'main', id:'main'});
+  app.appendChild(main);
+  app.appendChild(buildStatus());
+  renderDrawer();
+  renderView();
+}
+function buildTopbar(){
+  var top = el('div',{class:'topbar'});
+  var brand = el('div',{class:'brand'});
+  var brandText = el('div',{},[
+    el('div',{class:'brand-text'},[txt('SE2 '), (function(){var b=document.createElement('b');b.textContent='DATA STUDIO';return b;})()]),
+    el('div',{class:'brand-sub'},[txt('SPACE ENGINEERS 2 \u00b7 SENSE-MAKING CONSOLE')])
+  ]);
+  brand.appendChild(el('div',{class:'brand-mark'}));
+  brand.appendChild(brandText);
+  top.appendChild(brand);
+
+  var actions = el('div',{class:'topbar-actions'});
+  var fileInput = el('input',{type:'file', id:'importFile', accept:'.json'});
+  fileInput.addEventListener('change', onImportFile);
+  var importBtn = el('button',{class:'btn', onclick:function(){ fileInput.click(); }},[txt('Import JSON')]);
+  var exportBtn = el('button',{class:'btn primary', onclick:onExport},[txt('Export JSON')]);
+  var gearBtn = el('button',{class:'gear-btn', title:'Settings', onclick:function(){ drawerOpen = true; renderDrawer(); }},[]);
+  gearBtn.innerHTML = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>';
+  actions.appendChild(importBtn); actions.appendChild(fileInput);
+  actions.appendChild(exportBtn); actions.appendChild(gearBtn);
+  top.appendChild(actions);
+  return top;
+}
+
+/* ---------- SETTINGS DRAWER ---------- */
+function renderDrawer(){
+  var old = $('#drawerRoot');
+  if(old) old.remove();
+  if(!drawerOpen) return;
+
+  var root = el('div',{id:'drawerRoot'});
+  var backdrop = el('div',{class:'drawer-backdrop open', onclick:function(){ drawerOpen = false; renderDrawer(); }});
+  var drawer = el('div',{class:'drawer open'});
+
+  var header = el('div',{class:'drawer-header'});
+  header.appendChild(el('span',{class:'drawer-title'},[txt('Settings')]));
+  header.appendChild(el('button',{class:'btn small', onclick:function(){ drawerOpen = false; renderDrawer(); }},[txt('Close \u2715')]));
+  drawer.appendChild(header);
+
+  // Appearance
+  var sec1 = el('div',{class:'drawer-section'});
+  sec1.appendChild(el('div',{class:'drawer-section-title'},[txt('Appearance')]));
+  var themeGroup = el('div',{class:'seg-group'});
+  themeGroup.appendChild(el('button',{class:'seg-btn'+(settings.theme==='dark'?' active':''), onclick:function(){ settings.theme='dark'; applyTheme(); renderDrawer(); }},[txt('Dark')]));
+  themeGroup.appendChild(el('button',{class:'seg-btn'+(settings.theme==='light'?' active':''), onclick:function(){ settings.theme='light'; applyTheme(); renderDrawer(); }},[txt('Light')]));
+  sec1.appendChild(el('div',{class:'drawer-row'},[themeGroup]));
+  drawer.appendChild(sec1);
+
+  // Node editor
+  var sec2 = el('div',{class:'drawer-section'});
+  sec2.appendChild(el('div',{class:'drawer-section-title'},[txt('Node Editor (Type 0)')]));
+  var stepper = el('div',{class:'depth-stepper'});
+  stepper.appendChild(el('button',{class:'btn small', onclick:function(){ if(settings.previewDepth>1){ settings.previewDepth--; renderDrawer(); renderView(); } }},[txt('\u2212')]));
+  stepper.appendChild(el('span',{class:'depth-val'},[txt(String(settings.previewDepth))]));
+  stepper.appendChild(el('button',{class:'btn small', onclick:function(){ if(settings.previewDepth<6){ settings.previewDepth++; renderDrawer(); renderView(); } }},[txt('+')]));
+  sec2.appendChild(el('div',{class:'drawer-row'},[stepper]));
+  sec2.appendChild(el('div',{class:'drawer-desc'},[txt('Display property depth: how many properties of an object/array are shown inline as a preview before pivoting into it. Higher values reveal more of nested dictionaries (like material lists) at a glance.')]));
+  drawer.appendChild(sec2);
+
+  // Flow diagram
+  var sec3 = el('div',{class:'drawer-section'});
+  sec3.appendChild(el('div',{class:'drawer-section-title'},[txt('Flow Diagram (Type 1)')]));
+  var routeGroup = el('div',{class:'seg-group'});
+  routeGroup.appendChild(el('button',{class:'seg-btn'+(settings.flowRouting==='orthogonal'?' active':''), onclick:function(){ settings.flowRouting='orthogonal'; renderDrawer(); renderView(); }},[txt('Orthogonal')]));
+  routeGroup.appendChild(el('button',{class:'seg-btn'+(settings.flowRouting==='curved'?' active':''), onclick:function(){ settings.flowRouting='curved'; renderDrawer(); renderView(); }},[txt('Curved')]));
+  sec3.appendChild(el('div',{class:'drawer-row'},[routeGroup]));
+  sec3.appendChild(el('div',{class:'drawer-desc'},[txt('Orthogonal routes connections as right-angle segments (like a circuit diagram) with staggered lanes to reduce overlapping lines. Curved uses smooth bezier links.')]));
+  var hlGroup = el('div',{class:'seg-group'});
+  hlGroup.appendChild(el('button',{class:'seg-btn'+(settings.flowHighlight?' active':''), onclick:function(){ settings.flowHighlight=true; renderDrawer(); renderView(); }},[txt('On')]));
+  hlGroup.appendChild(el('button',{class:'seg-btn'+(!settings.flowHighlight?' active':''), onclick:function(){ settings.flowHighlight=false; renderDrawer(); renderView(); }},[txt('Off')]));
+  sec3.appendChild(el('div',{class:'drawer-row'},[hlGroup]));
+  sec3.appendChild(el('div',{class:'drawer-desc'},[txt('Highlight on hover: dims everything except the node you\u2019re pointing at and its direct connections, so you can trace a path through overlapping lines. On by default.')]));
+  drawer.appendChild(sec3);
+
+  // Data
+  var sec4 = el('div',{class:'drawer-section'});
+  sec4.appendChild(el('div',{class:'drawer-section-title'},[txt('Data')]));
+  sec4.appendChild(el('div',{class:'drawer-row'},[
+    el('button',{class:'btn', onclick:function(){ drawerOpen=false; renderDrawer(); onLoadSample(); }},[txt('Load Sample')]),
+    el('button',{class:'btn danger', onclick:function(){ drawerOpen=false; renderDrawer(); onReset(); }},[txt('Reset (clear all)')])
+  ]));
+  sec4.appendChild(el('div',{class:'drawer-row'},[
+    el('button',{class:'btn small', onclick:function(){
+      if(!hasStorage()){ showBanner('No persistent storage detected in this viewer \u2014 export JSON to keep your work.', 'warn'); return; }
+      doPersist();
+      showBanner('Save requested \u2014 check the status bar for confirmation.', 'info');
+    }},[txt('Save now')])
+  ]));
+  sec4.appendChild(el('div',{class:'drawer-desc'},[txt('Reset permanently wipes all data and tagging \u2014 including the autosaved copy. Load Sample merges the bundled SE2 dictionary into your current workspace. '+(hasStorage() ? 'Your edits autosave continuously, so refreshing this page keeps your work.' : 'Persistent storage isn\u2019t available in this viewer, so edits only last for this session \u2014 export JSON before closing or refreshing.'))]));
+  drawer.appendChild(sec4);
+
+  root.appendChild(backdrop);
+  root.appendChild(drawer);
+  document.body.appendChild(root);
+}
+function onImportFile(e){
+  var file = e.target.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev){
+    try{
+      var incoming = JSON.parse(ev.target.result);
+      var mode = window.confirm('Click OK to MERGE this file into current data.\nClick Cancel to REPLACE current data entirely.');
+      if(mode){ DATA = deepMerge(DATA, incoming); } else { DATA = incoming; }
+      autoDetectAndRegister();
+      focusPath = []; selectedBlockIdx = null;
+      ensureFocus();
+      renderShell();
+      schedulePersist();
+    }catch(err){ alert('Could not parse that file as JSON: ' + err.message); }
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+}
+function onExport(){ download('se2-data-export.json', JSON.stringify(DATA, null, 2)); }
+function onLoadSample(){
+  if(Object.keys(DATA).length && !window.confirm('This merges the bundled sample dataset into your current data. Continue?')) return;
+  DATA = deepMerge(DATA, JSON.parse(JSON.stringify(SAMPLE)));
+  autoDetectAndRegister();
+  ensureFocus();
+  renderShell();
+  schedulePersist();
+}
+function onReset(){
+  if(!window.confirm('This permanently clears ALL data and tagging \u2014 including the autosaved copy \u2014 back to a completely empty workspace. Export first if you want to keep anything. Continue?')) return;
+  DATA = {};
+  typeRegistry = {};
+  focusPath = []; flowFocus = null; pipelineFocus = null; blocksFocus = null;
+  selectedBlockIdx = null; blockFilter = { search:'', cats:new Set() }; manageCats = false;
+  if(hasStorage()){
+    try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+  }
+  renderShell();
+}
+
+var NAV_ITEMS = [
+  {id:'node', idx:'00', label:'Node Editor'},
+  {id:'flow', idx:'01', label:'Flow Diagram'},
+  {id:'pipeline', idx:'03', label:'Pipeline Stages'},
+  {id:'blocks', idx:'04', label:'Block Manager'}
+];
+function buildNav(){
+  var nav = el('div',{class:'nav'});
+  NAV_ITEMS.forEach(function(item){
+    var active = VIEW === item.id;
+    nav.appendChild(el('div',{class:'nav-item'+(active?' active':''), onclick:function(){ VIEW = item.id; renderShell(); }},[
+      el('span',{class:'idx'},[txt(item.idx)]),
+      el('span',{},[txt(item.label)])
+    ]));
+  });
+  nav.appendChild(el('div',{class:'nav-sep'}));
+  nav.appendChild(el('div',{class:'nav-hint'},[txt(
+    'Any object node can be tagged Flow / Pipeline / Blocks from the Node Editor, or created fresh with the + New buttons in each view. Workspace starts empty \u2014 nothing is loaded until you import or Load Sample.'
+  )]));
+  return nav;
+}
+function buildStatus(){
+  var s = el('div',{class:'status'});
+  var flowPaths = registeredPathsOfType('flow');
+  var pipePaths = registeredPathsOfType('pipeline');
+  var blockPaths = registeredPathsOfType('blocks');
+  var edgeCount = flowPaths.reduce(function(sum,p){ var n=getAtPath(parsePathKey(p)); return sum+((n&&n.flow)?n.flow.length:0); },0);
+  var stageCount = pipePaths.reduce(function(sum,p){ var n=getAtPath(parsePathKey(p)); return sum+(n?Object.keys(n).length:0); },0);
+  var blockCount = blockPaths.reduce(function(sum,p){ var n=getAtPath(parsePathKey(p)); return sum+((n&&n.items)?n.items.length:0); },0);
+  s.appendChild(el('span',{},[txt('FLOW NODES: '), el('b',{},[txt(String(flowPaths.length))]), txt(' ('+edgeCount+' edges)')]));
+  s.appendChild(el('span',{},[txt('PIPELINE NODES: '), el('b',{},[txt(String(pipePaths.length))]), txt(' ('+stageCount+' stages)')]));
+  s.appendChild(el('span',{},[txt('BLOCK SETS: '), el('b',{},[txt(String(blockPaths.length))]), txt(' ('+blockCount+' blocks)')]));
+  if(hasStorage()){
+    var saveTxt;
+    if(lastSaveOk === false) saveTxt = 'AUTOSAVE FAILED \u2014 EXPORT TO BE SAFE';
+    else if(lastSaveOk === true) saveTxt = 'AUTOSAVED ' + lastSaveAt.toLocaleTimeString();
+    else saveTxt = 'AUTOSAVE READY';
+    s.appendChild(el('span',{style: lastSaveOk===false ? 'color:var(--red);' : 'color:var(--lime);'},[txt(saveTxt)]));
+  } else {
+    s.appendChild(el('span',{style:'color:var(--red);'},[txt('NO PERSISTENT STORAGE HERE \u2014 EXPORT TO SAVE')]));
+  }
+  return s;
+}
+function renderView(){
+  ensureFocus();
+  var main = $('#main');
+  main.innerHTML = '';
+  if(VIEW === 'node') main.appendChild(renderNodeEditor());
+  else if(VIEW === 'flow') main.appendChild(renderFlow());
+  else if(VIEW === 'pipeline') main.appendChild(renderPipeline());
+  else if(VIEW === 'blocks') main.appendChild(renderBlocks());
+  schedulePersist();
+}
+function refreshStatusBar(){ var old = $('.status'); if(old) old.replaceWith(buildStatus()); schedulePersist(); }
+
+/* ================= TYPE 0: NODE EDITOR ================= */
+function renderNodeEditor(){
+  var wrap = el('div',{class:'panel'});
+  wrap.appendChild(el('div',{class:'section-title'},[txt('TYPE 0 \u2014 NODE EDITOR'), el('span',{class:'n'},[txt('generic pivoting json editor')])]));
+
+  var crumbs = el('div',{class:'breadcrumb'});
+  crumbs.appendChild(el('span',{class:'crumb'+(focusPath.length===0?' current':''), onclick:function(){ focusPath=[]; renderView(); }},[txt('ROOT')]));
+  focusPath.forEach(function(key, i){
+    crumbs.appendChild(el('span',{class:'crumb-sep'},[txt('\u203a')]));
+    var isLast = i === focusPath.length-1;
+    crumbs.appendChild(el('span',{class:'crumb'+(isLast?' current':''), onclick:function(){ focusPath = focusPath.slice(0,i+1); renderView(); }},[txt(String(key))]));
+  });
+  wrap.appendChild(crumbs);
+
+  var node = getAtPath(focusPath);
+  if(node === undefined){ focusPath = []; node = DATA; }
+  var t = typeOf(node);
+
+  if(t !== 'object' && t !== 'array'){
+    wrap.appendChild(el('div',{class:'child-ref'},[txt('This node is a primitive value ('+t+'). Navigate up to edit it as a field.')]));
+    return wrap;
+  }
+
+  var table = el('table',{class:'row-table'});
+  var keys = t === 'object' ? Object.keys(node) : node.map(function(_,i){return i;});
+
+  keys.forEach(function(key){
+    var value = node[key];
+    var vt = typeOf(value);
+    var tr = el('tr',{});
+    var curPath = focusPath.concat([key]);
+    var curPk = pathKey(curPath);
+
+    var keyCell = el('td',{});
+    var keyLabel = el('span',{class:'node-key editable', title:'Click to rename'}, [txt(String(key))]);
+    if(t === 'object'){
+      keyLabel.addEventListener('click', function(){
+        var nn = window.prompt('Rename key:', key);
+        if(nn && nn !== key && !node.hasOwnProperty(nn)){
+          var newNode = {};
+          Object.keys(node).forEach(function(k){ newNode[k === key ? nn : k] = node[k]; });
+          if(focusPath.length === 0){ Object.keys(DATA).forEach(function(k){delete DATA[k];}); Object.assign(DATA,newNode); }
+          else { var parent = getAtPath(focusPath.slice(0,-1)); parent[focusPath[focusPath.length-1]] = newNode; }
+          if(typeRegistry[curPk]){
+            var t2 = typeRegistry[curPk]; delete typeRegistry[curPk];
+            typeRegistry[pathKey(focusPath.concat([nn]))] = t2;
+          }
+          renderView(); refreshStatusBar();
+        }
+      });
+    }
+    keyCell.appendChild(keyLabel);
+    keyCell.appendChild(el('span',{class:'type-badge'},[txt(vt)]));
+    if(typeRegistry[curPk]){
+      keyCell.appendChild(el('span',{class:'type-badge', style:'color:var(--amber); border-color:var(--amber);'},[txt(typeRegistry[curPk])]));
+    }
+    tr.appendChild(keyCell);
+
+    var valCell = el('td',{});
+    if(vt === 'object' || vt === 'array'){
+      valCell.appendChild(el('span',{class:'child-ref'},[txt(previewValue(value))]));
+      valCell.appendChild(el('button',{class:'btn small', style:'margin-left:10px;', onclick:function(){ focusPath = curPath; renderView(); }},[txt('Focus \u2192')]));
+      if(vt === 'object'){
+        var tagSel = el('select',{class:'val-input', style:'margin-left:8px; width:auto; display:inline-block;'});
+        ['none','flow','pipeline','blocks'].forEach(function(opt){
+          var o = el('option',{value:opt},[txt(opt === 'none' ? 'Tag: none' : 'Tag: '+titleCase(opt))]);
+          if((typeRegistry[curPk]||'none') === opt) o.setAttribute('selected','selected');
+          tagSel.appendChild(o);
+        });
+        tagSel.addEventListener('change', function(){
+          if(tagSel.value === 'none'){ delete typeRegistry[curPk]; }
+          else {
+            if(tagSel.value === 'flow'){ if(!value.flow) value.flow=[]; if(!value.isolatedNodes) value.isolatedNodes=[]; }
+            else if(tagSel.value === 'blocks'){ if(!value.subcategories) value.subcategories=[]; if(!value.items) value.items=[]; }
+            typeRegistry[curPk] = tagSel.value;
+          }
+          renderView(); refreshStatusBar();
+        });
+        valCell.appendChild(tagSel);
+      }
+    } else if(vt === 'boolean'){
+      var cb = el('input',{type:'checkbox'});
+      cb.checked = !!value;
+      cb.addEventListener('change', function(){ node[key] = cb.checked; refreshStatusBar(); });
+      valCell.appendChild(cb);
+    } else if(vt === 'null'){
+      valCell.appendChild(el('span',{class:'child-ref'},[txt('null')]));
+      valCell.appendChild(el('button',{class:'btn small', style:'margin-left:10px;', onclick:function(){ node[key]=''; renderView(); }},[txt('Set value')]));
+    } else {
+      var inp = el('input',{class:'val-input', value:String(value), type: vt==='number' ? 'number' : 'text'});
+      inp.addEventListener('change', function(){
+        node[key] = vt === 'number' ? (parseFloat(inp.value) || 0) : inp.value;
+        refreshStatusBar();
+      });
+      valCell.appendChild(inp);
+    }
+    tr.appendChild(valCell);
+
+    var actionCell = el('td',{});
+    if(t === 'array'){
+      if(key > 0) actionCell.appendChild(el('button',{class:'btn small', title:'Move up', onclick:function(){ var tmp=node[key-1]; node[key-1]=node[key]; node[key]=tmp; renderView(); }},[txt('\u25b2')]));
+      if(key < node.length-1) actionCell.appendChild(el('button',{class:'btn small', title:'Move down', onclick:function(){ var tmp=node[key+1]; node[key+1]=node[key]; node[key]=tmp; renderView(); }},[txt('\u25bc')]));
+    }
+    actionCell.appendChild(el('button',{class:'btn small danger', style:'margin-left:6px;', onclick:function(){
+      if(!window.confirm('Delete this '+(t==='object'?'key':'item')+'?')) return;
+      if(t === 'array'){ node.splice(key,1); } else { delete node[key]; }
+      delete typeRegistry[curPk];
+      renderView(); refreshStatusBar();
+    }},[txt('\u2715')]));
+    tr.appendChild(actionCell);
+    table.appendChild(tr);
+  });
+
+  wrap.appendChild(table);
+  if(keys.length === 0) wrap.appendChild(el('div',{class:'empty-hint'},[txt('Empty node \u2014 add the first field or item below.')]));
+
+  var addRow = el('div',{class:'add-row'});
+  if(t === 'object'){
+    var nameInp = el('input',{placeholder:'new key name'});
+    var typeSel = el('select',{});
+    [['string','string'],['number','number'],['boolean','boolean'],['object','object'],['array','array'],
+     ['obj:flow','\u2014 Flow (Type 1) \u2014'],['obj:pipeline','\u2014 Pipeline (Type 3) \u2014'],['obj:blocks','\u2014 Block Set (Type 4) \u2014']]
+      .forEach(function(pair){ typeSel.appendChild(el('option',{value:pair[0]},[txt(pair[1])])); });
+    addRow.appendChild(nameInp); addRow.appendChild(typeSel);
+    addRow.appendChild(el('button',{class:'btn primary', onclick:function(){
+      var nm = nameInp.value.trim();
+      if(!nm){ alert('Enter a key name'); return; }
+      if(node.hasOwnProperty(nm)){ alert('Key already exists'); return; }
+      var tv = typeSel.value;
+      if(tv.indexOf('obj:') === 0){
+        var kind = tv.slice(4);
+        node[nm] = defaultShapeFor(kind);
+        typeRegistry[pathKey(focusPath.concat([nm]))] = kind;
+      } else {
+        node[nm] = defaultForType(tv);
+      }
+      renderView(); refreshStatusBar();
+    }},[txt('+ Add field')]));
+  } else {
+    var typeSel2 = el('select',{},['string','number','boolean','object','array'].map(function(o){ return el('option',{value:o},[txt(o)]); }));
+    addRow.appendChild(typeSel2);
+    addRow.appendChild(el('button',{class:'btn primary', onclick:function(){ node.push(defaultForType(typeSel2.value)); renderView(); refreshStatusBar(); }},[txt('+ Add item')]));
+  }
+  wrap.appendChild(addRow);
+  return wrap;
+}
+
+/* ================= TYPE 1: FLOW DIAGRAM ================= */
+function renderFlow(){
+  var wrap = el('div',{class:'panel'});
+  wrap.appendChild(el('div',{class:'section-title'},[txt('TYPE 1 \u2014 PRODUCTION FLOW'), el('span',{class:'n'},[txt('directed workflow map')])]));
+  wrap.appendChild(buildFocusBar('flow', flowFocus, function(p){ flowFocus = p; }));
+
+  if(!flowFocus){
+    wrap.appendChild(el('div',{class:'empty-hint'},[txt('No Flow node focused yet. Click "+ New Flow" above to create one, or tag an existing object node as Flow from the Node Editor.')]));
+    return wrap;
+  }
+
+  var pf = getAtPath(flowFocus);
+  if(!pf.flow) pf.flow = [];
+  if(!pf.isolatedNodes) pf.isolatedNodes = [];
+
+  var toolbar = el('div',{style:'display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;'});
+  ['LR','TB'].forEach(function(o){
+    toolbar.appendChild(el('button',{class:'btn small'+(flowOrientation===o?' primary':''), onclick:function(){ flowOrientation=o; renderView(); }},[txt(o==='LR' ? 'Left \u2192 Right' : 'Top \u2193 Bottom')]));
+  });
+  toolbar.appendChild(el('span',{style:'width:1px; background:var(--line-strong); margin:0 4px;'},[]));
+  ['orthogonal','curved'].forEach(function(o){
+    toolbar.appendChild(el('button',{class:'btn small'+(settings.flowRouting===o?' primary':''), onclick:function(){ settings.flowRouting=o; renderView(); }},[txt(o==='orthogonal' ? 'Orthogonal lines' : 'Curved lines')]));
+  });
+  toolbar.appendChild(el('span',{style:'width:1px; background:var(--line-strong); margin:0 4px;'},[]));
+  toolbar.appendChild(el('button',{class:'btn small'+(settings.flowHighlight?' primary':''), onclick:function(){ settings.flowHighlight=!settings.flowHighlight; renderView(); }},[txt('Highlight on hover: '+(settings.flowHighlight?'On':'Off'))]));
+  wrap.appendChild(toolbar);
+
+  var nodeSet = {};
+  pf.flow.forEach(function(e){ nodeSet[e.from]=true; nodeSet[e.to]=true; });
+  pf.isolatedNodes.forEach(function(n){ nodeSet[n]=true; });
+  var nodes = Object.keys(nodeSet);
+
+  var layer = {}; nodes.forEach(function(n){ layer[n] = 0; });
+  var changed = true, guard = 0;
+  while(changed && guard < 50){
+    changed = false; guard++;
+    pf.flow.forEach(function(e){
+      var nl = layer[e.from] + 1;
+      if(nl > layer[e.to]){ layer[e.to] = nl; changed = true; }
+    });
+  }
+  var maxLayer = 0;
+  nodes.forEach(function(n){ if(layer[n] > maxLayer) maxLayer = layer[n]; });
+  var cols = [];
+  for(var i=0;i<=maxLayer;i++) cols.push([]);
+  nodes.forEach(function(n){ cols[layer[n]].push(n); });
+
+  var boxW = 168, boxH = 34;
+  var colW = 210, rowH = 56, padX = 30, padY = 30;
+  var maxRows = Math.max.apply(null, cols.map(function(c){return c.length;}).concat([1]));
+  var pos = {};
+  var svgW, svgH;
+
+  if(flowOrientation === 'LR'){
+    svgW = padX*2 + colW*(maxLayer+1);
+    svgH = padY*2 + rowH*maxRows;
+    cols.forEach(function(col, ci){
+      var totalH = col.length * rowH;
+      var startY = (svgH - totalH)/2;
+      col.forEach(function(n, ri){ pos[n] = { x: padX + ci*colW, y: startY + ri*rowH + rowH/2 }; });
+    });
+  } else {
+    svgW = padX*2 + colW*maxRows;
+    svgH = padY*2 + rowH*(maxLayer+1);
+    cols.forEach(function(col, ci){
+      var totalW = col.length * colW;
+      var startX = (svgW - totalW)/2;
+      col.forEach(function(n, ri){ pos[n] = { x: startX + ri*colW + colW/2 - boxW/2 + boxW/2, y: padY + ci*rowH + rowH/2 }; });
+    });
+  }
+
+  var flowWrap = el('div',{class:'flow-wrap'});
+  var svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('width', svgW); svg.setAttribute('height', svgH);
+  svg.setAttribute('viewBox','0 0 '+svgW+' '+svgH);
+
+  var defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
+  var marker = document.createElementNS('http://www.w3.org/2000/svg','marker');
+  marker.setAttribute('id','arrow'); marker.setAttribute('viewBox','0 0 10 10');
+  marker.setAttribute('refX','9'); marker.setAttribute('refY','5');
+  marker.setAttribute('markerWidth','7'); marker.setAttribute('markerHeight','7');
+  marker.setAttribute('orient','auto-start-reverse');
+  var arrowPath = document.createElementNS('http://www.w3.org/2000/svg','path');
+  arrowPath.setAttribute('d','M 0 0 L 10 5 L 0 10 z'); arrowPath.setAttribute('fill','var(--cyan-dim)');
+  marker.appendChild(arrowPath); defs.appendChild(marker); svg.appendChild(defs);
+
+  var LANES = 7;
+  pf.flow.forEach(function(e, idx){
+    var a = pos[e.from], b = pos[e.to];
+    if(!a || !b) return;
+    var d;
+    var orthogonal = settings.flowRouting === 'orthogonal';
+    if(flowOrientation === 'LR'){
+      var x1=a.x+boxW, y1=a.y, x2=b.x, y2=b.y;
+      if(orthogonal){
+        var lane = idx % LANES;
+        var turnX = x1 + (colW - boxW) * ((lane+1)/(LANES+1));
+        if(y1 === y2){ d = 'M '+x1+' '+y1+' L '+x2+' '+y2; }
+        else { d = 'M '+x1+' '+y1+' L '+turnX+' '+y1+' L '+turnX+' '+y2+' L '+x2+' '+y2; }
+      } else {
+        var mx=(x1+x2)/2;
+        d = 'M '+x1+' '+y1+' C '+mx+' '+y1+', '+mx+' '+y2+', '+x2+' '+y2;
+      }
+    } else {
+      var x1b=a.x+boxW/2, y1b=a.y+boxH/2, x2b=b.x+boxW/2, y2b=b.y-boxH/2;
+      if(orthogonal){
+        var lane2 = idx % LANES;
+        var turnY = y1b + (rowH - boxH) * ((lane2+1)/(LANES+1));
+        if(x1b === x2b){ d = 'M '+x1b+' '+y1b+' L '+x2b+' '+y2b; }
+        else { d = 'M '+x1b+' '+y1b+' L '+x1b+' '+turnY+' L '+x2b+' '+turnY+' L '+x2b+' '+y2b; }
+      } else {
+        var my=(y1b+y2b)/2;
+        d = 'M '+x1b+' '+y1b+' C '+x1b+' '+my+', '+x2b+' '+my+', '+x2b+' '+y2b;
+      }
+    }
+    var path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d', d); path.setAttribute('class','flow-edge'); path.setAttribute('marker-end','url(#arrow)');
+    path.setAttribute('data-from', e.from); path.setAttribute('data-to', e.to);
+    path.addEventListener('click', function(){
+      if(window.confirm('Remove connection: '+e.from+' \u2192 '+e.to+'?')){ pf.flow.splice(idx,1); renderView(); refreshStatusBar(); }
+    });
+    var title = document.createElementNS('http://www.w3.org/2000/svg','title');
+    title.textContent = e.from + ' \u2192 ' + e.to + ' (click to remove)';
+    path.appendChild(title);
+    svg.appendChild(path);
+  });
+
+  nodes.forEach(function(n){
+    var p = pos[n];
+    var g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('class','flow-node-group');
+    g.setAttribute('data-node', n);
+    var rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    rect.setAttribute('x', p.x); rect.setAttribute('y', p.y - boxH/2);
+    rect.setAttribute('width', boxW); rect.setAttribute('height', boxH);
+    rect.setAttribute('class','flow-node-box');
+    g.appendChild(rect);
+    var text = document.createElementNS('http://www.w3.org/2000/svg','text');
+    text.setAttribute('x', p.x + boxW/2); text.setAttribute('y', p.y + 4);
+    text.setAttribute('text-anchor','middle'); text.setAttribute('class','flow-node-text');
+    text.textContent = n.length > 22 ? n.slice(0,20)+'\u2026' : n;
+    g.appendChild(text);
+    g.style.cursor = 'pointer';
+    if(settings.flowHighlight){
+      g.addEventListener('mouseenter', function(){ highlightFlowNode(svg, n); });
+      g.addEventListener('mouseleave', function(){ clearFlowHighlight(svg); });
+    }
+    g.addEventListener('click', function(){
+      var action = window.prompt('Node: "'+n+'"\nType a new name to rename, or type DELETE to remove this node and its connections.', n);
+      if(action === null) return;
+      if(action === 'DELETE'){
+        pf.flow = pf.flow.filter(function(e){ return e.from !== n && e.to !== n; });
+        pf.isolatedNodes = pf.isolatedNodes.filter(function(x){ return x !== n; });
+      } else if(action.trim() && action !== n){
+        pf.flow.forEach(function(e){ if(e.from===n) e.from=action; if(e.to===n) e.to=action; });
+        pf.isolatedNodes = pf.isolatedNodes.map(function(x){ return x===n ? action : x; });
+      }
+      renderView(); refreshStatusBar();
+    });
+    svg.appendChild(g);
+  });
+
+  flowWrap.appendChild(svg);
+  wrap.appendChild(flowWrap);
+
+  var datalist = el('datalist',{id:'flowNodeNames'});
+  nodes.forEach(function(n){ datalist.appendChild(el('option',{value:n})); });
+  wrap.appendChild(datalist);
+
+  var addRow = el('div',{class:'add-row'});
+  var fromInp = el('input',{placeholder:'from node', list:'flowNodeNames'});
+  var toInp = el('input',{placeholder:'to node', list:'flowNodeNames'});
+  addRow.appendChild(fromInp); addRow.appendChild(txt('\u2192')); addRow.appendChild(toInp);
+  addRow.appendChild(el('button',{class:'btn primary', onclick:function(){
+    var f = fromInp.value.trim(), t = toInp.value.trim();
+    if(!f || !t){ alert('Enter both a from and to node'); return; }
+    if(pf.flow.some(function(e){ return e.from===f && e.to===t; })){ alert('That connection already exists'); return; }
+    pf.flow.push({from:f, to:t});
+    renderView(); refreshStatusBar();
+  }},[txt('+ Add connection')]));
+  wrap.appendChild(addRow);
+
+  var addNodeRow = el('div',{class:'add-row'});
+  var nodeInp = el('input',{placeholder:'standalone node name (no connections yet)'});
+  addNodeRow.appendChild(nodeInp);
+  addNodeRow.appendChild(el('button',{class:'btn', onclick:function(){
+    var v = nodeInp.value.trim();
+    if(!v) return;
+    if(nodes.indexOf(v) === -1) pf.isolatedNodes.push(v);
+    renderView();
+  }},[txt('+ Add node')]));
+  wrap.appendChild(addNodeRow);
+
+  return wrap;
+}
+
+function highlightFlowNode(svg, n){
+  var connected = {}; connected[n] = true;
+  var edges = svg.querySelectorAll('.flow-edge');
+  edges.forEach(function(p){
+    var f = p.getAttribute('data-from'), t = p.getAttribute('data-to');
+    if(f === n || t === n){ connected[f] = true; connected[t] = true; p.classList.add('fhl'); p.classList.remove('fdim'); }
+    else { p.classList.add('fdim'); p.classList.remove('fhl'); }
+  });
+  svg.querySelectorAll('.flow-node-group').forEach(function(g){
+    var nm = g.getAttribute('data-node');
+    if(connected[nm]){ g.classList.add('fhl'); g.classList.remove('fdim'); }
+    else { g.classList.add('fdim'); g.classList.remove('fhl'); }
+  });
+}
+function clearFlowHighlight(svg){
+  svg.querySelectorAll('.flow-edge, .flow-node-group').forEach(function(el){ el.classList.remove('fhl'); el.classList.remove('fdim'); });
+}
+
+/* ================= TYPE 3: PIPELINE STAGES ================= */
+function moveStageKey(prod, stageKey, dir){
+  var keys = Object.keys(prod);
+  var idx = keys.indexOf(stageKey);
+  var ni = idx + dir;
+  if(ni < 0 || ni >= keys.length) return;
+  keys.splice(idx,1); keys.splice(ni,0,stageKey);
+  var rebuilt = {};
+  keys.forEach(function(k){ rebuilt[k] = prod[k]; });
+  Object.keys(prod).forEach(function(k){ delete prod[k]; });
+  keys.forEach(function(k){ prod[k] = rebuilt[k]; });
+}
+function renderPipeline(){
+  var wrap = el('div',{class:'panel'});
+  wrap.appendChild(el('div',{class:'section-title'},[txt('TYPE 3 \u2014 PIPELINE STAGES'), el('span',{class:'n'},[txt('ordered assembly pipeline')])]));
+  wrap.appendChild(buildFocusBar('pipeline', pipelineFocus, function(p){ pipelineFocus = p; }));
+
+  if(!pipelineFocus){
+    wrap.appendChild(el('div',{class:'empty-hint'},[txt('No Pipeline node focused yet. Click "+ New Pipeline" above to create one, or tag an existing object node as Pipeline from the Node Editor.')]));
+    return wrap;
+  }
+
+  var prod = getAtPath(pipelineFocus);
+  var row = el('div',{class:'pipe-row'});
+  var stageKeys = Object.keys(prod);
+  stageKeys.forEach(function(stageKey, si){
+    var stage = prod[stageKey];
+    if(typeof stage !== 'object' || stage === null || Array.isArray(stage)) stage = prod[stageKey] = {};
+    if(!stage.producedBy) stage.producedBy = [];
+    if(!stage.items) stage.items = [];
+    var card = el('div',{class:'pipe-card'});
+    var titleRow = el('div',{class:'pipe-title'});
+    titleRow.appendChild(el('span',{},[txt(titleCase(stageKey))]));
+    var titleBtns = el('span',{});
+    if(si>0) titleBtns.appendChild(el('button',{class:'btn small', title:'Move left', onclick:function(){ moveStageKey(prod, stageKey, -1); renderView(); }},[txt('\u25c0')]));
+    if(si<stageKeys.length-1) titleBtns.appendChild(el('button',{class:'btn small', title:'Move right', onclick:function(){ moveStageKey(prod, stageKey, 1); renderView(); }},[txt('\u25b6')]));
+    titleBtns.appendChild(el('span',{class:'field-del', onclick:function(){
+      if(window.confirm('Delete stage "'+titleCase(stageKey)+'"?')){ delete prod[stageKey]; renderView(); refreshStatusBar(); }
+    }},[txt('\u2715')]));
+    titleRow.appendChild(titleBtns);
+    card.appendChild(titleRow);
+
+    card.appendChild(el('div',{class:'pipe-sub'},[txt('Produced by')]));
+    var pbWrap = el('div',{});
+    stage.producedBy.forEach(function(p, pi){
+      pbWrap.appendChild(el('span',{class:'chip'},[txt(p), el('span',{class:'x', onclick:function(){ stage.producedBy.splice(pi,1); renderView(); }},[txt('\u2715')])]));
+    });
+    card.appendChild(pbWrap);
+    var pbAdd = el('div',{class:'item-line'});
+    var pbInp = el('input',{class:'val-input', placeholder:'producer name'});
+    pbAdd.appendChild(pbInp);
+    pbAdd.appendChild(el('button',{class:'btn small', onclick:function(){ if(pbInp.value.trim()){ stage.producedBy.push(pbInp.value.trim()); renderView(); } }},[txt('+')]));
+    card.appendChild(pbAdd);
+
+    card.appendChild(el('div',{class:'pipe-sub'},[txt('Items ('+stage.items.length+')')]));
+    stage.items.forEach(function(item, ii){
+      var line = el('div',{class:'item-line'});
+      var inp = el('input',{class:'val-input', value:item});
+      inp.addEventListener('change', function(){ stage.items[ii] = inp.value; refreshStatusBar(); });
+      line.appendChild(inp);
+      line.appendChild(el('span',{class:'field-del', onclick:function(){ stage.items.splice(ii,1); renderView(); refreshStatusBar(); }},[txt('\u2715')]));
+      card.appendChild(line);
+    });
+    var itemAdd = el('div',{class:'item-line'});
+    var itemInp = el('input',{class:'val-input', placeholder:'new item name'});
+    itemAdd.appendChild(itemInp);
+    itemAdd.appendChild(el('button',{class:'btn small', onclick:function(){ if(itemInp.value.trim()){ stage.items.push(itemInp.value.trim()); renderView(); refreshStatusBar(); } }},[txt('+')]));
+    card.appendChild(itemAdd);
+
+    row.appendChild(card);
+  });
+
+  row.appendChild(el('div',{class:'pipe-add-stage', onclick:function(){
+    var name = window.prompt('New stage name (e.g. "advancedComponents"):');
+    if(!name) return;
+    var key = name.trim().replace(/\s+(.)/g, function(m,c){return c.toUpperCase();}).replace(/^./,function(c){return c.toLowerCase();});
+    if(prod[key]){ alert('Stage already exists'); return; }
+    prod[key] = {producedBy:[], items:[]};
+    renderView(); refreshStatusBar();
+  }},[txt('+ Add stage')]));
+
+  wrap.appendChild(row);
+  return wrap;
+}
+
+/* ================= BLOCK MANAGER ================= */
+function renderBlocks(){
+  var wrap = el('div',{class:'panel'});
+  wrap.appendChild(el('div',{class:'section-title'},[txt('BLOCK MANAGER'), el('span',{class:'n'},[txt('block catalogue + per-block metadata')])]));
+  wrap.appendChild(buildFocusBar('blocks', blocksFocus, function(p){ blocksFocus = p; selectedBlockIdx = null; }));
+
+  if(!blocksFocus){
+    wrap.appendChild(el('div',{class:'empty-hint'},[txt('No Block Set focused yet. Click "+ New Blocks" above to create one, or tag an existing object node as Blocks from the Node Editor.')]));
+    return wrap;
+  }
+
+  var blocks = getAtPath(blocksFocus);
+  if(!blocks.subcategories) blocks.subcategories = [];
+  if(!blocks.items) blocks.items = [];
+
+  var layout = el('div',{class:'blocks-layout'});
+
+  var left = el('div',{});
+  var search = el('input',{class:'block-search', placeholder:'Search blocks\u2026', value:blockFilter.search});
+  search.addEventListener('input', function(){ blockFilter.search = search.value; renderBlockList(); });
+  left.appendChild(search);
+  left.appendChild(el('div',{class:'pipe-sub'},[
+    txt('Filter by subcategory'),
+    tooltip('This filter only matches blocks that have already been tagged with that subcategory \u2014 having categories in this list doesn\u2019t tag every block automatically. To make a block show up under "Armor" (or any tag), select the block below, open its detail panel, and use the Subcategories "add tag\u2026" dropdown to assign it. Untagged blocks (like a freshly-added "Wind Turbine") won\u2019t match any category filter until tagged.')
+  ]));
+  var catWrap = el('div',{class:'cat-chip-wrap', id:'catWrap'});
+  left.appendChild(catWrap);
+  left.appendChild(el('button',{class:'btn small', style:'margin-top:8px;', onclick:function(){ manageCats = !manageCats; renderView(); }},[txt(manageCats ? 'Done managing' : 'Manage categories')]));
+  if(manageCats){
+    var manageWrap = el('div',{style:'margin-top:8px;'});
+    blocks.subcategories.forEach(function(c, ci){
+      manageWrap.appendChild(el('span',{class:'chip'},[txt(c), el('span',{class:'x', onclick:function(){ blocks.subcategories.splice(ci,1); blockFilter.cats.delete(c); renderView(); }},[txt('\u2715')])]));
+    });
+    var addCatLine = el('div',{class:'item-line', style:'margin-top:6px;'});
+    var addCatInp = el('input',{class:'val-input', placeholder:'new subcategory'});
+    addCatLine.appendChild(addCatInp);
+    addCatLine.appendChild(el('button',{class:'btn small', onclick:function(){ if(addCatInp.value.trim()){ blocks.subcategories.push(addCatInp.value.trim()); renderView(); } }},[txt('+')]));
+    manageWrap.appendChild(addCatLine);
+    left.appendChild(manageWrap);
+  }
+
+  var mid = el('div',{});
+  var listHeader = el('div',{style:'display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;'});
+  listHeader.appendChild(el('span',{class:'pipe-sub'},[txt('Blocks')]));
+  listHeader.appendChild(el('button',{class:'btn primary small', onclick:function(){
+    blocks.items.push({name:'New Block', largestDimensionM:null, subcategories:[]});
+    selectedBlockIdx = blocks.items.length - 1;
+    renderView();
+  }},[txt('+ Add block')]));
+  mid.appendChild(listHeader);
+  var listWrap = el('div',{class:'block-table-wrap', id:'blockListWrap'});
+  mid.appendChild(listWrap);
+
+  var right = el('div',{class:'panel', id:'blockDetail'});
+
+  layout.appendChild(left); layout.appendChild(mid); layout.appendChild(right);
+  wrap.appendChild(layout);
+
+  setTimeout(function(){ renderCatChips(); renderBlockList(); renderBlockDetail(); }, 0);
+
+  function renderCatChips(){
+    var cw = $('#catWrap'); if(!cw) return;
+    cw.innerHTML = '';
+    blocks.subcategories.forEach(function(c){
+      var active = blockFilter.cats.has(c);
+      cw.appendChild(el('span',{class:'chip tog'+(active?' active':''), onclick:function(){
+        if(active) blockFilter.cats.delete(c); else blockFilter.cats.add(c);
+        renderBlockList(); renderCatChips();
+      }},[txt(c)]));
+    });
+    if(blockFilter.cats.size > 0){
+      cw.appendChild(el('span',{class:'chip', onclick:function(){ blockFilter.cats.clear(); renderBlockList(); renderCatChips(); }},[txt('Clear \u2715')]));
+    }
+  }
+  function filteredBlocks(){
+    var s = blockFilter.search.toLowerCase();
+    return blocks.items.map(function(b,i){return {b:b,i:i};}).filter(function(o){
+      var matchesSearch = !s || String(o.b.name).toLowerCase().indexOf(s) !== -1;
+      var matchesCat = blockFilter.cats.size === 0 || (o.b.subcategories||[]).some(function(c){ return blockFilter.cats.has(c); });
+      return matchesSearch && matchesCat;
+    });
+  }
+  function renderBlockList(){
+    var lw = $('#blockListWrap'); if(!lw) return;
+    lw.innerHTML = '';
+    var list = filteredBlocks();
+    if(list.length === 0){ lw.appendChild(el('div',{class:'empty-hint'},[txt('No blocks match this filter.')])); return; }
+    list.forEach(function(o){
+      var dimTxt = (o.b.largestDimensionM === null || o.b.largestDimensionM === undefined) ? '\u2014' : (o.b.largestDimensionM + 'm');
+      lw.appendChild(el('div',{class:'block-row'+(selectedBlockIdx===o.i?' sel':''), onclick:function(){ selectedBlockIdx = o.i; renderBlockDetail(); renderBlockList(); }},[
+        el('span',{},[txt(o.b.name)]), el('span',{class:'dim'},[txt(dimTxt)])
+      ]));
+    });
+  }
+  function renderBlockDetail(){
+    var d = $('#blockDetail'); if(!d) return;
+    d.innerHTML = '';
+    if(selectedBlockIdx === null || !blocks.items[selectedBlockIdx]){
+      d.appendChild(el('div',{class:'empty-hint'},[txt('Select a block to view and edit its metadata.')]));
+      return;
+    }
+    var b = blocks.items[selectedBlockIdx];
+    if(!b.subcategories) b.subcategories = []; // guarantee this exists so the tag picker always shows, even for blocks imported without it
+    d.appendChild(el('div',{class:'section-title'},[txt('BLOCK DETAIL')]));
+
+    // Subcategories always gets its own fixed, always-visible section
+    var subField = el('div',{class:'detail-field'});
+    subField.appendChild(el('div',{class:'detail-label'},[txt('Subcategories')]));
+    if(blocks.subcategories.length === 0){
+      subField.appendChild(el('div',{class:'child-ref'},[txt('No subcategories defined yet \u2014 add some under "Manage categories" on the left first.')]));
+    } else {
+      var tagWrap = el('div',{});
+      b.subcategories.forEach(function(c, ci){
+        tagWrap.appendChild(el('span',{class:'chip'},[txt(c), el('span',{class:'x', onclick:function(){ b.subcategories.splice(ci,1); renderBlockDetail(); renderBlockList(); }},[txt('\u2715')])]));
+      });
+      if(b.subcategories.length === 0) tagWrap.appendChild(el('span',{class:'child-ref'},[txt('(untagged \u2014 won\u2019t match any filter yet)')]));
+      subField.appendChild(tagWrap);
+      var tagAdd = el('div',{class:'item-line'});
+      var sel = el('select',{class:'val-input'});
+      sel.appendChild(el('option',{value:''},[txt('add tag\u2026')]));
+      blocks.subcategories.forEach(function(c){ if(b.subcategories.indexOf(c) === -1) sel.appendChild(el('option',{value:c},[txt(c)])); });
+      sel.addEventListener('change', function(){
+        if(sel.value && b.subcategories.indexOf(sel.value) === -1){ b.subcategories.push(sel.value); renderBlockDetail(); renderBlockList(); }
+      });
+      tagAdd.appendChild(sel); subField.appendChild(tagAdd);
+    }
+    d.appendChild(subField);
+
+    Object.keys(b).forEach(function(key){
+      if(key === 'subcategories') return; // already rendered above as a fixed section
+      var val = b[key];
+      var field = el('div',{class:'detail-field'});
+      field.appendChild(el('div',{class:'detail-label'},[txt(titleCase(key)),
+        el('span',{class:'field-del', onclick:function(){ if(window.confirm('Remove field "'+key+'"?')){ delete b[key]; renderBlockDetail(); } }},[txt('\u2715')])
+      ]));
+      field.appendChild(buildValueEditor(b, key, function(){ renderBlockDetail(); refreshStatusBar(); renderBlockList(); }));
+      d.appendChild(field);
+    });
+    var addFieldRow = el('div',{class:'add-row'});
+    var fNameInp = el('input',{placeholder:'new metadata field'});
+    addFieldRow.appendChild(fNameInp);
+    addFieldRow.appendChild(el('button',{class:'btn primary', onclick:function(){
+      var nm = fNameInp.value.trim();
+      if(!nm) return;
+      if(b.hasOwnProperty(nm)){ alert('Field already exists'); return; }
+      b[nm] = ''; renderBlockDetail();
+    }},[txt('+ Add field')]));
+    d.appendChild(addFieldRow);
+    d.appendChild(el('button',{class:'btn danger', style:'margin-top:14px;', onclick:function(){
+      if(window.confirm('Delete block "'+b.name+'"?')){ blocks.items.splice(selectedBlockIdx,1); selectedBlockIdx = null; renderView(); }
+    }},[txt('Delete block')]));
+  }
+
+  return wrap;
+}
+
+function init(){
+  loadPersisted().then(function(outcome){
+    renderShell();
+    if(outcome === 'restored'){
+      lastSaveOk = true; lastSaveAt = new Date();
+      showBanner('Workspace restored from your last autosave.', 'info');
+    } else if(outcome === 'empty'){
+      showBanner('Autosave is active \u2014 this empty workspace will save as you work.', 'info');
+    } else {
+      showBanner('No persistent storage detected in this viewer. Your edits will NOT survive a refresh \u2014 export JSON before closing.', 'warn');
+    }
+    var s = $('.status'); if(s) s.replaceWith(buildStatus());
+  });
+}
+init();
+})();
+</script>
+</body>
+</html>
