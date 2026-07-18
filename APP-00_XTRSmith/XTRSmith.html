@@ -137,7 +137,7 @@ input[type=file]{display:none;}
 .font-size-input{width:50px; background:var(--panel3); border:1px solid var(--line-strong); color:var(--text); font-family:var(--mono); padding:6px 8px; font-size:calc(var(--gui-font-size) * 12/14);}
 .font-size-input:focus{outline:none; border-color:var(--cyan);}
 
-/* STAT BOXES (shared: WPM / Smart Brevity) */
+/* STAT BOXES (shared: WPM) */
 .stat-box{background:var(--panel2); border:1px solid var(--line-strong); padding:14px; position:relative;}
 .stat-box::before{content:""; position:absolute; width:8px; height:8px; border-top:2px solid var(--cyan); border-left:2px solid var(--cyan); top:-1px; left:-1px;}
 .stat-box::after{content:""; position:absolute; width:8px; height:8px; border-bottom:2px solid var(--cyan); border-right:2px solid var(--cyan); bottom:-1px; right:-1px;}
@@ -198,6 +198,20 @@ input[type=file]{display:none;}
 .check-detail{font-family:var(--mono); font-size:calc(var(--gui-font-size) * 10.5/14); color:var(--text-dim); margin-top:3px; line-height:1.5;}
 .check-detail .flagged{color:var(--red);}
 
+/* CHAT CHECK */
+.chatcheck-textarea{
+  width:100%; background:var(--panel3); border:1px solid var(--line-strong); color:var(--text); font-family:var(--mono);
+  padding:12px; font-size:calc(var(--gui-font-size) * 12/14); resize:vertical; min-height:160px;
+  outline:none; transition:border-color .15s; line-height:1.6; margin-bottom:14px;
+}
+.chatcheck-textarea:focus{border-color:var(--cyan);}
+.chatcheck-summary{
+  font-family:var(--mono); font-size:calc(var(--gui-font-size) * 12/14); letter-spacing:.5px;
+  padding:10px 14px; border:1px solid var(--line-strong); background:var(--panel2); margin-bottom:14px;
+}
+.chatcheck-summary.all-pass{border-color:var(--lime); color:var(--lime);}
+.chatcheck-summary.has-warn{border-color:var(--amber); color:var(--amber);}
+
 /* DRAFTS */
 .draft-card{background:var(--panel2); border:1px solid var(--line-strong); padding:14px; margin-bottom:10px; position:relative;}
 .draft-card-row{display:flex; gap:10px; align-items:center; margin-bottom:8px; flex-wrap:wrap;}
@@ -217,13 +231,32 @@ input[type=file]{display:none;}
 import { marked } from "https://cdnjs.cloudflare.com/ajax/libs/marked/16.3.0/lib/marked.esm.js";
 marked.setOptions({ gfm:true, breaks:true });
 
-var settings = { theme:'dark', guiFontSize:16, wpmBaseline:260 };
+var settings = { theme:'dark', guiFontSize:16, wpmBaseline:260, chatWordCeiling:60 };
 var currentWidget = 'editor';
 var drawerOpen = false;
 var activeEditorTab = 'preview';
 var SETTINGS_KEY = 'xtrsmith_settings';
 var EDITOR_STATE_KEY = 'xtrsmith_editor_state';
 var DRAFTS_KEY = 'xtrsmith_drafts_v1';
+var CHATCHECK_KEY = 'xtrsmith_chatcheck_content';
+
+var FILLER_PHRASES = [
+  'just wondering if', 'in my opinion', 'actually', 'sorry to bother you but',
+  'i think that', 'kind of', 'sort of', 'just a quick question',
+  'no worries but', 'just checking in', 'i just wanted to', 'basically'
+];
+var WEAK_PARTICIPLES = [
+  'done','given','made','taken','written','known','shown','seen','gone','said',
+  'held','found','told','put','set','decided','updated','completed','finished',
+  'reviewed','approved','fixed','changed','created','sent'
+];
+
+function loadChatCheckContent(){
+  try{ return localStorage.getItem(CHATCHECK_KEY) || ''; }catch(e){ return ''; }
+}
+function saveChatCheckContent(text){
+  try{ localStorage.setItem(CHATCHECK_KEY, text); }catch(e){ console.error('Could not save chat check content:', e); }
+}
 
 function applyTheme(){
   document.documentElement.setAttribute('data-theme', settings.theme);
@@ -315,8 +348,9 @@ function buildTopbar(){
 var WIDGETS = [
   {id:'editor', idx:'01', label:'Compose'},
   {id:'draft', idx:'02', label:'Drafts'},
-  {id:'library', idx:'03', label:'Library'},
-  {id:'settings-ext', idx:'04', label:'Advanced'}
+  {id:'chatcheck', idx:'03', label:'Chat Check'},
+  {id:'library', idx:'04', label:'Library'},
+  {id:'settings-ext', idx:'05', label:'Advanced'}
 ];
 
 function buildNav(){
@@ -328,8 +362,8 @@ function buildNav(){
       el('span',{},[txt(item.label)])
     ]));
   });
-  nav.appendChild(el('div',{class:'nav-sep'}));
-  nav.appendChild(el('div',{class:'nav-hint'},[txt('Write in Markdown, preview it rendered, and check it against Smart Brevity before you post.')]));
+  nav.appendChild(el('div',{class:'nav-sep'}));Brevity
+  nav.appendChild(el('div',{class:'nav-hint'},[txt('Write in Markdown, preview it rendered, and check it against some rules before you post.')]));
   return nav;
 }
 
@@ -396,7 +430,7 @@ function renderDrawer(){
   // Info
   var sec2 = el('div',{class:'drawer-section'});
   sec2.appendChild(el('div',{class:'drawer-section-title'},[txt('About')]));
-  sec2.appendChild(el('div',{class:'drawer-desc'},[txt('XTRSmith helps your Reddit posts and chat messages read faster and land better: write in Markdown, preview it rendered, check word count / read time, and run it against a few Smart Brevity checks before you post.')]));
+  sec2.appendChild(el('div',{class:'drawer-desc'},[txt('XTRSmith helps your Reddit posts and chat messages read faster and land better: write in Markdown, preview it rendered, check word count / read time, and run it against a few checks before you post.')]));
   drawer.appendChild(sec2);
 
   // WPM Baseline
@@ -435,11 +469,11 @@ function renderWidget(){
 
   if(currentWidget === 'editor'){ main.appendChild(renderEditor()); }
   else if(currentWidget === 'draft'){ main.appendChild(renderDrafts()); }
+  else if(currentWidget === 'chatcheck'){ main.appendChild(renderChatCheck()); }
   else if(currentWidget === 'library'){ main.appendChild(renderLibrary()); }
   else if(currentWidget === 'settings-ext'){ main.appendChild(renderAdvanced()); }
 }
 
-/* ---------- Smart Brevity computation ---------- */
 function computeBrevity(text){
   var trimmed = text.trim();
   var words = trimmed ? trimmed.split(/\s+/).length : 0;
@@ -471,7 +505,7 @@ function computeBrevity(text){
 
 function renderEditor(){
   var wrap = el('div',{class:'panel'});
-  wrap.appendChild(el('div',{class:'section-title'},[txt('COMPOSE'), el('span',{class:'n'},[txt('markdown \u2192 preview \u00b7 read time \u00b7 smart brevity')])]));
+  wrap.appendChild(el('div',{class:'section-title'},[txt('COMPOSE'), el('span',{class:'n'},[txt('markdown \u2192 preview \u00b7 read time')])]));
 
   // Toolbar
   var toolbar = el('div',{class:'editor-toolbar'});
@@ -550,7 +584,7 @@ function renderEditor(){
 
   var tabGroup = el('div',{class:'seg-group', style:'margin-bottom:12px;'});
   var previewTabBtn = el('button',{class:'seg-btn'+(activeEditorTab==='preview'?' active':''), onclick:function(){ activeEditorTab='preview'; updateEditorPanel(); refreshTabButtons(); }},[txt('Preview')]);
-  var checksTabBtn = el('button',{class:'seg-btn'+(activeEditorTab==='checks'?' active':''), onclick:function(){ activeEditorTab='checks'; updateEditorPanel(); refreshTabButtons(); }},[txt('Smart Brevity')]);
+  var checksTabBtn = el('button',{class:'seg-btn'+(activeEditorTab==='checks'?' active':''), onclick:function(){ activeEditorTab='checks'; updateEditorPanel(); refreshTabButtons(); }},[txt('Checks')]);
   function refreshTabButtons(){
     previewTabBtn.className = 'seg-btn'+(activeEditorTab==='preview'?' active':'');
     checksTabBtn.className = 'seg-btn'+(activeEditorTab==='checks'?' active':'');
@@ -622,7 +656,7 @@ function updateEditorPanel(){
     leadBody.appendChild(el('div',{class:'check-title'},[txt('Lead with the point')]));
     leadBody.appendChild(el('div',{class:'check-detail'},[txt(b.hasBoldLead
       ? 'Your opening bolds the key takeaway \u2014 readers get the point immediately.'
-      : 'No bold text near the top. Smart Brevity leads with **the one-sentence takeaway** before the detail.')]));
+      : 'No bold text near the top. Checks leads with **the one-sentence takeaway** before the detail.')]));
     leadRow.appendChild(leadBody);
     checksBox.appendChild(leadRow);
 
@@ -664,12 +698,238 @@ function updateEditorPanel(){
     listBody.appendChild(el('div',{class:'check-title'},[txt('List usage')]));
     listBody.appendChild(el('div',{class:'check-detail'},[txt(b.listItemCount > 0
       ? b.listItemCount + ' list item(s) detected. Bullets read faster than prose \u2014 good.'
-      : 'No bullet or numbered lists. Not required, but Smart Brevity favors them for scannability.')]));
+      : 'No bullet or numbered lists. Not required, but some checks favor them for scannability.')]));
     listRow.appendChild(listBody);
     checksBox.appendChild(listRow);
 
     tabContent.appendChild(checksBox);
   }
+}
+
+/* ---------- Chat Check (short message linter) ---------- */
+function computeChatChecks(text, ceiling){
+  var trimmed = text.trim();
+  var words = trimmed ? trimmed.split(/\s+/).length : 0;
+  var lower = trimmed.toLowerCase();
+  var lines = text.split(/\n/).map(function(l){ return l.trim(); }).filter(function(l){ return l.length > 0; });
+  var sentencesGlobal = trimmed ? trimmed.split(/(?<=[.!?])\s+/).map(function(s){return s.trim();}).filter(Boolean) : [];
+  var avgWordsPerSentence = sentencesGlobal.length ? Math.round(words / sentencesGlobal.length) : 0;
+  var newlineCount = (text.match(/\n/g) || []).length;
+
+  var formattingCount =
+    (text.match(/\*\*[^*]+\*\*/g) || []).length +
+    (text.match(/^[ \t]*([-*+]|\d+\.)\s+/gm) || []).length +
+    (text.match(/`[^`]+`/g) || []).length;
+
+  var fillerHits = FILLER_PHRASES.filter(function(p){ return lower.indexOf(p) !== -1; });
+
+  var isNakedGreeting = trimmed.length > 0 && trimmed.length < 15 && /^(hey|hi|hello|yo|sup|hiya|howdy)[!.\s]*$/i.test(trimmed);
+
+  var longLines = lines.filter(function(line){
+    var lw = line.split(/\s+/).filter(Boolean).length;
+    var ls = line.split(/(?<=[.!?])\s+/).filter(Boolean).length;
+    return lw > 40 || ls > 3;
+  });
+
+  var whitespaceOk = words <= 30 || newlineCount >= Math.floor(words / 30);
+
+  var urlRegex = /(https?:\/\/[^\s]+|www\.[^\s]+)/gi;
+  var embeddedUrls = [];
+  lines.forEach(function(line){
+    var m = line.match(urlRegex);
+    if(m){ m.forEach(function(u){ if(line !== u) embeddedUrls.push(u); }); }
+  });
+
+  var passiveRegexA = /\b(is|are|was|were|be|been|being)\s+\w+ed\b/gi;
+  var passiveRegexB = new RegExp('\\b(is|are|was|were|be|been|being)\\s+(' + WEAK_PARTICIPLES.join('|') + ')\\b', 'gi');
+  var passiveHits = (text.match(passiveRegexA) || []).concat(text.match(passiveRegexB) || []);
+  passiveHits = passiveHits.filter(function(v, i, arr){ return arr.indexOf(v) === i; });
+
+  var wpm = settings.wpmBaseline;
+  var readSeconds = words ? Math.round((words / wpm) * 60) : 0;
+
+  return {
+    words: words, ceiling: ceiling, overCeiling: words > ceiling,
+    longLines: longLines, fillerHits: fillerHits, isNakedGreeting: isNakedGreeting,
+    whitespaceOk: whitespaceOk, formattingCount: formattingCount,
+    avgWordsPerSentence: avgWordsPerSentence, passiveHits: passiveHits,
+    embeddedUrls: embeddedUrls, readSeconds: readSeconds
+  };
+}
+
+function renderChatCheck(){
+  var wrap = el('div',{class:'panel'});
+  wrap.appendChild(el('div',{class:'section-title'},[txt('CHAT CHECK'), el('span',{class:'n'},[txt('pre-send linter for Discord / Slack style messages')])]));
+
+  var toolbar = el('div',{class:'editor-toolbar'});
+  var ceilingControl = el('div',{class:'font-size-control', style:'flex:none;'});
+  ceilingControl.appendChild(el('span',{style:'font-family:var(--mono); font-size:calc(var(--gui-font-size) * 11/14); color:var(--text-dim); text-transform:uppercase; letter-spacing:.5px;'},[txt('Word ceiling')]));
+  var ceilingInput = el('input',{type:'number', class:'font-size-input', value:String(settings.chatWordCeiling), style:'width:60px;'});
+  var ceilingMinus = el('button',{class:'btn small', onclick:function(){ if(settings.chatWordCeiling > 10) settings.chatWordCeiling -= 5; ceilingInput.value = String(settings.chatWordCeiling); saveSettings(); updateChatCheckPanel(); }});
+  ceilingMinus.innerHTML = '\u2212';
+  var ceilingPlus = el('button',{class:'btn small', onclick:function(){ settings.chatWordCeiling += 5; ceilingInput.value = String(settings.chatWordCeiling); saveSettings(); updateChatCheckPanel(); }});
+  ceilingPlus.innerHTML = '+';
+  ceilingInput.addEventListener('input', function(){
+    var v = parseInt(ceilingInput.value, 10);
+    if(isNaN(v) || v < 10) v = 10; if(v > 500) v = 500;
+    settings.chatWordCeiling = v;
+    ceilingInput.value = String(v);
+    saveSettings();
+    updateChatCheckPanel();
+  });
+  ceilingControl.appendChild(ceilingMinus);
+  ceilingControl.appendChild(ceilingInput);
+  ceilingControl.appendChild(ceilingPlus);
+  toolbar.appendChild(ceilingControl);
+
+  var copyBtn = el('button',{class:'btn small', onclick:function(){
+    var ta = $('#chatCheckInput');
+    navigator.clipboard.writeText(ta ? ta.value : '').then(function(){
+      var old = copyBtn.textContent; copyBtn.textContent = 'Copied!';
+      setTimeout(function(){ copyBtn.textContent = old; }, 1200);
+    }).catch(function(){});
+  }},[txt('Copy Message')]);
+  var clearBtn = el('button',{class:'btn small', onclick:function(){
+    var ta = $('#chatCheckInput');
+    if(ta && ta.value.trim() && !confirm('Clear this message?')) return;
+    if(ta) ta.value = '';
+    saveChatCheckContent('');
+    updateChatCheckPanel();
+  }},[txt('Clear')]);
+  toolbar.appendChild(copyBtn);
+  toolbar.appendChild(clearBtn);
+  wrap.appendChild(toolbar);
+
+  var textarea = el('textarea',{class:'chatcheck-textarea', id:'chatCheckInput', placeholder:'Paste or type the Discord / Slack message you\u2019re about to send\u2026'});
+  textarea.value = loadChatCheckContent();
+  textarea.addEventListener('input', function(){
+    saveChatCheckContent(textarea.value);
+    updateChatCheckPanel();
+  });
+  wrap.appendChild(textarea);
+
+  wrap.appendChild(el('div',{id:'chatCheckResults'}));
+
+  setTimeout(updateChatCheckPanel, 0);
+  return wrap;
+}
+
+function updateChatCheckPanel(){
+  var textarea = $('#chatCheckInput');
+  var results = $('#chatCheckResults');
+  if(!results) return;
+
+  var text = textarea ? textarea.value : '';
+  var c = computeChatChecks(text, settings.chatWordCeiling);
+  results.innerHTML = '';
+
+  if(!text.trim()){
+    results.appendChild(el('div',{class:'empty-state'},[txt('Nothing to check yet. Paste your message above.')]));
+    return;
+  }
+
+  var checks = [];
+
+  checks.push({
+    pass: !c.overCeiling,
+    title: 'Total word count',
+    detail: c.overCeiling
+      ? c.words + ' words \u2014 over your ' + c.ceiling + '-word ceiling. Trim it down.'
+      : c.words + ' words \u2014 within your ' + c.ceiling + '-word ceiling.'
+  });
+
+  checks.push({
+    pass: c.longLines.length === 0,
+    title: 'Paragraph / line length',
+    detail: c.longLines.length === 0
+      ? 'No line runs over 3 sentences or 40 words.'
+      : c.longLines.length + ' line(s) exceed 3 sentences or 40 words \u2014 break them up.'
+  });
+
+  checks.push({
+    pass: c.fillerHits.length === 0,
+    title: 'Filler phrases',
+    detail: c.fillerHits.length === 0
+      ? 'No filler phrases detected.'
+      : 'Found: ' + c.fillerHits.map(function(f){ return '\u201c' + f + '\u201d'; }).join(', ')
+  });
+
+  checks.push({
+    pass: !c.isNakedGreeting,
+    title: 'Naked greeting',
+    detail: c.isNakedGreeting
+      ? 'This is just a greeting with no actual question or point \u2014 add the substance.'
+      : 'Not just a bare "hey" / "hi" \u2014 good.'
+  });
+
+  checks.push({
+    pass: c.whitespaceOk,
+    title: 'Wall of text',
+    detail: c.whitespaceOk
+      ? 'Line breaks keep this skimmable.'
+      : 'Too dense \u2014 add a line break roughly every 30 words.'
+  });
+
+  var needsFormatting = c.words > 40 && c.formattingCount === 0;
+  checks.push({
+    pass: !needsFormatting,
+    title: 'Formatting for emphasis',
+    detail: needsFormatting
+      ? 'Over 40 words with zero bold / bullets / code \u2014 emphasize the key point.'
+      : (c.formattingCount + ' formatting element(s) found.')
+  });
+
+  var sentenceOk = c.avgWordsPerSentence <= 15;
+  checks.push({
+    pass: sentenceOk,
+    title: 'Sentence complexity',
+    detail: sentenceOk
+      ? 'Averaging ' + c.avgWordsPerSentence + ' words per sentence \u2014 punchy.'
+      : 'Averaging ' + c.avgWordsPerSentence + ' words per sentence \u2014 split some up.'
+  });
+
+  checks.push({
+    pass: c.passiveHits.length === 0,
+    title: 'Passive voice / weak verbs',
+    detail: c.passiveHits.length === 0
+      ? 'No obvious passive constructions.'
+      : 'Found: ' + c.passiveHits.slice(0,4).map(function(p){ return '\u201c' + p + '\u201d'; }).join(', ')
+  });
+
+  checks.push({
+    pass: c.embeddedUrls.length === 0,
+    title: 'Link cleanliness',
+    detail: c.embeddedUrls.length === 0
+      ? 'No raw URLs buried mid-sentence.'
+      : c.embeddedUrls.length + ' raw URL(s) embedded in a sentence \u2014 put on their own line or hyperlink the text.'
+  });
+
+  var readOk = c.readSeconds <= 15;
+  checks.push({
+    pass: readOk,
+    title: 'Estimated read time',
+    detail: readOk
+      ? '~' + c.readSeconds + 's to read \u2014 quick.'
+      : '~' + c.readSeconds + 's to read \u2014 over the 15s target, consider trimming.'
+  });
+
+  var passCount = checks.filter(function(ch){ return ch.pass; }).length;
+  var summary = el('div',{class:'chatcheck-summary ' + (passCount === checks.length ? 'all-pass' : 'has-warn')},[
+    txt(passCount + ' / ' + checks.length + ' checks passed')
+  ]);
+  results.appendChild(summary);
+
+  var box = el('div',{class:'stat-box'});
+  checks.forEach(function(ch){
+    var row = el('div',{class:'check-row'});
+    row.appendChild(el('div',{class:'check-icon '+(ch.pass?'pass':'warn')},[txt(ch.pass?'\u2713':'!')]));
+    var body = el('div',{class:'check-body'});
+    body.appendChild(el('div',{class:'check-title'},[txt(ch.title)]));
+    body.appendChild(el('div',{class:'check-detail'},[txt(ch.detail)]));
+    row.appendChild(body);
+    box.appendChild(row);
+  });
+  results.appendChild(box);
 }
 
 /* ---------- Drafts ---------- */
