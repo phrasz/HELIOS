@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chat Metrics - Widget Hub</title>
+<title>XTRSmith - Widget Hub</title>
 <style>
 :root{
   --bg:#0B0E0F;
@@ -137,38 +137,93 @@ input[type=file]{display:none;}
 .font-size-input{width:50px; background:var(--panel3); border:1px solid var(--line-strong); color:var(--text); font-family:var(--mono); padding:6px 8px; font-size:calc(var(--gui-font-size) * 12/14);}
 .font-size-input:focus{outline:none; border-color:var(--cyan);}
 
-/* WPM CALCULATOR */
-.wpm-container{display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start;}
-.wpm-input-area{display:flex; flex-direction:column; gap:12px;}
-.wpm-input-label{font-family:var(--mono); font-size:calc(var(--gui-font-size) * 11/14); text-transform:uppercase; color:var(--text-dim); letter-spacing:1px;}
-.wpm-textarea{
+/* STAT BOXES (shared: WPM / Smart Brevity) */
+.stat-box{background:var(--panel2); border:1px solid var(--line-strong); padding:14px; position:relative;}
+.stat-box::before{content:""; position:absolute; width:8px; height:8px; border-top:2px solid var(--cyan); border-left:2px solid var(--cyan); top:-1px; left:-1px;}
+.stat-box::after{content:""; position:absolute; width:8px; height:8px; border-bottom:2px solid var(--cyan); border-right:2px solid var(--cyan); bottom:-1px; right:-1px;}
+.stat-box.compact{padding:10px 12px;}
+.stat-label{font-family:var(--mono); font-size:calc(var(--gui-font-size) * 10/14); text-transform:uppercase; color:var(--text-dim); letter-spacing:1px; margin-bottom:6px;}
+.stat-value{font-family:var(--mono); font-size:calc(var(--gui-font-size) * 22/14); color:var(--cyan); font-weight:bold; margin:0;}
+.stat-value.small{font-size:calc(var(--gui-font-size) * 17/14);}
+.stat-unit{font-family:var(--mono); font-size:calc(var(--gui-font-size) * 10/14); color:var(--text-dim); margin-top:2px;}
+.time-breakdown{background:var(--panel3); border-left:3px solid var(--cyan); padding:10px 12px; margin-top:12px;}
+.time-row{display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; font-family:var(--mono); font-size:calc(var(--gui-font-size) * 11/14);}
+.time-row:last-child{margin-bottom:0;}
+.time-label{color:var(--text-dim);}
+.time-value{color:var(--lime); font-weight:bold;}
+.empty-state{font-family:var(--mono); font-size:calc(var(--gui-font-size) * 12/14); color:var(--text-dim); text-align:center; padding:40px 20px;}
+.stat-strip{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:12px;}
+
+/* EDITOR / COMPOSE */
+.editor-toolbar{display:flex; gap:8px; align-items:center; margin-bottom:14px; flex-wrap:wrap;}
+.editor-title-input{
   background:var(--panel3); border:1px solid var(--line-strong); color:var(--text); font-family:var(--mono);
-  padding:12px; font-size:calc(var(--gui-font-size) * 11/14); resize:vertical; min-height:300px;
-  outline:none; transition:border-color .15s;
+  padding:8px 10px; font-size:calc(var(--gui-font-size) * 12/14); flex:1; min-width:180px; outline:none;
 }
-.wpm-textarea:focus{border-color:var(--cyan);}
-.wpm-stats{display:flex; flex-direction:column; gap:16px;}
-.wpm-stat-box{background:var(--panel2); border:1px solid var(--line-strong); padding:14px; position:relative;}
-.wpm-stat-box::before{content:""; position:absolute; width:8px; height:8px; border-top:2px solid var(--cyan); border-left:2px solid var(--cyan); top:-1px; left:-1px;}
-.wpm-stat-box::after{content:""; position:absolute; width:8px; height:8px; border-bottom:2px solid var(--cyan); border-right:2px solid var(--cyan); bottom:-1px; right:-1px;}
-.wpm-stat-label{font-family:var(--mono); font-size:calc(var(--gui-font-size) * 10/14); text-transform:uppercase; color:var(--text-dim); letter-spacing:1px; margin-bottom:8px;}
-.wpm-stat-value{font-family:var(--mono); font-size:calc(var(--gui-font-size) * 28/14); color:var(--cyan); font-weight:bold; margin:0;}
-.wpm-stat-unit{font-family:var(--mono); font-size:calc(var(--gui-font-size) * 10/14); color:var(--text-dim); margin-top:4px;}
-.wpm-time-breakdown{background:var(--panel3); border-left:3px solid var(--cyan); padding:10px 12px; margin-top:12px;}
-.wpm-time-row{display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; font-family:var(--mono); font-size:calc(var(--gui-font-size) * 11/14);}
-.wpm-time-row:last-child{margin-bottom:0;}
-.wpm-time-label{color:var(--text-dim);}
-.wpm-time-value{color:var(--lime); font-weight:bold;}
-.wpm-empty{font-family:var(--mono); font-size:calc(var(--gui-font-size) * 12/14); color:var(--text-dim); text-align:center; padding:40px 20px;}
+.editor-title-input:focus{border-color:var(--cyan);}
+.editor-container{display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start;}
+.editor-col-label{font-family:var(--mono); font-size:calc(var(--gui-font-size) * 11/14); text-transform:uppercase; color:var(--text-dim); letter-spacing:1px; margin-bottom:8px;}
+.editor-textarea{
+  width:100%; background:var(--panel3); border:1px solid var(--line-strong); color:var(--text); font-family:var(--mono);
+  padding:12px; font-size:calc(var(--gui-font-size) * 12/14); resize:vertical; min-height:420px;
+  outline:none; transition:border-color .15s; line-height:1.6;
+}
+.editor-textarea:focus{border-color:var(--cyan);}
+.editor-preview{
+  background:var(--panel3); border:1px solid var(--line-strong); padding:16px; min-height:420px; overflow:auto;
+  font-family:var(--sans); line-height:1.65; font-size:calc(var(--gui-font-size) * 13/14);
+}
+.editor-preview h1,.editor-preview h2,.editor-preview h3,.editor-preview h4{color:var(--cyan); font-family:var(--sans); margin:0.6em 0 0.3em;}
+.editor-preview h1:first-child,.editor-preview h2:first-child,.editor-preview h3:first-child{margin-top:0;}
+.editor-preview p{margin:0.6em 0;}
+.editor-preview a{color:var(--cyan);}
+.editor-preview strong{color:var(--amber);}
+.editor-preview code{background:var(--panel2); padding:2px 5px; font-family:var(--mono); font-size:0.9em;}
+.editor-preview pre{background:var(--panel2); padding:12px; overflow-x:auto; border-left:3px solid var(--cyan);}
+.editor-preview pre code{background:none; padding:0;}
+.editor-preview blockquote{border-left:3px solid var(--cyan); margin:0.6em 0; padding:2px 14px; color:var(--text-dim);}
+.editor-preview ul,.editor-preview ol{padding-left:22px; margin:0.6em 0;}
+.editor-preview hr{border:none; border-top:1px solid var(--line-strong); margin:1em 0;}
+.editor-preview table{border-collapse:collapse; margin:0.6em 0;}
+.editor-preview th,.editor-preview td{border:1px solid var(--line-strong); padding:6px 10px;}
+.editor-empty{font-family:var(--mono); color:var(--text-dim); font-size:calc(var(--gui-font-size) * 11/14); font-style:italic;}
+
+.check-row{display:flex; gap:10px; align-items:flex-start; padding:10px 0; border-bottom:1px solid var(--line);}
+.check-row:last-child{border-bottom:none;}
+.check-icon{flex:none; width:20px; height:20px; display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-weight:bold; font-size:calc(var(--gui-font-size) * 12/14); border-radius:50%;}
+.check-icon.pass{color:var(--lime); border:1px solid var(--lime);}
+.check-icon.warn{color:var(--amber); border:1px solid var(--amber);}
+.check-body{flex:1;}
+.check-title{font-family:var(--mono); font-size:calc(var(--gui-font-size) * 11.5/14); color:var(--text); letter-spacing:.3px;}
+.check-detail{font-family:var(--mono); font-size:calc(var(--gui-font-size) * 10.5/14); color:var(--text-dim); margin-top:3px; line-height:1.5;}
+.check-detail .flagged{color:var(--red);}
+
+/* DRAFTS */
+.draft-card{background:var(--panel2); border:1px solid var(--line-strong); padding:14px; margin-bottom:10px; position:relative;}
+.draft-card-row{display:flex; gap:10px; align-items:center; margin-bottom:8px; flex-wrap:wrap;}
+.draft-title-input{
+  background:var(--panel3); border:1px solid var(--line-strong); color:var(--text); font-family:var(--mono);
+  padding:6px 10px; font-size:calc(var(--gui-font-size) * 12/14); flex:1; min-width:160px; outline:none;
+}
+.draft-title-input:focus{border-color:var(--cyan);}
+.draft-meta{font-family:var(--mono); font-size:calc(var(--gui-font-size) * 10/14); color:var(--text-dim); letter-spacing:.5px; margin-bottom:6px;}
+.draft-snippet{font-family:var(--mono); font-size:calc(var(--gui-font-size) * 10.5/14); color:var(--text-dim); line-height:1.5; max-height:2.8em; overflow:hidden;}
 </style>
 </head>
 <body>
 <div class="app" id="app"></div>
 
-<script>
-var settings = { theme:'dark', guiFontSize:14 };
-var currentWidget = 'wpm';
+<script type="module">
+import { marked } from "https://cdnjs.cloudflare.com/ajax/libs/marked/16.3.0/lib/marked.esm.js";
+marked.setOptions({ gfm:true, breaks:true });
+
+var settings = { theme:'dark', guiFontSize:16, wpmBaseline:260 };
+var currentWidget = 'editor';
 var drawerOpen = false;
+var activeEditorTab = 'preview';
+var SETTINGS_KEY = 'xtrsmith_settings';
+var EDITOR_STATE_KEY = 'xtrsmith_editor_state';
+var DRAFTS_KEY = 'xtrsmith_drafts_v1';
 
 function applyTheme(){
   document.documentElement.setAttribute('data-theme', settings.theme);
@@ -176,6 +231,38 @@ function applyTheme(){
 function applyFontSize(){
   document.documentElement.style.setProperty('--gui-font-size', settings.guiFontSize + 'px');
 }
+function saveSettings(){
+  try{ localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }catch(e){ console.error('Could not save settings:', e); }
+}
+function loadSettings(){
+  try{
+    var saved = localStorage.getItem(SETTINGS_KEY);
+    if(saved){
+      var loaded = JSON.parse(saved);
+      settings = Object.assign(settings, loaded);
+    }
+  }catch(e){ console.error('Could not load settings:', e); }
+}
+
+function loadEditorState(){
+  try{
+    var saved = JSON.parse(localStorage.getItem(EDITOR_STATE_KEY));
+    if(saved) return Object.assign({content:'', draftId:null, title:'Untitled draft'}, saved);
+  }catch(e){ console.error('Could not load editor state:', e); }
+  return {content:'', draftId:null, title:'Untitled draft'};
+}
+function saveEditorState(){
+  try{ localStorage.setItem(EDITOR_STATE_KEY, JSON.stringify(editorState)); }catch(e){ console.error('Could not save editor state:', e); }
+}
+var editorState = loadEditorState();
+
+function loadDrafts(){
+  try{ return JSON.parse(localStorage.getItem(DRAFTS_KEY)) || []; }catch(e){ return []; }
+}
+function saveDrafts(arr){
+  try{ localStorage.setItem(DRAFTS_KEY, JSON.stringify(arr)); }catch(e){ console.error('Could not save drafts:', e); }
+}
+
 function $(sel, root){ return (root||document).querySelector(sel); }
 function el(tag, attrs, children){
   var e = document.createElement(tag);
@@ -210,7 +297,7 @@ function buildTopbar(){
   var top = el('div',{class:'topbar'});
   var brand = el('div',{class:'brand'});
   var brandText = el('div',{},[
-    el('div',{class:'brand-text'},[txt('CHAT '), (function(){var b=document.createElement('b');b.textContent='METRICS';return b;})()]),
+    el('div',{class:'brand-text'},[txt('XTR'), (function(){var b=document.createElement('b');b.textContent='Smith';return b;})()]),
     el('div',{class:'brand-sub'},[txt('WIDGET HUB \u00b7 Improve your Chats!')])
   ]);
   brand.appendChild(el('div',{class:'brand-mark'}));
@@ -226,7 +313,7 @@ function buildTopbar(){
 }
 
 var WIDGETS = [
-  {id:'wpm', idx:'01', label:'WPM Counter'},
+  {id:'editor', idx:'01', label:'Compose'},
   {id:'draft', idx:'02', label:'Drafts'},
   {id:'library', idx:'03', label:'Library'},
   {id:'settings-ext', idx:'04', label:'Advanced'}
@@ -242,14 +329,14 @@ function buildNav(){
     ]));
   });
   nav.appendChild(el('div',{class:'nav-sep'}));
-  nav.appendChild(el('div',{class:'nav-hint'},[txt('Click any widget to load. Type or paste content to analyze reading metrics.')]));
+  nav.appendChild(el('div',{class:'nav-hint'},[txt('Write in Markdown, preview it rendered, and check it against Smart Brevity before you post.')]));
   return nav;
 }
 
 function buildStatus(){
   var s = el('div',{class:'status'});
-  s.appendChild(el('span',{},[txt('XTRSmith v1.0 \u00b7 '), el('b',{},[txt('260 WPM')])]));
-  s.appendChild(el('span',{},[txt('\u2014 Standard Reading Speed Baseline')]));
+  s.appendChild(el('span',{},[txt('XTRSmith v1.1 \u00b7 '), el('b',{},[txt(settings.wpmBaseline + ' WPM')])]));
+  s.appendChild(el('span',{},[txt('\u2014 Reading Speed Baseline')]));
   return s;
 }
 
@@ -271,22 +358,23 @@ function renderDrawer(){
   var sec1 = el('div',{class:'drawer-section'});
   sec1.appendChild(el('div',{class:'drawer-section-title'},[txt('Appearance')]));
   var themeGroup = el('div',{class:'seg-group'});
-  themeGroup.appendChild(el('button',{class:'seg-btn'+(settings.theme==='dark'?' active':''), onclick:function(){ settings.theme='dark'; applyTheme(); renderDrawer(); }},[txt('Dark')]));
-  themeGroup.appendChild(el('button',{class:'seg-btn'+(settings.theme==='light'?' active':''), onclick:function(){ settings.theme='light'; applyTheme(); renderDrawer(); }},[txt('Light')]));
+  themeGroup.appendChild(el('button',{class:'seg-btn'+(settings.theme==='dark'?' active':''), onclick:function(){ settings.theme='dark'; applyTheme(); saveSettings(); renderDrawer(); }},[txt('Dark')]));
+  themeGroup.appendChild(el('button',{class:'seg-btn'+(settings.theme==='light'?' active':''), onclick:function(){ settings.theme='light'; applyTheme(); saveSettings(); renderDrawer(); }},[txt('Light')]));
   sec1.appendChild(el('div',{class:'drawer-row'},[themeGroup]));
 
   // Font Size
   var fontControl = el('div',{class:'font-size-control'});
   var fontSlider = el('input',{type:'range', class:'font-size-slider', min:'10', max:'20', value:String(settings.guiFontSize)});
   var fontInput = el('input',{type:'number', class:'font-size-input', value:String(settings.guiFontSize)});
-  var fontBtnMinus = el('button',{class:'btn small', onclick:function(){ settings.guiFontSize--; fontSlider.value = String(Math.min(20, Math.max(10, settings.guiFontSize))); fontInput.value = String(settings.guiFontSize); applyFontSize(); renderDrawer(); }});
-  fontBtnMinus.innerHTML = '−';
-  var fontBtnPlus = el('button',{class:'btn small', onclick:function(){ settings.guiFontSize++; fontSlider.value = String(Math.min(20, Math.max(10, settings.guiFontSize))); fontInput.value = String(settings.guiFontSize); applyFontSize(); renderDrawer(); }});
+  var fontBtnMinus = el('button',{class:'btn small', onclick:function(){ settings.guiFontSize--; fontSlider.value = String(Math.min(20, Math.max(10, settings.guiFontSize))); fontInput.value = String(settings.guiFontSize); applyFontSize(); saveSettings(); renderDrawer(); }});
+  fontBtnMinus.innerHTML = '\u2212';
+  var fontBtnPlus = el('button',{class:'btn small', onclick:function(){ settings.guiFontSize++; fontSlider.value = String(Math.min(20, Math.max(10, settings.guiFontSize))); fontInput.value = String(settings.guiFontSize); applyFontSize(); saveSettings(); renderDrawer(); }});
   fontBtnPlus.innerHTML = '+';
   fontSlider.addEventListener('input', function(){
     settings.guiFontSize = parseInt(fontSlider.value, 10);
     fontInput.value = String(settings.guiFontSize);
     applyFontSize();
+    saveSettings();
   });
   fontInput.addEventListener('change', function(){
     var v = parseInt(fontInput.value, 10);
@@ -295,20 +383,46 @@ function renderDrawer(){
     fontSlider.value = String(Math.min(20, Math.max(10, v)));
     fontInput.value = String(settings.guiFontSize);
     applyFontSize();
+    saveSettings();
   });
   fontControl.appendChild(fontBtnMinus);
   fontControl.appendChild(fontSlider);
   fontControl.appendChild(fontBtnPlus);
   fontControl.appendChild(fontInput);
   sec1.appendChild(el('div',{class:'drawer-row'},[fontControl]));
-  sec1.appendChild(el('div',{class:'drawer-desc'},[txt('Font size: +/− for unlimited, slider 10-20px')]));
+  sec1.appendChild(el('div',{class:'drawer-desc'},[txt('Font size: +/\u2212 for unlimited, slider 10-20px')]));
   drawer.appendChild(sec1);
 
   // Info
   var sec2 = el('div',{class:'drawer-section'});
   sec2.appendChild(el('div',{class:'drawer-section-title'},[txt('About')]));
-  sec2.appendChild(el('div',{class:'drawer-desc'},[txt('Chat Metrics helps you understand reading time and comprehension load. Paste any text to analyze word count and estimated reading duration at 260 WPM baseline.')]));
+  sec2.appendChild(el('div',{class:'drawer-desc'},[txt('XTRSmith helps your Reddit posts and chat messages read faster and land better: write in Markdown, preview it rendered, check word count / read time, and run it against a few Smart Brevity checks before you post.')]));
   drawer.appendChild(sec2);
+
+  // WPM Baseline
+  var sec3 = el('div',{class:'drawer-section', style:'border-top: 1px dashed var(--line-strong); padding-top: 15px;'});
+  sec3.appendChild(el('div',{class:'drawer-section-title'},[txt('Reading Speed')]));
+  var wpmControl = el('div',{class:'font-size-control'});
+  var wpmInput = el('input',{type:'number', class:'font-size-input', value:String(settings.wpmBaseline), style:'flex:1; width:auto;'});
+  var wpmMinusBtn = el('button',{class:'btn small', onclick:function(){ if(settings.wpmBaseline > 50) settings.wpmBaseline-=10; wpmInput.value = String(settings.wpmBaseline); saveSettings(); updateEditorPanel(); renderShell(); }});
+  wpmMinusBtn.innerHTML = '\u2212';
+  var wpmPlusBtn = el('button',{class:'btn small', onclick:function(){ settings.wpmBaseline+=10; wpmInput.value = String(settings.wpmBaseline); saveSettings(); updateEditorPanel(); renderShell(); }});
+  wpmPlusBtn.innerHTML = '+';
+  wpmInput.addEventListener('input', function(){
+    var v = parseInt(wpmInput.value, 10);
+    if(isNaN(v) || v < 50) v = 50; if(v > 1000) v = 1000;
+    settings.wpmBaseline = v;
+    wpmInput.value = String(settings.wpmBaseline);
+    saveSettings();
+    updateEditorPanel();
+    renderShell();
+  });
+  wpmControl.appendChild(wpmMinusBtn);
+  wpmControl.appendChild(wpmInput);
+  wpmControl.appendChild(wpmPlusBtn);
+  sec3.appendChild(el('div',{class:'drawer-row'},[wpmControl]));
+  sec3.appendChild(el('div',{class:'drawer-desc'},[txt('WPM baseline: set your reading speed (50-1000 WPM)')]));
+  drawer.appendChild(sec3);
 
   root.appendChild(backdrop);
   root.appendChild(drawer);
@@ -318,92 +432,311 @@ function renderDrawer(){
 function renderWidget(){
   var main = $('#main');
   main.innerHTML = '';
-  
-  if(currentWidget === 'wpm'){ main.appendChild(renderWPM()); }
-  else if(currentWidget === 'draft'){ main.appendChild(renderDraft()); }
+
+  if(currentWidget === 'editor'){ main.appendChild(renderEditor()); }
+  else if(currentWidget === 'draft'){ main.appendChild(renderDrafts()); }
   else if(currentWidget === 'library'){ main.appendChild(renderLibrary()); }
   else if(currentWidget === 'settings-ext'){ main.appendChild(renderAdvanced()); }
 }
 
-function renderWPM(){
-  var wrap = el('div',{class:'panel'});
-  wrap.appendChild(el('div',{class:'section-title'},[txt('WPM COUNTER'), el('span',{class:'n'},[txt('reading time estimator')])]));
+/* ---------- Smart Brevity computation ---------- */
+function computeBrevity(text){
+  var trimmed = text.trim();
+  var words = trimmed ? trimmed.split(/\s+/).length : 0;
+  var chars = text.length;
+  var wpm = settings.wpmBaseline;
+  var minutes = words ? Math.ceil(words / wpm) : 0;
+  var seconds = words ? Math.round((words / wpm) * 60) : 0;
 
-  var container = el('div',{class:'wpm-container'});
-  
-  // Left side: Input
-  var leftCol = el('div',{class:'wpm-input-area'});
-  leftCol.appendChild(el('div',{class:'wpm-input-label'},[txt('Paste or type text')]));
-  var textarea = el('textarea',{class:'wpm-textarea', id:'wpmInput', placeholder:'Enter text to analyze reading time...'});
-  textarea.addEventListener('input', updateWPMStats);
+  var sentences = trimmed ? trimmed.split(/(?<=[.!?])\s+/).map(function(s){return s.trim();}).filter(Boolean) : [];
+  var longSentences = sentences.filter(function(s){ return s.split(/\s+/).filter(Boolean).length > 25; });
+  var avgWordsPerSentence = sentences.length ? Math.round(words / sentences.length) : 0;
+
+  var paragraphs = trimmed ? trimmed.split(/\n\s*\n+/).map(function(p){return p.trim();}).filter(Boolean) : [];
+  var denseParagraphs = paragraphs.filter(function(p){ return p.split(/\s+/).filter(Boolean).length > 120; });
+
+  var firstPara = paragraphs[0] || '';
+  var hasBoldLead = /\*\*[^*]+\*\*/.test(firstPara.slice(0, 160));
+
+  var listMatches = text.match(/^[ \t]*([-*+]|\d+\.)\s+/gm) || [];
+
+  return {
+    words: words, chars: chars, minutes: minutes, seconds: seconds,
+    sentenceCount: sentences.length, avgWordsPerSentence: avgWordsPerSentence,
+    longSentences: longSentences, paragraphCount: paragraphs.length,
+    denseParagraphs: denseParagraphs, hasBoldLead: hasBoldLead,
+    listItemCount: listMatches.length
+  };
+}
+
+function renderEditor(){
+  var wrap = el('div',{class:'panel'});
+  wrap.appendChild(el('div',{class:'section-title'},[txt('COMPOSE'), el('span',{class:'n'},[txt('markdown \u2192 preview \u00b7 read time \u00b7 smart brevity')])]));
+
+  // Toolbar
+  var toolbar = el('div',{class:'editor-toolbar'});
+  var titleInput = el('input',{type:'text', class:'editor-title-input', value:editorState.title, placeholder:'Draft title'});
+  titleInput.addEventListener('input', function(){ editorState.title = titleInput.value; saveEditorState(); });
+
+  var copyBtn = el('button',{class:'btn small', onclick:function(){
+    var ta = $('#editorInput');
+    navigator.clipboard.writeText(ta ? ta.value : '').then(function(){
+      var old = copyBtn.textContent; copyBtn.textContent = 'Copied!';
+      setTimeout(function(){ copyBtn.textContent = old; }, 1200);
+    }).catch(function(){});
+  }},[txt('Copy Markdown')]);
+
+  var newBtn = el('button',{class:'btn small', onclick:function(){
+    var ta = $('#editorInput');
+    var hasContent = ta && ta.value.trim().length > 0;
+    if(hasContent && !confirm('Start a new draft? Unsaved changes to the current text will be lost unless you Save first.')) return;
+    editorState = {content:'', draftId:null, title:'Untitled draft'};
+    saveEditorState();
+    renderShell();
+  }},[txt('New')]);
+
+  var saveBtn = el('button',{class:'btn small primary', onclick:function(){
+    var ta = $('#editorInput');
+    var content = ta ? ta.value : '';
+    var drafts = loadDrafts();
+    var title = editorState.title && editorState.title.trim() ? editorState.title.trim() : 'Untitled draft';
+    editorState.title = title;
+    if(editorState.draftId){
+      var idx = drafts.findIndex(function(d){ return d.id === editorState.draftId; });
+      if(idx >= 0){
+        drafts[idx].title = title; drafts[idx].content = content; drafts[idx].updatedAt = Date.now();
+      } else {
+        drafts.push({id:editorState.draftId, title:title, content:content, updatedAt:Date.now()});
+      }
+    } else {
+      var id = 'd_' + Date.now();
+      drafts.push({id:id, title:title, content:content, updatedAt:Date.now()});
+      editorState.draftId = id;
+    }
+    saveDrafts(drafts);
+    editorState.content = content;
+    saveEditorState();
+    var old = saveBtn.textContent; saveBtn.textContent = 'Saved!';
+    setTimeout(function(){ saveBtn.textContent = old; }, 1200);
+    renderShell();
+  }},[txt(editorState.draftId ? 'Save' : 'Save as Draft')]);
+
+  toolbar.appendChild(titleInput);
+  toolbar.appendChild(saveBtn);
+  toolbar.appendChild(newBtn);
+  toolbar.appendChild(copyBtn);
+  wrap.appendChild(toolbar);
+
+  var container = el('div',{class:'editor-container'});
+
+  // Left: markdown input
+  var leftCol = el('div',{});
+  leftCol.appendChild(el('div',{class:'editor-col-label'},[txt('Markdown')]));
+  var textarea = el('textarea',{class:'editor-textarea', id:'editorInput', placeholder:'Write your post here in Markdown\u2026'});
+  textarea.value = editorState.content;
+  textarea.addEventListener('input', function(){
+    editorState.content = textarea.value;
+    saveEditorState();
+    updateEditorPanel();
+  });
   leftCol.appendChild(textarea);
-  
   container.appendChild(leftCol);
-  
-  // Right side: Stats
-  var rightCol = el('div',{class:'wpm-stats', id:'wpmStats'});
-  updateWPMStats();
+
+  // Right: stats strip + tabs
+  var rightCol = el('div',{});
+  rightCol.appendChild(el('div',{class:'editor-col-label'},[txt('Read this before you post')]));
+  var stripHolder = el('div',{id:'editorStrip'});
+  rightCol.appendChild(stripHolder);
+
+  var tabGroup = el('div',{class:'seg-group', style:'margin-bottom:12px;'});
+  var previewTabBtn = el('button',{class:'seg-btn'+(activeEditorTab==='preview'?' active':''), onclick:function(){ activeEditorTab='preview'; updateEditorPanel(); refreshTabButtons(); }},[txt('Preview')]);
+  var checksTabBtn = el('button',{class:'seg-btn'+(activeEditorTab==='checks'?' active':''), onclick:function(){ activeEditorTab='checks'; updateEditorPanel(); refreshTabButtons(); }},[txt('Smart Brevity')]);
+  function refreshTabButtons(){
+    previewTabBtn.className = 'seg-btn'+(activeEditorTab==='preview'?' active':'');
+    checksTabBtn.className = 'seg-btn'+(activeEditorTab==='checks'?' active':'');
+  }
+  tabGroup.appendChild(previewTabBtn);
+  tabGroup.appendChild(checksTabBtn);
+  rightCol.appendChild(tabGroup);
+
+  var tabContent = el('div',{id:'editorTabContent'});
+  rightCol.appendChild(tabContent);
+
   container.appendChild(rightCol);
-  
   wrap.appendChild(container);
+
+  setTimeout(updateEditorPanel, 0);
   return wrap;
 }
 
-function updateWPMStats(){
-  var textarea = $('#wpmInput');
-  var statsContainer = $('#wpmStats');
-  if(!statsContainer) return;
-  
+function updateEditorPanel(){
+  var textarea = $('#editorInput');
+  var strip = $('#editorStrip');
+  var tabContent = $('#editorTabContent');
+  if(!strip || !tabContent) return;
+
   var text = textarea ? textarea.value : '';
-  var words = text.trim() ? text.trim().split(/\s+/).length : 0;
-  var wpm = 260;
-  var minutes = Math.ceil(words / wpm);
-  var seconds = Math.round((words / wpm) * 60);
-  
-  statsContainer.innerHTML = '';
-  
-  if(words === 0){
-    statsContainer.appendChild(el('div',{class:'wpm-empty'},[txt('No text entered. Paste content to see reading metrics.')]));
+  var b = computeBrevity(text);
+
+  // Stats strip
+  strip.innerHTML = '';
+  var stripGrid = el('div',{class:'stat-strip'});
+  stripGrid.appendChild(el('div',{class:'stat-box compact'},[
+    el('div',{class:'stat-label'},[txt('Words')]),
+    el('p',{class:'stat-value small'},[txt(String(b.words))])
+  ]));
+  stripGrid.appendChild(el('div',{class:'stat-box compact'},[
+    el('div',{class:'stat-label'},[txt('Read Time')]),
+    el('p',{class:'stat-value small'},[txt(b.minutes + 'm')]),
+    el('div',{class:'stat-unit'},[txt(b.seconds + 's \u00b7 ' + settings.wpmBaseline + ' wpm')])
+  ]));
+  stripGrid.appendChild(el('div',{class:'stat-box compact'},[
+    el('div',{class:'stat-label'},[txt('Sentences')]),
+    el('p',{class:'stat-value small'},[txt(String(b.sentenceCount))]),
+    el('div',{class:'stat-unit'},[txt('~' + b.avgWordsPerSentence + ' words avg')])
+  ]));
+  stripGrid.appendChild(el('div',{class:'stat-box compact'},[
+    el('div',{class:'stat-label'},[txt('Paragraphs')]),
+    el('p',{class:'stat-value small'},[txt(String(b.paragraphCount))])
+  ]));
+  strip.appendChild(stripGrid);
+
+  // Tab content
+  tabContent.innerHTML = '';
+  if(!text.trim()){
+    tabContent.appendChild(el('div',{class:'empty-state'},[txt('Nothing to show yet. Start typing on the left.')]));
     return;
   }
-  
-  // Word count
-  var wordBox = el('div',{class:'wpm-stat-box'});
-  wordBox.appendChild(el('div',{class:'wpm-stat-label'},[txt('Word Count')]));
-  wordBox.appendChild(el('p',{class:'wpm-stat-value'},[txt(String(words))]));
-  wordBox.appendChild(el('div',{class:'wpm-stat-unit'},[txt('words')]));
-  statsContainer.appendChild(wordBox);
-  
-  // Reading time
-  var timeBox = el('div',{class:'wpm-stat-box'});
-  timeBox.appendChild(el('div',{class:'wpm-stat-label'},[txt('Reading Time')]));
-  timeBox.appendChild(el('p',{class:'wpm-stat-value'},[txt(minutes + 'm')]));
-  timeBox.appendChild(el('div',{class:'wpm-stat-unit'},[txt('at ' + wpm + ' WPM')]));
-  
-  var breakdown = el('div',{class:'wpm-time-breakdown'});
-  breakdown.appendChild(el('div',{class:'wpm-time-row'},[
-    el('span',{class:'wpm-time-label'},[txt('Minutes:')]),
-    el('span',{class:'wpm-time-value'},[txt(minutes)])
-  ]));
-  breakdown.appendChild(el('div',{class:'wpm-time-row'},[
-    el('span',{class:'wpm-time-label'},[txt('Seconds:')]),
-    el('span',{class:'wpm-time-value'},[txt(seconds)])
-  ]));
-  breakdown.appendChild(el('div',{class:'wpm-time-row'},[
-    el('span',{class:'wpm-time-label'},[txt('Words:')]),
-    el('span',{class:'wpm-time-value'},[txt(words)])
-  ]));
-  
-  timeBox.appendChild(breakdown);
-  statsContainer.appendChild(timeBox);
+
+  if(activeEditorTab === 'preview'){
+    var previewDiv = el('div',{class:'editor-preview'});
+    previewDiv.innerHTML = marked.parse(text);
+    tabContent.appendChild(previewDiv);
+  } else {
+    var checksBox = el('div',{class:'stat-box'});
+
+    // Lead with the point
+    var leadRow = el('div',{class:'check-row'});
+    leadRow.appendChild(el('div',{class:'check-icon '+(b.hasBoldLead?'pass':'warn')},[txt(b.hasBoldLead?'\u2713':'!')]));
+    var leadBody = el('div',{class:'check-body'});
+    leadBody.appendChild(el('div',{class:'check-title'},[txt('Lead with the point')]));
+    leadBody.appendChild(el('div',{class:'check-detail'},[txt(b.hasBoldLead
+      ? 'Your opening bolds the key takeaway \u2014 readers get the point immediately.'
+      : 'No bold text near the top. Smart Brevity leads with **the one-sentence takeaway** before the detail.')]));
+    leadRow.appendChild(leadBody);
+    checksBox.appendChild(leadRow);
+
+    // Sentence length
+    var sentRow = el('div',{class:'check-row'});
+    var sentOk = b.longSentences.length === 0;
+    sentRow.appendChild(el('div',{class:'check-icon '+(sentOk?'pass':'warn')},[txt(sentOk?'\u2713':'!')]));
+    var sentBody = el('div',{class:'check-body'});
+    sentBody.appendChild(el('div',{class:'check-title'},[txt('Sentence length')]));
+    var sentDetailText = sentOk
+      ? 'All sentences are under ~25 words. Easy to scan.'
+      : b.longSentences.length + ' sentence(s) over 25 words \u2014 consider splitting them up.';
+    sentBody.appendChild(el('div',{class:'check-detail'},[txt(sentDetailText)]));
+    if(!sentOk){
+      b.longSentences.slice(0,3).forEach(function(s){
+        var preview = s.length > 90 ? s.slice(0,90) + '\u2026' : s;
+        sentBody.appendChild(el('div',{class:'check-detail'},[el('span',{class:'flagged'},[txt('\u201c' + preview + '\u201d')])]));
+      });
+    }
+    sentRow.appendChild(sentBody);
+    checksBox.appendChild(sentRow);
+
+    // Paragraph density
+    var paraRow = el('div',{class:'check-row'});
+    var paraOk = b.denseParagraphs.length === 0;
+    paraRow.appendChild(el('div',{class:'check-icon '+(paraOk?'pass':'warn')},[txt(paraOk?'\u2713':'!')]));
+    var paraBody = el('div',{class:'check-body'});
+    paraBody.appendChild(el('div',{class:'check-title'},[txt('Paragraph density')]));
+    paraBody.appendChild(el('div',{class:'check-detail'},[txt(paraOk
+      ? 'No wall-of-text paragraphs. Nice and skimmable.'
+      : b.denseParagraphs.length + ' paragraph(s) over 120 words \u2014 break them up or add a list.')]));
+    paraRow.appendChild(paraBody);
+    checksBox.appendChild(paraRow);
+
+    // Lists (informational)
+    var listRow = el('div',{class:'check-row'});
+    listRow.appendChild(el('div',{class:'check-icon pass'},[txt('\u2713')]));
+    var listBody = el('div',{class:'check-body'});
+    listBody.appendChild(el('div',{class:'check-title'},[txt('List usage')]));
+    listBody.appendChild(el('div',{class:'check-detail'},[txt(b.listItemCount > 0
+      ? b.listItemCount + ' list item(s) detected. Bullets read faster than prose \u2014 good.'
+      : 'No bullet or numbered lists. Not required, but Smart Brevity favors them for scannability.')]));
+    listRow.appendChild(listBody);
+    checksBox.appendChild(listRow);
+
+    tabContent.appendChild(checksBox);
+  }
 }
 
-function renderDraft(){
+/* ---------- Drafts ---------- */
+function renderDrafts(){
   var wrap = el('div',{class:'panel'});
-  wrap.appendChild(el('div',{class:'section-title'},[txt('DRAFTS'), el('span',{class:'n'},[txt('coming soon')])]));
-  wrap.appendChild(el('div',{style:'font-family:var(--mono); color:var(--text-dim); padding:40px;'},[
-    txt('Draft storage and management will be available soon.')
-  ]));
+  var titleRow = el('div',{class:'section-title'},[txt('DRAFTS'), el('span',{class:'n'},[txt('saved locally in this browser')])]);
+  wrap.appendChild(titleRow);
+
+  var newBtn = el('button',{class:'btn small primary', style:'margin-bottom:14px;', onclick:function(){
+    var hasContent = editorState.content && editorState.content.trim().length > 0;
+    if(hasContent && !confirm('Start a new draft? Unsaved changes to the current text will be lost unless you Save first.')) return;
+    editorState = {content:'', draftId:null, title:'Untitled draft'};
+    saveEditorState();
+    currentWidget = 'editor';
+    renderShell();
+  }},[txt('+ New Draft')]);
+  wrap.appendChild(newBtn);
+
+  var drafts = loadDrafts().slice().sort(function(a,b){ return b.updatedAt - a.updatedAt; });
+
+  if(drafts.length === 0){
+    wrap.appendChild(el('div',{class:'empty-state'},[txt('No saved drafts yet. Write something in Compose and hit Save.')]));
+    return wrap;
+  }
+
+  drafts.forEach(function(draft){
+    var card = el('div',{class:'draft-card'});
+    var row1 = el('div',{class:'draft-card-row'});
+    var titleInput = el('input',{type:'text', class:'draft-title-input', value:draft.title});
+    titleInput.addEventListener('change', function(){
+      var all = loadDrafts();
+      var idx = all.findIndex(function(d){ return d.id === draft.id; });
+      if(idx >= 0){
+        all[idx].title = titleInput.value.trim() || 'Untitled draft';
+        saveDrafts(all);
+        if(editorState.draftId === draft.id){ editorState.title = all[idx].title; saveEditorState(); }
+      }
+    });
+    row1.appendChild(titleInput);
+
+    var loadBtn = el('button',{class:'btn small', onclick:function(){
+      editorState = {content:draft.content, draftId:draft.id, title:draft.title};
+      saveEditorState();
+      currentWidget = 'editor';
+      renderShell();
+    }},[txt('Load')]);
+    var delBtn = el('button',{class:'btn small danger', onclick:function(){
+      if(!confirm('Delete "' + draft.title + '"? This cannot be undone.')) return;
+      var all = loadDrafts().filter(function(d){ return d.id !== draft.id; });
+      saveDrafts(all);
+      if(editorState.draftId === draft.id){ editorState.draftId = null; saveEditorState(); }
+      renderShell();
+    }},[txt('Delete')]);
+    row1.appendChild(loadBtn);
+    row1.appendChild(delBtn);
+    card.appendChild(row1);
+
+    var words = draft.content.trim() ? draft.content.trim().split(/\s+/).length : 0;
+    var updated = new Date(draft.updatedAt).toLocaleString();
+    card.appendChild(el('div',{class:'draft-meta'},[txt(words + ' words \u00b7 updated ' + updated)]));
+
+    var snippetText = draft.content.trim().slice(0, 160);
+    card.appendChild(el('div',{class:'draft-snippet'},[txt(snippetText || '(empty)')]));
+
+    wrap.appendChild(card);
+  });
+
   return wrap;
 }
 
@@ -426,6 +759,7 @@ function renderAdvanced(){
 }
 
 function init(){
+  loadSettings();
   renderShell();
 }
 
