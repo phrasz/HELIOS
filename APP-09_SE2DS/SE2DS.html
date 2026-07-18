@@ -828,17 +828,14 @@ function renderDrawer(){
   var sec4 = el('div',{class:'drawer-section'});
   sec4.appendChild(el('div',{class:'drawer-section-title'},[txt('Data')]));
   sec4.appendChild(el('div',{class:'drawer-row'},[
-    el('button',{class:'btn', onclick:function(){ drawerOpen=false; renderDrawer(); onLoadSample(); }},[txt('Load Sample')]),
-    el('button',{class:'btn danger', onclick:function(){ drawerOpen=false; renderDrawer(); onReset(); }},[txt('Reset (clear all)')])
-  ]));
-  sec4.appendChild(el('div',{class:'drawer-row'},[
     el('button',{class:'btn small', onclick:function(){
       if(!hasStorage()){ showBanner('No persistent storage detected in this viewer \u2014 export JSON to keep your work.', 'warn'); return; }
       doPersist();
       showBanner('Save requested \u2014 check the status bar for confirmation.', 'info');
     }},[txt('Save now')])
   ]));
-  sec4.appendChild(el('div',{class:'drawer-desc'},[txt('Load relative file: for hosting on GitHub Pages or similar platforms where data files are in the same directory:')]));
+  sec4.appendChild(el('br')); //LINE BREAK/DOUBLE SPACING
+  sec4.appendChild(el('div',{class:'drawer-desc'},[txt('Load HELIOS-datastore (OR replace with url):')]));
   var relPathRow = el('div',{class:'drawer-row', style:'gap:6px;'});
   var relPathInp = el('input',{class:'val-input', placeholder:'SE2_Data-Dictionary.json', value:'SE2_Data-Dictionary.json', style:'flex:1;'});
   relPathRow.appendChild(relPathInp);
@@ -847,7 +844,18 @@ function renderDrawer(){
     loadFromRelativePath(fname);
   }},[txt('Load')]));
   sec4.appendChild(relPathRow);
+  sec4.appendChild(el('div',{class:'drawer-desc'},[txt('\u2014 OR \u2014')]));
+
+  sec4.appendChild(el('div',{class:'drawer-row'},[
+    el('button',{class:'btn', onclick:function(){ drawerOpen=false; renderDrawer(); onLoadSample(); }},[txt('Load Sample')]),
+    // el('button',{class:'btn danger', onclick:function(){ drawerOpen=false; renderDrawer(); onReset(); }},[txt('Reset (clear all)')])
+  ]));
+  sec4.appendChild(el('br')); //LINE BREAK/DOUBLE SPACING
   sec4.appendChild(el('div',{class:'drawer-desc'},[txt('Reset permanently wipes all data and tagging \u2014 including the autosaved copy. Load Sample merges the bundled SE2 dictionary into your current workspace. '+(hasStorage() ? 'Your edits autosave continuously, so refreshing this page keeps your work.' : 'Persistent storage isn\u2019t available in this viewer, so edits only last for this session \u2014 export JSON before closing or refreshing.'))]));
+  sec4.appendChild(el('div',{class:'drawer-row'},[
+    // el('button',{class:'btn', onclick:function(){ drawerOpen=false; renderDrawer(); onLoadSample(); }},[txt('Load Sample')]),
+    el('button',{class:'btn danger', onclick:function(){ drawerOpen=false; renderDrawer(); onReset(); }},[txt('Reset (clear all)')])
+  ]));
   drawer.appendChild(sec4);
 
   root.appendChild(backdrop);
