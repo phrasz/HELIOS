@@ -782,6 +782,15 @@ function renderChatCheck(){
   ceilingControl.appendChild(ceilingPlus);
   toolbar.appendChild(ceilingControl);
 
+  var importBtn = el('button',{class:'btn small primary', onclick:function(){
+    var composeTa = $('#editorInput');
+    var chatTa = $('#chatCheckInput');
+    if(composeTa && composeTa.value.trim()){
+      chatTa.value = composeTa.value;
+      saveChatCheckContent(chatTa.value);
+      updateChatCheckPanel();
+    }
+  }},[txt('Import from Compose')]);
   var copyBtn = el('button',{class:'btn small', onclick:function(){
     var ta = $('#chatCheckInput');
     navigator.clipboard.writeText(ta ? ta.value : '').then(function(){
@@ -796,6 +805,7 @@ function renderChatCheck(){
     saveChatCheckContent('');
     updateChatCheckPanel();
   }},[txt('Clear')]);
+  toolbar.appendChild(importBtn);
   toolbar.appendChild(copyBtn);
   toolbar.appendChild(clearBtn);
   wrap.appendChild(toolbar);
