@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat Metrics - Widget Hub</title>
+<style>
+:root{
+  --bg:#0B0E0F;
+  --bg-grid:#10151670;
+  --panel:#151A1C;
+  --panel2:#1B2225;
+  --panel3:#20292C;
+  --line:rgba(140,170,160,0.14);
+  --line-strong:rgba(140,170,160,0.28);
+  --amber:#FFB020;
+  --amber-dim:#8a611c;
+  --cyan:#49D3D9;
+  --cyan-dim:#1c4a4c;
+  --lime:#8BD450;
+  --red:#E85C4A;
+  --text:#E7ECE9;
+  --text-dim:#8A9490;
+  --mono: ui-monospace, "Cascadia Code", "SF Mono", "JetBrains Mono", Consolas, monospace;
+  --sans: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --gui-font-size: 14px;
+}
+html[data-theme="light"]{
+  --bg:#EDEFEA;
+  --bg-grid:#c9d0c840;
+  --panel:#FFFFFF;
+  --panel2:#F3F5F0;
+  --panel3:#E8ECE4;
+  --line:rgba(40,55,45,0.14);
+  --line-strong:rgba(40,55,45,0.30);
+  --amber:#B36B00;
+  --amber-dim:#e2b46c;
+  --cyan:#0E7C82;
+  --cyan-dim:#bfe2e2;
+  --lime:#3E7A25;
+  --red:#B3402C;
+  --text:#171B19;
+  --text-dim:#5B655F;
+}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:var(--sans); font-size:var(--gui-font-size);
+  background-image:
+    repeating-linear-gradient(0deg, var(--bg-grid) 0px, transparent 1px, transparent 28px, var(--bg-grid) 29px),
+    repeating-linear-gradient(90deg, var(--bg-grid) 0px, transparent 1px, transparent 28px, var(--bg-grid) 29px);
+  transition:background-color .15s, color .15s;
+}
+.app{display:grid; grid-template-columns:220px 1fr; grid-template-rows:56px 1fr 30px; height:100vh; grid-template-areas:"topbar topbar" "nav main" "nav status";}
+.topbar{grid-area:topbar; display:flex; align-items:center; justify-content:space-between; padding:0 18px; border-bottom:1px solid var(--line-strong); background:linear-gradient(180deg,var(--panel2),var(--panel));}
+.brand{display:flex; align-items:center; gap:10px;}
+.brand-mark{width:26px;height:26px; position:relative; border:2px solid var(--cyan); transform:rotate(45deg); flex:none;}
+.brand-mark::after{content:""; position:absolute; inset:4px; border:1px solid var(--cyan); opacity:.6;}
+.brand-text{font-family:var(--mono); letter-spacing:2px; text-transform:uppercase; font-size:calc(var(--gui-font-size) * 13/14); color:var(--text);}
+.brand-text b{color:var(--cyan);}
+.brand-sub{font-family:var(--mono); font-size:calc(var(--gui-font-size) * 10/14); color:var(--text-dim); letter-spacing:1px; margin-top:1px;}
+.topbar-actions{display:flex; gap:8px; align-items:center;}
+.btn{
+  font-family:var(--mono); font-size:calc(var(--gui-font-size) * 11/14); letter-spacing:.5px; text-transform:uppercase;
+  background:var(--panel3); color:var(--text); border:1px solid var(--line-strong);
+  padding:7px 12px; cursor:pointer; clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px);
+  transition:border-color .15s, color .15s;
+}
+.btn:hover{border-color:var(--cyan); color:var(--cyan);}
+.btn.primary{border-color:var(--cyan); color:var(--cyan);}
+.btn.danger:hover{border-color:var(--red); color:var(--red);}
+.btn.small{padding:3px 8px; font-size:calc(var(--gui-font-size) * 10/14);}
+.btn:disabled{opacity:.35; cursor:not-allowed;}
+input[type=file]{display:none;}
+
+.nav{grid-area:nav; background:var(--panel); border-right:1px solid var(--line-strong); padding:14px 10px; display:flex; flex-direction:column; gap:6px;}
+.nav-item{
+  display:flex; align-items:center; gap:10px; padding:10px 10px; cursor:pointer;
+  border:1px solid transparent; color:var(--text-dim); font-family:var(--mono); font-size:calc(var(--gui-font-size) * 12/14); letter-spacing:.5px; text-transform:uppercase;
+  position:relative;
+}
+.nav-item .idx{font-size:calc(var(--gui-font-size) * 10/14); color:var(--text-dim); width:18px; flex:none;}
+.nav-item:hover{color:var(--text); background:var(--panel2);}
+.nav-item.active{color:var(--cyan); border-color:var(--line-strong); background:var(--panel2); border-left:3px solid var(--cyan); padding-left:7px;}
+.nav-item.active .idx{color:var(--cyan);}
+.nav-sep{height:1px; background:var(--line); margin:8px 4px;}
+.nav-hint{font-family:var(--mono); font-size:calc(var(--gui-font-size) * 10/14); color:var(--text-dim); padding:8px 10px; line-height:1.5; opacity:.8;}
+
+.main{grid-area:main; overflow:auto; padding:20px 24px;}
+.status{grid-area:status; border-top:1px solid var(--line); background:var(--panel); display:flex; align-items:center; padding:0 16px; gap:18px; font-family:var(--mono); font-size:calc(var(--gui-font-size) * 10/14); color:var(--text-dim); letter-spacing:.5px;}
+.status b{color:var(--cyan);}
+
+.panel{
+  border:1px solid var(--line-strong); background:var(--panel); position:relative; padding:16px; margin-bottom:16px;
+}
+.panel::before, .panel::after{content:""; position:absolute; width:10px; height:10px; border-top:2px solid var(--cyan); border-left:2px solid var(--cyan); top:-1px; left:-1px;}
+.panel::after{left:auto; right:-1px; top:auto; bottom:-1px; border-top:none; border-left:none; border-bottom:2px solid var(--cyan); border-right:2px solid var(--cyan);}
+
+.section-title{font-family:var(--mono); text-transform:uppercase; letter-spacing:2px; font-size:calc(var(--gui-font-size) * 12/14); color:var(--cyan); margin:0 0 12px 0; display:flex; align-items:center; gap:8px;}
+.section-title .n{color:var(--text-dim); font-weight:normal;}
+
+.gear-btn{
+  width:34px; height:34px; display:flex; align-items:center; justify-content:center;
+  background:var(--panel3); border:1px solid var(--line-strong); color:var(--text-dim); cursor:pointer;
+  clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px);
+  transition:color .15s, border-color .15s, transform .2s;
+}
+.gear-btn:hover{color:var(--cyan); border-color:var(--cyan);}
+.gear-btn:hover svg{transform:rotate(35deg);}
+
+.drawer-backdrop{position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:90; opacity:0; pointer-events:none; transition:opacity .2s;}
+.drawer-backdrop.open{opacity:1; pointer-events:auto;}
+.drawer{
+  position:fixed; top:0; right:0; height:100vh; width:340px; max-width:88vw;
+  background:var(--panel); border-left:1px solid var(--line-strong); z-index:91;
+  transform:translateX(100%); transition:transform .22s ease; overflow-y:auto; padding:18px;
+  box-shadow:-8px 0 30px rgba(0,0,0,0.3);
+}
+.drawer.open{transform:translateX(0);}
+.drawer-header{display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid var(--line-strong);}
+.drawer-title{font-family:var(--mono); text-transform:uppercase; letter-spacing:2px; font-size:calc(var(--gui-font-size) * 13/14); color:var(--cyan);}
+.drawer-section{margin-bottom:22px;}
+.drawer-section-title{font-family:var(--mono); text-transform:uppercase; letter-spacing:1.5px; font-size:calc(var(--gui-font-size) * 11/14); color:var(--text-dim); margin-bottom:10px;}
+.drawer-row{display:flex; gap:8px; align-items:center; margin-bottom:8px; flex-wrap:wrap;}
+.drawer-desc{font-family:var(--mono); font-size:calc(var(--gui-font-size) * 10.5/14); color:var(--text-dim); line-height:1.5; margin-top:4px;}
+.seg-group{display:flex; border:1px solid var(--line-strong);}
+.seg-btn{
+  font-family:var(--mono); font-size:calc(var(--gui-font-size) * 11/14); text-transform:uppercase; padding:7px 12px; cursor:pointer;
+  background:var(--panel3); color:var(--text-dim); border:none; border-right:1px solid var(--line-strong);
+}
+.seg-btn:last-child{border-right:none;}
+.seg-btn.active{background:var(--cyan); color:#0B0E0F;}
+
+.font-size-control{display:flex; align-items:center; gap:12px;}
+.font-size-slider{flex:1; min-width:150px; cursor:pointer;}
+.font-size-input{width:50px; background:var(--panel3); border:1px solid var(--line-strong); color:var(--text); font-family:var(--mono); padding:6px 8px; font-size:calc(var(--gui-font-size) * 12/14);}
+.font-size-input:focus{outline:none; border-color:var(--cyan);}
+
+/* WPM CALCULATOR */
+.wpm-container{display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start;}
+.wpm-input-area{display:flex; flex-direction:column; gap:12px;}
+.wpm-input-label{font-family:var(--mono); font-size:calc(var(--gui-font-size) * 11/14); text-transform:uppercase; color:var(--text-dim); letter-spacing:1px;}
+.wpm-textarea{
+  background:var(--panel3); border:1px solid var(--line-strong); color:var(--text); font-family:var(--mono);
+  padding:12px; font-size:calc(var(--gui-font-size) * 11/14); resize:vertical; min-height:300px;
+  outline:none; transition:border-color .15s;
+}
+.wpm-textarea:focus{border-color:var(--cyan);}
+.wpm-stats{display:flex; flex-direction:column; gap:16px;}
+.wpm-stat-box{background:var(--panel2); border:1px solid var(--line-strong); padding:14px; position:relative;}
+.wpm-stat-box::before{content:""; position:absolute; width:8px; height:8px; border-top:2px solid var(--cyan); border-left:2px solid var(--cyan); top:-1px; left:-1px;}
+.wpm-stat-box::after{content:""; position:absolute; width:8px; height:8px; border-bottom:2px solid var(--cyan); border-right:2px solid var(--cyan); bottom:-1px; right:-1px;}
+.wpm-stat-label{font-family:var(--mono); font-size:calc(var(--gui-font-size) * 10/14); text-transform:uppercase; color:var(--text-dim); letter-spacing:1px; margin-bottom:8px;}
+.wpm-stat-value{font-family:var(--mono); font-size:calc(var(--gui-font-size) * 28/14); color:var(--cyan); font-weight:bold; margin:0;}
+.wpm-stat-unit{font-family:var(--mono); font-size:calc(var(--gui-font-size) * 10/14); color:var(--text-dim); margin-top:4px;}
+.wpm-time-breakdown{background:var(--panel3); border-left:3px solid var(--cyan); padding:10px 12px; margin-top:12px;}
+.wpm-time-row{display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; font-family:var(--mono); font-size:calc(var(--gui-font-size) * 11/14);}
+.wpm-time-row:last-child{margin-bottom:0;}
+.wpm-time-label{color:var(--text-dim);}
+.wpm-time-value{color:var(--lime); font-weight:bold;}
+.wpm-empty{font-family:var(--mono); font-size:calc(var(--gui-font-size) * 12/14); color:var(--text-dim); text-align:center; padding:40px 20px;}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+
+<script>
+var settings = { theme:'dark', guiFontSize:14 };
+var currentWidget = 'wpm';
+var drawerOpen = false;
+
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme', settings.theme);
+}
+function applyFontSize(){
+  document.documentElement.style.setProperty('--gui-font-size', settings.guiFontSize + 'px');
+}
+function $(sel, root){ return (root||document).querySelector(sel); }
+function el(tag, attrs, children){
+  var e = document.createElement(tag);
+  attrs = attrs || {};
+  Object.keys(attrs).forEach(function(k){
+    if(k === 'class') e.className = attrs[k];
+    else if(k === 'html') e.innerHTML = attrs[k];
+    else if(k === 'style') e.setAttribute('style', attrs[k]);
+    else if(k.indexOf('on') === 0) e.addEventListener(k.slice(2), attrs[k]);
+    else e.setAttribute(k, attrs[k]);
+  });
+  (children||[]).forEach(function(c){ if(c) e.appendChild(c); });
+  return e;
+}
+function txt(s){ return document.createTextNode(s == null ? '' : s); }
+
+function renderShell(){
+  applyTheme();
+  applyFontSize();
+  var app = $('#app');
+  app.innerHTML = '';
+  app.appendChild(buildTopbar());
+  app.appendChild(buildNav());
+  var main = el('div',{class:'main', id:'main'});
+  app.appendChild(main);
+  app.appendChild(buildStatus());
+  renderDrawer();
+  renderWidget();
+}
+
+function buildTopbar(){
+  var top = el('div',{class:'topbar'});
+  var brand = el('div',{class:'brand'});
+  var brandText = el('div',{},[
+    el('div',{class:'brand-text'},[txt('CHAT '), (function(){var b=document.createElement('b');b.textContent='METRICS';return b;})()]),
+    el('div',{class:'brand-sub'},[txt('WIDGET HUB \u00b7 Improve your Chats!')])
+  ]);
+  brand.appendChild(el('div',{class:'brand-mark'}));
+  brand.appendChild(brandText);
+  top.appendChild(brand);
+
+  var actions = el('div',{class:'topbar-actions'});
+  var gearBtn = el('button',{class:'gear-btn', title:'Settings', onclick:function(){ drawerOpen = true; renderDrawer(); }});
+  gearBtn.innerHTML = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>';
+  actions.appendChild(gearBtn);
+  top.appendChild(actions);
+  return top;
+}
+
+var WIDGETS = [
+  {id:'wpm', idx:'01', label:'WPM Counter'},
+  {id:'draft', idx:'02', label:'Drafts'},
+  {id:'library', idx:'03', label:'Library'},
+  {id:'settings-ext', idx:'04', label:'Advanced'}
+];
+
+function buildNav(){
+  var nav = el('div',{class:'nav'});
+  WIDGETS.forEach(function(item){
+    var active = currentWidget === item.id;
+    nav.appendChild(el('div',{class:'nav-item'+(active?' active':''), onclick:function(){ currentWidget = item.id; renderShell(); }},[
+      el('span',{class:'idx'},[txt(item.idx)]),
+      el('span',{},[txt(item.label)])
+    ]));
+  });
+  nav.appendChild(el('div',{class:'nav-sep'}));
+  nav.appendChild(el('div',{class:'nav-hint'},[txt('Click any widget to load. Type or paste content to analyze reading metrics.')]));
+  return nav;
+}
+
+function buildStatus(){
+  var s = el('div',{class:'status'});
+  s.appendChild(el('span',{},[txt('XTRSmith v1.0 \u00b7 '), el('b',{},[txt('260 WPM')])]));
+  s.appendChild(el('span',{},[txt('\u2014 Standard Reading Speed Baseline')]));
+  return s;
+}
+
+function renderDrawer(){
+  var old = $('#drawerRoot');
+  if(old) old.remove();
+  if(!drawerOpen) return;
+
+  var root = el('div',{id:'drawerRoot'});
+  var backdrop = el('div',{class:'drawer-backdrop open', onclick:function(){ drawerOpen = false; renderDrawer(); }});
+  var drawer = el('div',{class:'drawer open'});
+
+  var header = el('div',{class:'drawer-header'});
+  header.appendChild(el('span',{class:'drawer-title'},[txt('Settings')]));
+  header.appendChild(el('button',{class:'btn small', onclick:function(){ drawerOpen = false; renderDrawer(); }},[txt('Close')]));
+  drawer.appendChild(header);
+
+  // Appearance
+  var sec1 = el('div',{class:'drawer-section'});
+  sec1.appendChild(el('div',{class:'drawer-section-title'},[txt('Appearance')]));
+  var themeGroup = el('div',{class:'seg-group'});
+  themeGroup.appendChild(el('button',{class:'seg-btn'+(settings.theme==='dark'?' active':''), onclick:function(){ settings.theme='dark'; applyTheme(); renderDrawer(); }},[txt('Dark')]));
+  themeGroup.appendChild(el('button',{class:'seg-btn'+(settings.theme==='light'?' active':''), onclick:function(){ settings.theme='light'; applyTheme(); renderDrawer(); }},[txt('Light')]));
+  sec1.appendChild(el('div',{class:'drawer-row'},[themeGroup]));
+
+  // Font Size
+  var fontControl = el('div',{class:'font-size-control'});
+  var fontSlider = el('input',{type:'range', class:'font-size-slider', min:'10', max:'20', value:String(settings.guiFontSize)});
+  var fontInput = el('input',{type:'number', class:'font-size-input', value:String(settings.guiFontSize)});
+  var fontBtnMinus = el('button',{class:'btn small', onclick:function(){ settings.guiFontSize--; fontSlider.value = String(Math.min(20, Math.max(10, settings.guiFontSize))); fontInput.value = String(settings.guiFontSize); applyFontSize(); renderDrawer(); }});
+  fontBtnMinus.innerHTML = '−';
+  var fontBtnPlus = el('button',{class:'btn small', onclick:function(){ settings.guiFontSize++; fontSlider.value = String(Math.min(20, Math.max(10, settings.guiFontSize))); fontInput.value = String(settings.guiFontSize); applyFontSize(); renderDrawer(); }});
+  fontBtnPlus.innerHTML = '+';
+  fontSlider.addEventListener('input', function(){
+    settings.guiFontSize = parseInt(fontSlider.value, 10);
+    fontInput.value = String(settings.guiFontSize);
+    applyFontSize();
+  });
+  fontInput.addEventListener('change', function(){
+    var v = parseInt(fontInput.value, 10);
+    if(isNaN(v) || v < 1) v = 1;
+    settings.guiFontSize = v;
+    fontSlider.value = String(Math.min(20, Math.max(10, v)));
+    fontInput.value = String(settings.guiFontSize);
+    applyFontSize();
+  });
+  fontControl.appendChild(fontBtnMinus);
+  fontControl.appendChild(fontSlider);
+  fontControl.appendChild(fontBtnPlus);
+  fontControl.appendChild(fontInput);
+  sec1.appendChild(el('div',{class:'drawer-row'},[fontControl]));
+  sec1.appendChild(el('div',{class:'drawer-desc'},[txt('Font size: +/− for unlimited, slider 10-20px')]));
+  drawer.appendChild(sec1);
+
+  // Info
+  var sec2 = el('div',{class:'drawer-section'});
+  sec2.appendChild(el('div',{class:'drawer-section-title'},[txt('About')]));
+  sec2.appendChild(el('div',{class:'drawer-desc'},[txt('Chat Metrics helps you understand reading time and comprehension load. Paste any text to analyze word count and estimated reading duration at 260 WPM baseline.')]));
+  drawer.appendChild(sec2);
+
+  root.appendChild(backdrop);
+  root.appendChild(drawer);
+  document.body.appendChild(root);
+}
+
+function renderWidget(){
+  var main = $('#main');
+  main.innerHTML = '';
+  
+  if(currentWidget === 'wpm'){ main.appendChild(renderWPM()); }
+  else if(currentWidget === 'draft'){ main.appendChild(renderDraft()); }
+  else if(currentWidget === 'library'){ main.appendChild(renderLibrary()); }
+  else if(currentWidget === 'settings-ext'){ main.appendChild(renderAdvanced()); }
+}
+
+function renderWPM(){
+  var wrap = el('div',{class:'panel'});
+  wrap.appendChild(el('div',{class:'section-title'},[txt('WPM COUNTER'), el('span',{class:'n'},[txt('reading time estimator')])]));
+
+  var container = el('div',{class:'wpm-container'});
+  
+  // Left side: Input
+  var leftCol = el('div',{class:'wpm-input-area'});
+  leftCol.appendChild(el('div',{class:'wpm-input-label'},[txt('Paste or type text')]));
+  var textarea = el('textarea',{class:'wpm-textarea', id:'wpmInput', placeholder:'Enter text to analyze reading time...'});
+  textarea.addEventListener('input', updateWPMStats);
+  leftCol.appendChild(textarea);
+  
+  container.appendChild(leftCol);
+  
+  // Right side: Stats
+  var rightCol = el('div',{class:'wpm-stats', id:'wpmStats'});
+  updateWPMStats();
+  container.appendChild(rightCol);
+  
+  wrap.appendChild(container);
+  return wrap;
+}
+
+function updateWPMStats(){
+  var textarea = $('#wpmInput');
+  var statsContainer = $('#wpmStats');
+  if(!statsContainer) return;
+  
+  var text = textarea ? textarea.value : '';
+  var words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  var wpm = 260;
+  var minutes = Math.ceil(words / wpm);
+  var seconds = Math.round((words / wpm) * 60);
+  
+  statsContainer.innerHTML = '';
+  
+  if(words === 0){
+    statsContainer.appendChild(el('div',{class:'wpm-empty'},[txt('No text entered. Paste content to see reading metrics.')]));
+    return;
+  }
+  
+  // Word count
+  var wordBox = el('div',{class:'wpm-stat-box'});
+  wordBox.appendChild(el('div',{class:'wpm-stat-label'},[txt('Word Count')]));
+  wordBox.appendChild(el('p',{class:'wpm-stat-value'},[txt(String(words))]));
+  wordBox.appendChild(el('div',{class:'wpm-stat-unit'},[txt('words')]));
+  statsContainer.appendChild(wordBox);
+  
+  // Reading time
+  var timeBox = el('div',{class:'wpm-stat-box'});
+  timeBox.appendChild(el('div',{class:'wpm-stat-label'},[txt('Reading Time')]));
+  timeBox.appendChild(el('p',{class:'wpm-stat-value'},[txt(minutes + 'm')]));
+  timeBox.appendChild(el('div',{class:'wpm-stat-unit'},[txt('at ' + wpm + ' WPM')]));
+  
+  var breakdown = el('div',{class:'wpm-time-breakdown'});
+  breakdown.appendChild(el('div',{class:'wpm-time-row'},[
+    el('span',{class:'wpm-time-label'},[txt('Minutes:')]),
+    el('span',{class:'wpm-time-value'},[txt(minutes)])
+  ]));
+  breakdown.appendChild(el('div',{class:'wpm-time-row'},[
+    el('span',{class:'wpm-time-label'},[txt('Seconds:')]),
+    el('span',{class:'wpm-time-value'},[txt(seconds)])
+  ]));
+  breakdown.appendChild(el('div',{class:'wpm-time-row'},[
+    el('span',{class:'wpm-time-label'},[txt('Words:')]),
+    el('span',{class:'wpm-time-value'},[txt(words)])
+  ]));
+  
+  timeBox.appendChild(breakdown);
+  statsContainer.appendChild(timeBox);
+}
+
+function renderDraft(){
+  var wrap = el('div',{class:'panel'});
+  wrap.appendChild(el('div',{class:'section-title'},[txt('DRAFTS'), el('span',{class:'n'},[txt('coming soon')])]));
+  wrap.appendChild(el('div',{style:'font-family:var(--mono); color:var(--text-dim); padding:40px;'},[
+    txt('Draft storage and management will be available soon.')
+  ]));
+  return wrap;
+}
+
+function renderLibrary(){
+  var wrap = el('div',{class:'panel'});
+  wrap.appendChild(el('div',{class:'section-title'},[txt('LIBRARY'), el('span',{class:'n'},[txt('coming soon')])]));
+  wrap.appendChild(el('div',{style:'font-family:var(--mono); color:var(--text-dim); padding:40px;'},[
+    txt('A curated library of example texts and analytics will be available soon.')
+  ]));
+  return wrap;
+}
+
+function renderAdvanced(){
+  var wrap = el('div',{class:'panel'});
+  wrap.appendChild(el('div',{class:'section-title'},[txt('ADVANCED'), el('span',{class:'n'},[txt('coming soon')])]));
+  wrap.appendChild(el('div',{style:'font-family:var(--mono); color:var(--text-dim); padding:40px;'},[
+    txt('Advanced settings and custom WPM profiles will be available soon.')
+  ]));
+  return wrap;
+}
+
+function init(){
+  renderShell();
+}
+
+window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
