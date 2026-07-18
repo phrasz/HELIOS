@@ -51,6 +51,8 @@ body{
     repeating-linear-gradient(90deg, var(--bg-grid) 0px, transparent 1px, transparent 28px, var(--bg-grid) 29px);
   transition:background-color .15s, color .15s;
 }
+:root{--gui-font-size: 14px;}
+body { font-size: var(--gui-font-size); }
 .app{display:grid; grid-template-columns:220px 1fr; grid-template-rows:56px 1fr 30px; height:100vh; grid-template-areas:"topbar topbar" "nav main" "nav status";}
 .topbar{grid-area:topbar; display:flex; align-items:center; justify-content:space-between; padding:0 18px; border-bottom:1px solid var(--line-strong); background:linear-gradient(180deg,var(--panel2),var(--panel));}
 .brand{display:flex; align-items:center; gap:10px;}
@@ -230,6 +232,31 @@ input[type=file]{display:none;}
 .flow-edge{transition:opacity .15s, stroke .15s, stroke-width .15s;}
 .flow-edge.fdim{opacity:.1;}
 .flow-edge.fhl{stroke:var(--amber); stroke-width:2.6;}
+
+/* RAW JSON MODAL */
+.raw-modal-backdrop{position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:100; opacity:0; pointer-events:none; transition:opacity .2s;}
+.raw-modal-backdrop.open{opacity:1; pointer-events:auto;}
+.raw-modal{
+  position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:101;
+  background:var(--panel); border:1px solid var(--line-strong); width:90vw; height:80vh; max-width:1000px;
+  display:flex; flex-direction:column; box-shadow:0 10px 40px rgba(0,0,0,0.5);
+}
+.raw-modal-header{display:flex; justify-content:space-between; align-items:center; padding:16px 18px; border-bottom:1px solid var(--line-strong);}
+.raw-modal-title{font-family:var(--mono); text-transform:uppercase; letter-spacing:2px; font-size:13px; color:var(--amber);}
+.raw-modal-toolbar{display:flex; gap:8px; padding:10px 18px; border-bottom:1px solid var(--line); background:var(--panel2);}
+.raw-modal-content{flex:1; overflow:auto; display:flex; flex-direction:column;}
+.raw-textarea{
+  flex:1; background:var(--panel3); border:none; color:var(--text); font-family:var(--mono); font-size:12px;
+  padding:12px; resize:none; outline:none; margin:0;
+}
+.raw-textarea:focus{background:var(--panel3);}
+.raw-status{padding:8px 18px; border-top:1px solid var(--line); background:var(--panel2); font-family:var(--mono); font-size:10px; color:var(--text-dim);}
+
+/* FONT SIZE SLIDER */
+.font-size-control{display:flex; align-items:center; gap:12px;}
+.font-size-slider{flex:1; min-width:150px; cursor:pointer;}
+.font-size-input{width:50px; background:var(--panel3); border:1px solid var(--line-strong); color:var(--text); font-family:var(--mono); padding:6px 8px; font-size:12px;}
+.font-size-input:focus{outline:none; border-color:var(--cyan);}
 </style>
 </head>
 <body>
@@ -248,8 +275,11 @@ var blockFilter = { search:'', cats:new Set() };
 var selectedBlockIdx = null;
 var manageCats = false;
 var flowOrientation = 'LR';
-var settings = { theme:'dark', previewDepth:1, flowRouting:'orthogonal', flowHighlight:true };
+var settings = { theme:'dark', previewDepth:1, flowRouting:'orthogonal', flowHighlight:true, guiFontSize:14 };
 var drawerOpen = false;
+var rawModalOpen = false;
+var rawModalUndo = [];
+var rawModalRedo = [];
 var STORAGE_KEY = 'se2-workspace-v1';
 var persistTimer = null;
 var lastSaveOk = null;
@@ -328,6 +358,9 @@ function showBanner(text, tone){
 
 function applyTheme(){
   document.documentElement.setAttribute('data-theme', settings.theme);
+}
+function applyFontSize(){
+  document.documentElement.style.setProperty('--gui-font-size', settings.guiFontSize + 'px');
 }
 function tooltip(text){
   var wrap = el('span',{class:'tooltip-wrap'});
@@ -591,6 +624,7 @@ function buildFocusBar(type, currentFocus, onChange){
 /* ---------- SHELL ---------- */
 function renderShell(){
   applyTheme();
+  applyFontSize();
   var app = $('#app');
   app.innerHTML = '';
   app.appendChild(buildTopbar());
@@ -599,6 +633,7 @@ function renderShell(){
   app.appendChild(main);
   app.appendChild(buildStatus());
   renderDrawer();
+  renderRawModal();
   renderView();
 }
 function buildTopbar(){
@@ -625,6 +660,97 @@ function buildTopbar(){
   return top;
 }
 
+/* ---------- RAW JSON MODAL ---------- */
+function renderRawModal(){
+  var old = $('#rawModalRoot');
+  if(old) old.remove();
+  if(!rawModalOpen) return;
+
+  var root = el('div',{id:'rawModalRoot'});
+  var backdrop = el('div',{class:'raw-modal-backdrop open', onclick:function(){ if(window.confirm('Close without saving? Changes will be discarded.')) { rawModalOpen=false; renderRawModal(); } }});
+  var modal = el('div',{class:'raw-modal'});
+
+  var header = el('div',{class:'raw-modal-header'});
+  header.appendChild(el('span',{class:'raw-modal-title'},[txt('RAW JSON EDITOR')]));
+  var headerBtns = el('div',{style:'display:flex; gap:6px;'});
+  headerBtns.appendChild(el('button',{class:'btn small', title:'Undo (Ctrl+Z)', onclick:function(){ doRawUndo(); }},[txt('↶ Undo')]));
+  headerBtns.appendChild(el('button',{class:'btn small', title:'Redo (Ctrl+Y)', onclick:function(){ doRawRedo(); }},[txt('↷ Redo')]));
+  headerBtns.appendChild(el('button',{class:'btn small danger', onclick:function(){ if(window.confirm('Close without saving? Changes will be discarded.')) { rawModalOpen=false; renderRawModal(); } }},[txt('Close')]));
+  header.appendChild(headerBtns);
+  modal.appendChild(header);
+
+  var toolbar = el('div',{class:'raw-modal-toolbar'});
+  toolbar.appendChild(el('button',{class:'btn primary', onclick:function(){ applyRawJSON(); }},[txt('✓ Apply JSON')]));
+  toolbar.appendChild(el('button',{class:'btn', onclick:function(){ resetRawEditor(); }},[txt('↻ Reset')]));
+  toolbar.appendChild(el('span',{style:'flex:1;'}));
+  toolbar.appendChild(el('span',{style:'font-family:var(--mono); font-size:10px; color:var(--text-dim);'},[txt('Ctrl+S to save')]));
+  modal.appendChild(toolbar);
+
+  var content = el('div',{class:'raw-modal-content'});
+  var textarea = el('textarea',{id:'rawJsonText', class:'raw-textarea'});
+  textarea.value = JSON.stringify(DATA, null, 2);
+  textarea.addEventListener('keydown', function(e){
+    if((e.ctrlKey || e.metaKey) && e.key === 'z'){ e.preventDefault(); doRawUndo(); }
+    if((e.ctrlKey || e.metaKey) && e.key === 'y'){ e.preventDefault(); doRawRedo(); }
+    if((e.ctrlKey || e.metaKey) && e.key === 's'){ e.preventDefault(); applyRawJSON(); }
+  });
+  textarea.addEventListener('input', function(){ 
+    rawModalRedo = []; // clear redo when user types
+  });
+  content.appendChild(textarea);
+  modal.appendChild(content);
+
+  var status = el('div',{class:'raw-status'});
+  status.appendChild(txt('JSON raw editor — edit and apply to update workspace'));
+  modal.appendChild(status);
+
+  root.appendChild(backdrop);
+  root.appendChild(modal);
+  document.body.appendChild(root);
+}
+function doRawUndo(){
+  var ta = $('#rawJsonText');
+  if(!ta) return;
+  if(rawModalUndo.length === 0) return;
+  var current = ta.value;
+  rawModalRedo.push(current);
+  ta.value = rawModalUndo.pop();
+}
+function doRawRedo(){
+  var ta = $('#rawJsonText');
+  if(!ta) return;
+  if(rawModalRedo.length === 0) return;
+  var current = ta.value;
+  rawModalUndo.push(current);
+  ta.value = rawModalRedo.pop();
+}
+function resetRawEditor(){
+  var ta = $('#rawJsonText');
+  if(!ta) return;
+  if(!window.confirm('Reset editor to current workspace JSON?')) return;
+  ta.value = JSON.stringify(DATA, null, 2);
+  rawModalUndo = [];
+  rawModalRedo = [];
+}
+function applyRawJSON(){
+  var ta = $('#rawJsonText');
+  if(!ta) return;
+  try{
+    var newData = JSON.parse(ta.value);
+    rawModalUndo.push(JSON.stringify(DATA, null, 2));
+    rawModalRedo = [];
+    DATA = newData;
+    autoDetectAndRegister();
+    ensureFocus();
+    rawModalOpen = false;
+    renderShell();
+    schedulePersist();
+    showBanner('JSON applied successfully!', 'info');
+  }catch(err){
+    showBanner('Invalid JSON: ' + err.message, 'warn');
+  }
+}
+
 /* ---------- SETTINGS DRAWER ---------- */
 function renderDrawer(){
   var old = $('#drawerRoot');
@@ -647,6 +773,28 @@ function renderDrawer(){
   themeGroup.appendChild(el('button',{class:'seg-btn'+(settings.theme==='dark'?' active':''), onclick:function(){ settings.theme='dark'; applyTheme(); renderDrawer(); }},[txt('Dark')]));
   themeGroup.appendChild(el('button',{class:'seg-btn'+(settings.theme==='light'?' active':''), onclick:function(){ settings.theme='light'; applyTheme(); renderDrawer(); }},[txt('Light')]));
   sec1.appendChild(el('div',{class:'drawer-row'},[themeGroup]));
+  
+  // Font Size
+  var fontControl = el('div',{class:'font-size-control'});
+  var fontSlider = el('input',{type:'range', class:'font-size-slider', min:'10', max:'20', value:String(settings.guiFontSize)});
+  var fontInput = el('input',{type:'number', class:'font-size-input', min:'10', max:'20', value:String(settings.guiFontSize)});
+  fontSlider.addEventListener('input', function(){
+    settings.guiFontSize = parseInt(fontSlider.value, 10);
+    fontInput.value = String(settings.guiFontSize);
+    applyFontSize();
+  });
+  fontInput.addEventListener('change', function(){
+    var v = parseInt(fontInput.value, 10);
+    if(isNaN(v) || v < 10) v = 10; if(v > 20) v = 20;
+    settings.guiFontSize = v;
+    fontSlider.value = String(v);
+    fontInput.value = String(v);
+    applyFontSize();
+  });
+  fontControl.appendChild(fontSlider);
+  fontControl.appendChild(fontInput);
+  sec1.appendChild(el('div',{class:'drawer-row'},[fontControl]));
+  sec1.appendChild(el('div',{class:'drawer-desc'},[txt('GUI font size: use the slider or type a value (10-20px)')]));
   drawer.appendChild(sec1);
 
   // Node editor
@@ -657,7 +805,8 @@ function renderDrawer(){
   stepper.appendChild(el('span',{class:'depth-val'},[txt(String(settings.previewDepth))]));
   stepper.appendChild(el('button',{class:'btn small', onclick:function(){ if(settings.previewDepth<6){ settings.previewDepth++; renderDrawer(); renderView(); } }},[txt('+')]));
   sec2.appendChild(el('div',{class:'drawer-row'},[stepper]));
-  sec2.appendChild(el('div',{class:'drawer-desc'},[txt('Display property depth: how many properties of an object/array are shown inline as a preview before pivoting into it. Higher values reveal more of nested dictionaries (like material lists) at a glance.')]));
+  sec2.appendChild(el('button',{class:'btn primary', style:'width:100%; margin-bottom:8px;', onclick:function(){ drawerOpen=false; renderDrawer(); rawModalOpen=true; renderRawModal(); }},[txt('Open RAW JSON Editor Modal')]));
+  sec2.appendChild(el('div',{class:'drawer-desc'},[txt('Display property depth: how many properties of an object/array are shown inline as a preview before pivoting into it. Higher values reveal more of nested dictionaries (like material lists) at a glance. The RAW JSON Editor provides a full-featured text editor with undo/redo support for manual JSON editing.')]));
   drawer.appendChild(sec2);
 
   // Flow diagram
@@ -689,6 +838,15 @@ function renderDrawer(){
       showBanner('Save requested \u2014 check the status bar for confirmation.', 'info');
     }},[txt('Save now')])
   ]));
+  sec4.appendChild(el('div',{class:'drawer-desc'},[txt('Load relative file: for hosting on GitHub Pages or similar platforms where data files are in the same directory:')]));
+  var relPathRow = el('div',{class:'drawer-row', style:'gap:6px;'});
+  var relPathInp = el('input',{class:'val-input', placeholder:'SE2_Data-Dictionary.json', value:'SE2_Data-Dictionary.json', style:'flex:1;'});
+  relPathRow.appendChild(relPathInp);
+  relPathRow.appendChild(el('button',{class:'btn small primary', onclick:function(){
+    var fname = relPathInp.value.trim() || 'SE2_Data-Dictionary.json';
+    loadFromRelativePath(fname);
+  }},[txt('Load')]));
+  sec4.appendChild(relPathRow);
   sec4.appendChild(el('div',{class:'drawer-desc'},[txt('Reset permanently wipes all data and tagging \u2014 including the autosaved copy. Load Sample merges the bundled SE2 dictionary into your current workspace. '+(hasStorage() ? 'Your edits autosave continuously, so refreshing this page keeps your work.' : 'Persistent storage isn\u2019t available in this viewer, so edits only last for this session \u2014 export JSON before closing or refreshing.'))]));
   drawer.appendChild(sec4);
 
@@ -714,6 +872,31 @@ function onImportFile(e){
     e.target.value = '';
   };
   reader.readAsText(file);
+}
+function loadFromRelativePath(filename){
+  var baseUrl = window.location.href.split('?')[0].split('#')[0];
+  var basePath = baseUrl.substring(0, baseUrl.lastIndexOf('/'));
+  var fileUrl = basePath + '/' + filename;
+  
+  fetch(fileUrl)
+    .then(function(response){
+      if(!response.ok) throw new Error('File not found: ' + filename + ' (' + response.status + ')');
+      return response.json();
+    })
+    .then(function(incoming){
+      var mode = window.confirm('Click OK to MERGE "'+filename+'" into current data.\nClick Cancel to REPLACE current data entirely.');
+      if(mode){ DATA = deepMerge(DATA, incoming); } else { DATA = incoming; }
+      autoDetectAndRegister();
+      focusPath = []; selectedBlockIdx = null;
+      ensureFocus();
+      renderShell();
+      schedulePersist();
+      showBanner('Successfully loaded: ' + filename, 'info');
+    })
+    .catch(function(err){
+      showBanner('Failed to load ' + filename + ': ' + err.message, 'warn');
+      console.error('Load error:', err);
+    });
 }
 function onExport(){ download('se2-data-export.json', JSON.stringify(DATA, null, 2)); }
 function onLoadSample(){
