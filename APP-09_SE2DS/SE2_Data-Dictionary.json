@@ -1,4 +1,16 @@
 {
+  "se2DataStudioConventions": {
+    "displayNames": "Display names match in-game terminology whenever practical.",
+    "internalKeys": "Internal JSON property names use camelCase.",
+    "dimensions": "Dimensions are stored in meters.",
+    "mass": "Mass is stored in kilograms.",
+    "power": "Power is stored in kilowatts.",
+    "time": "Time is stored in seconds.",
+    "volume": "Storage capacity is stored in liters.",
+    "ordering": "Arrays preserve intentional display order unless otherwise documented.",
+    "null": "A null value represents an unknown or currently undocumented value rather than zero.",
+    "emptyCollections": "Empty arrays or objects represent known placeholders for future data rather than omitted information."
+  },
   "metadata": {
     "title": "Space Engineers 2 Manufacturing & Blocks Dataset",
     "version": "0.1.0",
@@ -20,6 +32,180 @@
         "license": "CC BY-SA 4.0"
       }
     ]
+  },
+  "glossary": {
+    "referenceData": "Contains the canonical lookup definitions used throughout the remainder of the dataset.",
+    "presentationData": "Information intentionally duplicated to support editors, visualizations, grouping, or workflow organization. Presentation data is not considered authoritative lookup data.",
+    "production": "A manufacturing transformation that converts one or more resources (e.g., production groups, recipes, and manufacturing organization) into one or more outputs.",
+    "recipe": "The minimum information required to describe a single production transformation (e.g., production groups, recipes, and manufacturing organization).",
+    "rawMaterial": "A naturally occurring material obtained directly from the game world. Also commonly referred to as a Natural Resource or Ore. 'Raw Material' is the canonical term used throughout this dataset.",
+    "refineryProduct": "A material produced directly from refining raw materials.",
+    "component": "A manufactured intermediate item used to construct higher-level game objects.",
+    "block": "A placeable entity and associated properties that exists within the game world."
+  },
+  "referenceData": {
+    "rawMaterials": {
+      "aliases": [
+        "Natural Resources",
+        "Ores"
+      ],
+      "items": [
+        "Chromium",
+        "Cobalt",
+        "Copper",
+        "Gold",
+        "Ice",
+        "Iron",
+        "Lead",
+        "Magnesium",
+        "Nickel",
+        "Platinum",
+        "Silicon",
+        "Silver",
+        "Titanium",
+        "Uranium"
+      ]
+    },
+    "refineryProducts": {
+      "aliases": [],
+      "items": {}
+    },
+    "simpleComponents": {
+      "aliases": [],
+      "items": {}
+    },
+    "complexComponents": {
+      "aliases": [],
+      "items": {}
+    },
+    "highTechComponents": {
+      "aliases": [],
+      "items": {}
+    },
+    "gearforgeProducts": {
+      "aliases": [],
+      "items": {}
+    },
+    "machines": {
+      "aliases": [],
+      "items": {}
+    },
+    "blockCategories": [
+      {
+        "category": "Propulsion",
+        "subcategories": [
+          "Atmospheric Thruster",
+          "Hydrogen Thruster",
+          "Ion Thruster",
+          "Wheel Suspension"
+        ]
+      },
+      {
+        "category": "Power",
+        "subcategories": [
+          "Battery",
+          "Solar Panel",
+          "Wind Turbine"
+        ]
+      },
+      {
+        "category": "Structural",
+        "subcategories": [
+          "Armor",
+          "Heavy Armor",
+          "Light Armor",
+          "Catwalk",
+          "Handrail",
+          "Structures",
+          "Window",
+          "Detailing",
+          "Corner Light"
+        ]
+      },
+      {
+        "category": "Logistics",
+        "subcategories": [
+          "Cargo Container",
+          "Connector",
+          "Conveyor"
+        ]
+      },
+      {
+        "category": "Automation & Logic",
+        "subcategories": [
+          "Control Panel",
+          "Control Seat",
+          "Event Controller",
+          "Sensor",
+          "Timer",
+          "Contract Terminal",
+          "Survival Kit"
+        ]
+      },
+      {
+        "category": "Mechanical",
+        "subcategories": [
+          "Rotor",
+          "Hinge",
+          "Piston"
+        ]
+      },
+      {
+        "category": "Utility",
+        "subcategories": [
+          "Utility",
+          "Gravity Generator",
+          "Drill",
+          "Warhead"
+        ]
+      }
+    ],
+    "blockSubcategories": [
+      "Armor",
+      "Atmospheric Thruster",
+      "Battery",
+      "Cargo Container",
+      "Catwalk",
+      "Connector",
+      "Contract Terminal",
+      "Control Panel",
+      "Control Seat",
+      "Conveyor",
+      "Corner Light",
+      "Detailing",
+      "Drill",
+      "Event Controller",
+      "Gravity Generator",
+      "Handrail",
+      "Heavy Armor",
+      "Hinge",
+      "Hydrogen Thruster",
+      "Ion Thruster",
+      "Light Armor",
+      "Piston",
+      "Rotor",
+      "Sensor",
+      "Solar Panel",
+      "Structures",
+      "Survival Kit",
+      "Timer",
+      "Utility",
+      "Warhead",
+      "Wheel Suspension",
+      "Wind Turbine",
+      "Window"
+    ],
+    "states": {
+      "blockLifecycleStates": [
+        "unbuilt",
+        "building",
+        "functional",
+        "damaged",
+        "destroyed"
+      ]
+    },
+    "units": {},
+    "localization": {}
   },
   "productionFlow": {
     "rawMaterialsSelected": [
@@ -253,15 +439,9 @@
       "Cargo Container",
       "Catwalk",
       "Connector",
-      "Contract Terminal",
-      "Control Panel",
-      "Control Seat",
       "Conveyor",
-      "Corner Light",
       "Detailing",
       "Drill",
-      "Event Controller",
-      "Gravity Generator",
       "Handrail",
       "Heavy Armor",
       "Hinge",
@@ -270,15 +450,9 @@
       "Light Armor",
       "Piston",
       "Rotor",
-      "Sensor",
       "Solar Panel",
-      "Structures",
-      "Survival Kit",
-      "Timer",
-      "Utility",
       "Warhead",
       "Wheel Suspension",
-      "Wind Turbine",
       "Window"
     ],
     "categories": [
@@ -380,19 +554,31 @@
       },
       {
         "name": "Atmospheric Thruster",
-        "largestDimensionM": 1
+        "largestDimensionM": 1,
+        "subcategories": [
+          "Atmospheric Thruster"
+        ]
       },
       {
         "name": "Atmospheric Thruster",
-        "largestDimensionM": 2
+        "largestDimensionM": 2,
+        "subcategories": [
+          "Atmospheric Thruster"
+        ]
       },
       {
         "name": "Atmospheric Thruster",
-        "largestDimensionM": 5
+        "largestDimensionM": 5,
+        "subcategories": [
+          "Atmospheric Thruster"
+        ]
       },
       {
         "name": "Atmospheric Thruster",
-        "largestDimensionM": 10
+        "largestDimensionM": 10,
+        "subcategories": [
+          "Atmospheric Thruster"
+        ]
       },
       {
         "name": "Barrel",
@@ -400,12 +586,17 @@
       },
       {
         "name": "Battery",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Battery"
+        ]
       },
       {
         "name": "Battery",
         "largestDimensionM": 1.5,
-        "subcategories": []
+        "subcategories": [
+          "Battery"
+        ]
       },
       {
         "name": "Battery",
@@ -414,7 +605,9 @@
           "Wire": 4,
           "Lead Bar": 1
         },
-        "subcategories": [],
+        "subcategories": [
+          "Battery"
+        ],
         "componentsComplex": {
           "Heavy-Duty Plate": 14,
           "Motherboard": 1
@@ -434,51 +627,73 @@
       },
       {
         "name": "Cargo Container",
-        "largestDimensionM": 1.5
+        "largestDimensionM": 1.5,
+        "subcategories": [
+          "Cargo Container"
+        ]
       },
       {
         "name": "Cargo Container",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Cargo Container"
+        ]
       },
       {
         "name": "Cargo Container",
-        "largestDimensionM": 7.5
+        "largestDimensionM": 7.5,
+        "subcategories": [
+          "Cargo Container"
+        ]
       },
       {
         "name": "Catwalk Corner Base",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Catwalk"
+        ]
       },
       {
         "name": "Catwalk Narrow Base",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Catwalk"
+        ]
       },
       {
         "name": "Catwalk Square Base",
-        "largestDimensionM": 2.5
-      },
-      {
-        "name": "Catwalk Stairs",
-        "largestDimensionM": null
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Catwalk"
+        ]
       },
       {
         "name": "Catwalk Stairs Narrow",
-        "largestDimensionM": 3.5
+        "largestDimensionM": 3.5,
+        "subcategories": [
+          "Catwalk"
+        ]
       },
       {
         "name": "Catwalk Stairs Narrow Half",
-        "largestDimensionM": 2.25
+        "largestDimensionM": 2.25,
+        "subcategories": [
+          "Catwalk"
+        ]
       },
       {
         "name": "Catwalk Stairs Wide",
-        "largestDimensionM": 3.5
+        "largestDimensionM": 3.5,
+        "subcategories": [
+          "Catwalk"
+        ]
       },
       {
         "name": "Catwalk Stairs Wide Half",
-        "largestDimensionM": 2.5
-      },
-      {
-        "name": "Cockpit",
-        "largestDimensionM": null
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Catwalk"
+        ]
       },
       {
         "name": "Cockpit",
@@ -486,11 +701,17 @@
       },
       {
         "name": "Connector",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Connector"
+        ]
       },
       {
         "name": "Connector",
         "largestDimensionM": 1.5,
+        "subcategories": [
+          "Connector"
+        ],
         "componentsSimple": {
           "Eletronic Parts": 12,
           "Construction Component": 48
@@ -498,8 +719,7 @@
         "materialsRaw": {
           "Iron": 240,
           "Silicon": 60
-        },
-        "subcategories": []
+        }
       },
       {
         "name": "Contract Terminal",
@@ -515,37 +735,59 @@
       },
       {
         "name": "Conveyor Adaptor End",
-        "largestDimensionM": 1.5
+        "largestDimensionM": 1.5,
+        "subcategories": [
+          "Conveyor"
+        ]
       },
       {
         "name": "Conveyor Adaptor Straight",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Conveyor"
+        ]
       },
       {
         "name": "Conveyor Cross Junction",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Conveyor"
+        ]
       },
       {
         "name": "Conveyor Cross Junction",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Conveyor"
+        ]
       },
       {
         "name": "Conveyor Curved",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Conveyor"
+        ]
       },
       {
         "name": "Conveyor Curved",
-        "largestDimensionM": 2
+        "largestDimensionM": 2,
+        "subcategories": [
+          "Conveyor"
+        ]
       },
       {
         "name": "Conveyor Node Junction",
         "largestDimensionM": 0.5,
-        "subcategories": []
+        "subcategories": [
+          "Conveyor"
+        ]
       },
       {
         "name": "Conveyor Node Junction",
         "largestDimensionM": 2.5,
-        "subcategories": [],
+        "subcategories": [
+          "Conveyor"
+        ],
         "componentsSimple": {
           "Steel Plate": 16,
           "Steel Tube": 4
@@ -553,40 +795,66 @@
       },
       {
         "name": "Conveyor Short",
-        "largestDimensionM": 1.5
+        "largestDimensionM": 1.5,
+        "subcategories": [
+          "Conveyor"
+        ]
       },
       {
         "name": "Conveyor Slice",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Conveyor"
+        ]
       },
       {
         "name": "Conveyor Slice",
-        "largestDimensionM": 1.5
+        "largestDimensionM": 1.5,
+        "subcategories": [
+          "Conveyor"
+        ]
       },
       {
         "name": "Conveyor Sorter",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Conveyor"
+        ]
       },
       {
         "name": "Conveyor Sorter",
-        "largestDimensionM": 1.5
+        "largestDimensionM": 1.5,
+        "subcategories": [
+          "Conveyor"
+        ]
       },
       {
         "name": "Conveyor Straight",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Conveyor"
+        ]
       },
       {
         "name": "Conveyor Straight",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Conveyor"
+        ]
       },
       {
         "name": "Conveyor T-Junction",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Conveyor"
+        ]
       },
       {
         "name": "Conveyor T-Junction",
         "largestDimensionM": 2.5,
-        "subcategories": [],
+        "subcategories": [
+          "Conveyor"
+        ],
         "componentsSimple": {
           "Steel Plate": 8,
           "Steel Tube": 2
@@ -618,23 +886,38 @@
       },
       {
         "name": "Detailing Corner",
-        "largestDimensionM": 0.25
+        "largestDimensionM": 0.25,
+        "subcategories": [
+          "Detailing"
+        ]
       },
       {
         "name": "Detailing Cube",
-        "largestDimensionM": null
+        "largestDimensionM": null,
+        "subcategories": [
+          "Detailing"
+        ]
       },
       {
         "name": "Detailing Cube",
-        "largestDimensionM": 0.25
+        "largestDimensionM": 0.25,
+        "subcategories": [
+          "Detailing"
+        ]
       },
       {
         "name": "Detailing Inverted Corner",
-        "largestDimensionM": 0.25
+        "largestDimensionM": 0.25,
+        "subcategories": [
+          "Detailing"
+        ]
       },
       {
         "name": "Detailing Slope",
-        "largestDimensionM": 0.25
+        "largestDimensionM": 0.25,
+        "subcategories": [
+          "Detailing"
+        ]
       },
       {
         "name": "Double Window Passage",
@@ -642,11 +925,17 @@
       },
       {
         "name": "Drill",
-        "largestDimensionM": 3.5
+        "largestDimensionM": 3.5,
+        "subcategories": [
+          "Drill"
+        ]
       },
       {
         "name": "Drill",
-        "largestDimensionM": 5.25
+        "largestDimensionM": 5.25,
+        "subcategories": [
+          "Drill"
+        ]
       },
       {
         "name": "Event Controller",
@@ -719,111 +1008,214 @@
       },
       {
         "name": "Handrail",
-        "largestDimensionM": 1.25
+        "largestDimensionM": 1.25,
+        "subcategories": [
+          "Handrail"
+        ]
       },
       {
         "name": "Handrail",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Handrail"
+        ]
       },
       {
         "name": "Handrail Corner",
-        "largestDimensionM": 1.25
+        "largestDimensionM": 1.25,
+        "subcategories": [
+          "Handrail"
+        ]
       },
       {
         "name": "Handrail Corner",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Handrail"
+        ]
       },
       {
         "name": "Handrail Diagonal",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Handrail"
+        ]
       },
       {
         "name": "Heavy Armor Corner",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Corner",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Cube",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Cube",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Half",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Half",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Half Corner",
-        "largestDimensionM": 0.25
+        "largestDimensionM": 0.25,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Half Corner",
-        "largestDimensionM": 1.25
+        "largestDimensionM": 1.25,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Half Long Slope",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Half Long Slope",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Half Slope Corner Inverted",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Half Slope Corner Inverted",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Half Slope Inverted",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Half Slope Inverted",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Half Tall Slope",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Half Tall Slope",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Inverted Corner",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Inverted Corner",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Long Slope Corner Base",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Long Slope Corner Base",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Long Slope Corner Tip",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Long Slope Corner Tip",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Long Slope Inverted Corner Base",
@@ -831,111 +1223,215 @@
       },
       {
         "name": "Heavy Armor Long Slope Inverted Corner Base",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Long Slope Inverted Corner Tip",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Long Slope Inverted Corner Tip",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Slope",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Slope",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Slope Transition",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Slope Transition",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Slope Transition Base",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Slope Transition Base",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Slope Transition Base Mirrored",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Slope Transition Base Mirrored",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Slope Transition Mirrored",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Slope Transition Mirrored",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Slope Transition Tip",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Slope Transition Tip",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Slope Transition Tip Mirrored",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Slope Transition Tip Mirrored",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Wide Half Corner Base",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Wide Half Corner Base",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Wide Half Corner Tip",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Wide Half Corner Tip",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Wide Half Slope",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Heavy Armor Wide Half Slope",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Heavy Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Hinge",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Hinge"
+        ]
       },
       {
         "name": "Hinge",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Hinge"
+        ]
       },
       {
         "name": "Hinge Head",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Hinge"
+        ]
       },
       {
         "name": "Hinge Head",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Hinge"
+        ]
       },
       {
         "name": "Hydrogen Tank",
@@ -951,19 +1447,31 @@
       },
       {
         "name": "Hydrogen Thruster",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Hydrogen Thruster"
+        ]
       },
       {
         "name": "Hydrogen Thruster",
-        "largestDimensionM": 2
+        "largestDimensionM": 2,
+        "subcategories": [
+          "Hydrogen Thruster"
+        ]
       },
       {
         "name": "Hydrogen Thruster",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Hydrogen Thruster"
+        ]
       },
       {
         "name": "Hydrogen Thruster",
-        "largestDimensionM": 7.5
+        "largestDimensionM": 7.5,
+        "subcategories": [
+          "Hydrogen Thruster"
+        ]
       },
       {
         "name": "Interior Light",
@@ -1015,19 +1523,31 @@
       },
       {
         "name": "Ion Thruster",
-        "largestDimensionM": 1
+        "largestDimensionM": 1,
+        "subcategories": [
+          "Ion Thruster"
+        ]
       },
       {
         "name": "Ion Thruster",
-        "largestDimensionM": 1.5
+        "largestDimensionM": 1.5,
+        "subcategories": [
+          "Ion Thruster"
+        ]
       },
       {
         "name": "Ion Thruster",
-        "largestDimensionM": 5
+        "largestDimensionM": 5,
+        "subcategories": [
+          "Ion Thruster"
+        ]
       },
       {
         "name": "Ion Thruster",
-        "largestDimensionM": 7.5
+        "largestDimensionM": 7.5,
+        "subcategories": [
+          "Ion Thruster"
+        ]
       },
       {
         "name": "Ion Thrusters",
@@ -1083,19 +1603,35 @@
       },
       {
         "name": "Light Armor Corner",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Corner",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Cube",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Cube",
         "largestDimensionM": 2.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ],
         "materialsRaw": {
           "Iron": 1050
         },
@@ -1105,171 +1641,339 @@
       },
       {
         "name": "Light Armor Half",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Half",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Half Corner",
-        "largestDimensionM": 0.25
+        "largestDimensionM": 0.25,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Half Corner",
-        "largestDimensionM": 1.25
+        "largestDimensionM": 1.25,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Half Long Slope",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Half Long Slope",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Half Slope Corner Inverted",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Half Slope Corner Inverted",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Half Slope Inverted",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Half Slope Inverted",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Half Tall Slope",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Half Tall Slope",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Inverted Corner",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Inverted Corner",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Long Slope Corner Base",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Long Slope Corner Base",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Long Slope Corner Tip",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Long Slope Corner Tip",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Long Slope Inverted Corner Base",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Long Slope Inverted Corner Base",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Long Slope Inverted Corner Tip",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Long Slope Inverted Corner Tip",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Slope",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Slope",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Slope Transition",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Slope Transition",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Slope Transition Base",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Slope Transition Base",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Slope Transition Base Mirrored",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Slope Transition Base Mirrored",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Slope Transition Mirrored",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Slope Transition Mirrored",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Slope Transition Tip",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Slope Transition Tip",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Slope Transition Tip Mirrored",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Slope Transition Tip Mirrored",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Wide Half Corner Base",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Wide Half Corner Base",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Wide Half Corner Tip",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Wide Half Corner Tip",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Wide Half Slope",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Light Armor Wide Half Slope",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Light Armor",
+          "Armor"
+        ]
       },
       {
         "name": "Locker",
@@ -1333,19 +2037,31 @@
       },
       {
         "name": "Piston",
-        "largestDimensionM": 1.25
+        "largestDimensionM": 1.25,
+        "subcategories": [
+          "Piston"
+        ]
       },
       {
         "name": "Piston",
-        "largestDimensionM": 4.75
+        "largestDimensionM": 4.75,
+        "subcategories": [
+          "Piston"
+        ]
       },
       {
         "name": "Piston Head",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Piston"
+        ]
       },
       {
         "name": "Piston Head",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Piston"
+        ]
       },
       {
         "name": "Ramp",
@@ -1388,19 +2104,31 @@
       },
       {
         "name": "Rotor",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Rotor"
+        ]
       },
       {
         "name": "Rotor",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Rotor"
+        ]
       },
       {
         "name": "Rotor Head",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Rotor"
+        ]
       },
       {
         "name": "Rotor Head",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Rotor"
+        ]
       },
       {
         "name": "Seat",
@@ -1438,11 +2166,17 @@
       },
       {
         "name": "Solar Panel",
-        "largestDimensionM": 10
+        "largestDimensionM": 5,
+        "subcategories": [
+          "Solar Panel"
+        ]
       },
       {
         "name": "Solar Panel",
-        "largestDimensionM": 5
+        "largestDimensionM": 10,
+        "subcategories": [
+          "Solar Panel"
+        ]
       },
       {
         "name": "Sound Block",
@@ -1542,11 +2276,17 @@
       },
       {
         "name": "Warhead",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": [
+          "Warhead"
+        ]
       },
       {
         "name": "Warhead",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Warhead"
+        ]
       },
       {
         "name": "Welder",
@@ -1558,32 +2298,52 @@
       },
       {
         "name": "Wheel Suspension",
-        "largestDimensionM": 1
+        "largestDimensionM": 1,
+        "subcategories": [
+          "Wheel Suspension"
+        ]
       },
       {
         "name": "Wheel Suspension",
-        "largestDimensionM": 1.5
+        "largestDimensionM": 1.5,
+        "subcategories": [
+          "Wheel Suspension"
+        ]
       },
       {
         "name": "Wheel Suspension",
-        "largestDimensionM": 12.5
+        "largestDimensionM": 12.5,
+        "subcategories": [
+          "Wheel Suspension"
+        ]
       },
       {
         "name": "Wheel Suspension",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Wheel Suspension"
+        ]
       },
       {
         "name": "Wheel Suspension",
-        "largestDimensionM": 5
+        "largestDimensionM": 5,
+        "subcategories": [
+          "Wheel Suspension"
+        ]
       },
       {
         "name": "Wheel Suspension",
-        "largestDimensionM": 7.5
+        "largestDimensionM": 7.5,
+        "subcategories": [
+          "Wheel Suspension"
+        ]
       },
       {
         "name": "Wind Turbine",
         "largestDimensionM": 7.5,
-        "subcategories": [],
+        "subcategories": [
+          "Wind Turbine"
+        ],
         "componentsSimple": {
           "Steel Plate": 96,
           "Eletronic Parts": 16,
@@ -1598,119 +2358,206 @@
       },
       {
         "name": "Window Corner",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Window"
+        ]
       },
       {
         "name": "Window Corner with Side",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Window"
+        ]
       },
       {
         "name": "Window Curved",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Window"
+        ]
       },
       {
         "name": "Window Curved Inward Triangle",
-        "largestDimensionM": 2.75
+        "largestDimensionM": 2.75,
+        "subcategories": [
+          "Window"
+        ]
       },
       {
         "name": "Window Curved with Side Left",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Window"
+        ]
       },
       {
         "name": "Window Curved with Side Right",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Window"
+        ]
       },
       {
         "name": "Window Flat",
-        "largestDimensionM": 1.25
+        "largestDimensionM": 1.25,
+        "subcategories": [
+          "Window"
+        ]
       },
       {
         "name": "Window Flat",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Window"
+        ]
       },
       {
         "name": "Window Flat Half",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Window"
+        ]
       },
       {
         "name": "Window Quarter Sphere",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Window"
+        ]
       },
       {
         "name": "Window Round Face",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Window"
+        ]
       },
       {
         "name": "Window Slanted Long",
-        "largestDimensionM": 5
+        "largestDimensionM": 5,
+        "subcategories": [
+          "Window"
+        ]
       },
       {
         "name": "Window Slanted Long Inverted",
-        "largestDimensionM": 5
+        "largestDimensionM": 5,
+        "subcategories": [
+          "Window"
+        ]
       },
       {
         "name": "Window Slope",
-        "largestDimensionM": 1.25
+        "largestDimensionM": 1.25,
+        "subcategories": [
+          "Window"
+        ]
       },
       {
         "name": "Window Slope",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Window"
+        ]
       },
       {
         "name": "Window Slope Half",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Window"
+        ]
       },
       {
         "name": "Window Slope Long",
-        "largestDimensionM": 5
+        "largestDimensionM": 5,
+        "subcategories": [
+          "Window"
+        ]
       },
       {
         "name": "Window Slope Long with Side Left",
-        "largestDimensionM": 5
+        "largestDimensionM": 5,
+        "subcategories": [
+          "Window"
+        ]
       },
       {
         "name": "Window Slope Long with Side Right",
-        "largestDimensionM": 5
+        "largestDimensionM": 5,
+        "subcategories": [
+          "Window"
+        ]
       },
       {
         "name": "Window Slope With Side",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Window"
+        ]
       },
       {
         "name": "Window Triangle Side",
-        "largestDimensionM": 1.25
+        "largestDimensionM": 1.25,
+        "subcategories": [
+          "Window"
+        ]
       },
       {
         "name": "Window Triangle Side",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Window"
+        ]
       },
       {
         "name": "Window Triangle Side Large",
-        "largestDimensionM": 5
+        "largestDimensionM": 5,
+        "subcategories": [
+          "Window"
+        ]
       },
       {
         "name": "Window Triangle Slanted",
-        "largestDimensionM": 1.25
+        "largestDimensionM": 1.25,
+        "subcategories": [
+          "Window"
+        ]
       },
       {
         "name": "Window Triangle Slanted",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Window"
+        ]
       },
       {
         "name": "Window Triangle Slanted Inverted",
-        "largestDimensionM": 1.25
+        "largestDimensionM": 1.25,
+        "subcategories": [
+          "Window"
+        ]
       },
       {
         "name": "Window Triangle Slanted Inverted",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [
+          "Window"
+        ]
       },
       {
         "name": "Window Triangle Slanted Large",
-        "largestDimensionM": 5
+        "largestDimensionM": 5,
+        "subcategories": [
+          "Window"
+        ]
       },
       {
         "name": "Window Triangle Slanted Large Inverted",
-        "largestDimensionM": 5
+        "largestDimensionM": 5,
+        "subcategories": [
+          "Window"
+        ]
       }
     ]
   }
