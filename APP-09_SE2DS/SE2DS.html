@@ -1434,6 +1434,186 @@ function renderPipeline(){
   return wrap;
 }
 
+function scanPropertyImport(blocksObj){
+  if(!blocksObj.items || blocksObj.items.length === 0){ alert('No blocks to scan'); return; }
+
+  // Scan all properties
+  var allProps = new Set();
+  var propsByBlock = {};
+  blocksObj.items.forEach(function(b, idx){
+    propsByBlock[idx] = {};
+    Object.keys(b).forEach(function(k){
+      if(k !== 'subcategories') allProps.add(k);
+      propsByBlock[idx][k] = b[k];
+    });
+  });
+
+  var sortedProps = Array.from(allProps).sort();
+
+  // Modal state
+  var sourceIdx = null;
+  var targetIndices = new Set();
+  var selectedProps = new Set();
+
+  // Create modal
+  var modalBg = el('div',{style:'position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:998; display:flex; align-items:center; justify-content:center;'});
+  var modal = el('div',{style:'background:var(--panel); border:1px solid var(--line-strong); padding:20px; border-radius:8px; max-width:600px; max-height:90vh; overflow-y:auto; width:90vw;'});
+
+  modal.appendChild(el('div',{class:'section-title'},[txt('PROPERTY IMPORT SCANNER')]));
+
+  // Source selector
+  modal.appendChild(el('div',{style:'font-weight:bold; margin-top:16px; margin-bottom:8px; font-family:var(--mono); font-size:calc(var(--gui-font-size) * 11/14);'},[txt('1. Choose Source Block')]));
+  
+  // Source search input
+  var srcSearchInput = el('input',{type:'text', placeholder:'Search source blocks...', style:'width:100%; padding:6px; margin-bottom:8px; background:var(--panel3); border:1px solid var(--line); color:var(--text); font-size:calc(var(--gui-font-size) * 12/14); font-family:var(--mono);'});
+  modal.appendChild(srcSearchInput);
+  
+  var srcWrap = el('div',{style:'background:var(--panel2); border:1px solid var(--line-strong); padding:10px; max-height:150px; overflow-y:auto; margin-bottom:16px;'});
+  
+  function updateSourceList(){
+    srcWrap.innerHTML = '';
+    var searchStr = srcSearchInput.value.toLowerCase();
+    blocksObj.items.forEach(function(b, idx){
+      if(searchStr && !b.name.toLowerCase().includes(searchStr)) return; // filter by search
+      var propCount = Object.keys(b).length;
+      var isSelected = sourceIdx === idx;
+      var row = el('div',{style:'display:flex; gap:8px; align-items:center; padding:6px; background:' + (isSelected ? 'var(--line-strong)' : 'transparent') + '; border-radius:4px; cursor:pointer;'});
+      row.onclick = function(){
+        sourceIdx = idx;
+        srcSearchInput.value = '';
+        updateSourceList();
+        updatePropList();
+      };
+      row.appendChild(el('span',{style:'font-family:var(--mono); font-size:calc(var(--gui-font-size) * 11/14); flex:1;'},[txt(b.name + ' (' + propCount + ' fields)')]));
+      srcWrap.appendChild(row);
+    });
+  }
+  
+  srcSearchInput.addEventListener('input', updateSourceList);
+  updateSourceList();
+  modal.appendChild(srcWrap);
+
+  // --- Section 2: Properties ---
+  var propList = el('div',{style:'background:var(--panel2); border:1px solid var(--line-strong); padding:10px; max-height:200px; overflow-y:auto; margin-bottom:16px;'});
+  var srcProperties = [];
+
+  function updatePropList(){
+    propList.innerHTML = '';
+    if(sourceIdx === null){
+      propList.appendChild(el('div',{style:'color:var(--text-dim); font-size:calc(var(--gui-font-size) * 11/14);'},[txt('Select a source block to see its properties.')]));
+      return;
+    }
+    srcProperties = Object.keys(propsByBlock[sourceIdx]).filter(function(k){ return k !== 'subcategories'; }).sort();
+    if(srcProperties.length === 0){
+      propList.appendChild(el('div',{style:'color:var(--text-dim);'},[txt('No properties to import.')]));
+      return;
+    }
+    srcProperties.forEach(function(p){
+      var cb = el('input',{type:'checkbox'});
+      cb.checked = selectedProps.has(p);
+      cb.addEventListener('change', function(){
+        if(cb.checked) selectedProps.add(p); else selectedProps.delete(p);
+      });
+      var row = el('div',{style:'display:flex; gap:8px; align-items:center; padding:4px 0;'});
+      row.appendChild(cb);
+      var val = propsByBlock[sourceIdx][p];
+      var valStr = typeof val === 'object' ? JSON.stringify(val).slice(0,40) : String(val).slice(0,40);
+      row.appendChild(el('span',{style:'flex:1; font-family:var(--mono); font-size:calc(var(--gui-font-size) * 10/14); color:var(--text-dim);'},[txt(p + ': ' + valStr)]));
+      propList.appendChild(row);
+    });
+  }
+
+  var propHeaderRow = el('div',{style:'display:flex; gap:8px; align-items:center; margin-bottom:8px;'});
+  propHeaderRow.appendChild(el('div',{style:'font-weight:bold; font-family:var(--mono); font-size:calc(var(--gui-font-size) * 11/14); flex:1;'},[txt('2. Select Properties to Import')]));
+  var propAllBtn = el('button',{class:'btn small'},[txt('All')]);
+  propAllBtn.addEventListener('click', function(){
+    if(sourceIdx !== null){ srcProperties.forEach(function(p){ selectedProps.add(p); }); updatePropList(); }
+  });
+  var propClearBtn = el('button',{class:'btn small'},[txt('Clear')]);
+  propClearBtn.addEventListener('click', function(){
+    selectedProps.clear();
+    updatePropList();
+  });
+  propHeaderRow.appendChild(propAllBtn);
+  propHeaderRow.appendChild(propClearBtn);
+  modal.appendChild(propHeaderRow);
+  modal.appendChild(propList);
+  updatePropList();
+
+  // --- Section 3: Target Blocks ---
+  var tgtSearchInput = el('input',{type:'text', placeholder:'Search target blocks...', style:'width:100%; padding:6px; margin-bottom:8px; background:var(--panel3); border:1px solid var(--line); color:var(--text); font-size:calc(var(--gui-font-size) * 12/14); font-family:var(--mono);'});
+  var tgtWrap = el('div',{style:'background:var(--panel2); border:1px solid var(--line-strong); padding:10px; max-height:150px; overflow-y:auto; margin-bottom:16px;'});
+
+  function updateTargetList(){
+    tgtWrap.innerHTML = '';
+    var searchStr = tgtSearchInput.value.toLowerCase();
+    blocksObj.items.forEach(function(b, idx){
+      if(idx === sourceIdx) return;
+      if(searchStr && !b.name.toLowerCase().includes(searchStr)) return;
+      var cb = el('input',{type:'checkbox'});
+      cb.checked = targetIndices.has(idx);
+      cb.addEventListener('change', function(){
+        if(cb.checked) targetIndices.add(idx); else targetIndices.delete(idx);
+      });
+      var row = el('div',{style:'display:flex; gap:8px; align-items:center; padding:4px 0;'});
+      row.appendChild(cb);
+      row.appendChild(el('span',{style:'font-family:var(--mono); font-size:calc(var(--gui-font-size) * 11/14);'},[txt(b.name)]));
+      tgtWrap.appendChild(row);
+    });
+  }
+
+  var tgtHeaderRow = el('div',{style:'display:flex; gap:8px; align-items:center; margin-bottom:8px;'});
+  tgtHeaderRow.appendChild(el('div',{style:'font-weight:bold; font-family:var(--mono); font-size:calc(var(--gui-font-size) * 11/14); flex:1;'},[txt('3. Select Target Blocks')]));
+  var tgtAllBtn = el('button',{class:'btn small'},[txt('All')]);
+  tgtAllBtn.addEventListener('click', function(){
+    blocksObj.items.forEach(function(b, idx){ if(idx !== sourceIdx) targetIndices.add(idx); });
+    updateTargetList();
+  });
+  var tgtClearBtn = el('button',{class:'btn small'},[txt('Clear')]);
+  tgtClearBtn.addEventListener('click', function(){
+    targetIndices.clear();
+    updateTargetList();
+  });
+  tgtHeaderRow.appendChild(tgtAllBtn);
+  tgtHeaderRow.appendChild(tgtClearBtn);
+  modal.appendChild(tgtHeaderRow);
+  modal.appendChild(tgtSearchInput);
+  tgtSearchInput.addEventListener('input', updateTargetList);
+  updateTargetList();
+  modal.appendChild(tgtWrap);
+
+  // Buttons
+  var btnRow = el('div',{style:'display:flex; gap:8px; justify-content:flex-end;'});
+  btnRow.appendChild(el('button',{class:'btn', onclick:function(){ modalBg.remove(); }},[txt('Cancel')]));
+  btnRow.appendChild(el('button',{class:'btn primary', onclick:function(){
+    if(sourceIdx === null){ alert('Select a source block'); return; }
+    if(targetIndices.size === 0){ alert('Select at least one target block'); return; }
+    if(selectedProps.size === 0){ alert('Select at least one property'); return; }
+    
+    var srcBlock = blocksObj.items[sourceIdx];
+    var importedCount = 0;
+    Array.from(targetIndices).forEach(function(tIdx){
+      var tBlock = blocksObj.items[tIdx];
+      selectedProps.forEach(function(p){
+        if(!tBlock.hasOwnProperty(p)){
+          tBlock[p] = JSON.parse(JSON.stringify(srcBlock[p])); // deep copy
+          importedCount++;
+        }
+      });
+    });
+    
+    alert('Imported ' + importedCount + ' field(s) to ' + targetIndices.size + ' block(s).');
+    modalBg.remove();
+    refreshStatusBar();
+    renderView();
+  }},[txt('✓ Apply Import')]));
+  btnRow.appendChild(el('button',{class:'btn danger', onclick:function(){ modalBg.remove(); }},[txt('×')]));
+  modal.appendChild(btnRow);
+
+  modalBg.appendChild(modal);
+  document.body.appendChild(modalBg);
+}
+
 /* ================= BLOCK MANAGER ================= */
 function renderBlocks(){
   var wrap = el('div',{class:'panel'});
@@ -1476,13 +1656,18 @@ function renderBlocks(){
   }
 
   var mid = el('div',{});
-  var listHeader = el('div',{style:'display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;'});
+  var listHeader = el('div',{style:'display:flex; justify-content:space-between; align-items:center; gap:6px; margin-bottom:8px; flex-wrap:wrap;'});
   listHeader.appendChild(el('span',{class:'pipe-sub'},[txt('Blocks')]));
-  listHeader.appendChild(el('button',{class:'btn primary small', onclick:function(){
+  var btnWrap = el('div',{style:'display:flex; gap:6px;'});
+  btnWrap.appendChild(el('button',{class:'btn small', onclick:function(){
+    scanPropertyImport(blocks);
+  }},[txt('Scan & Import')]));
+  btnWrap.appendChild(el('button',{class:'btn primary small', onclick:function(){
     blocks.items.push({name:'New Block', largestDimensionM:null, subcategories:[]});
     selectedBlockIdx = blocks.items.length - 1;
     renderView();
   }},[txt('+ Add block')]));
+  listHeader.appendChild(btnWrap);
   mid.appendChild(listHeader);
   var listWrap = el('div',{class:'block-table-wrap', id:'blockListWrap'});
   mid.appendChild(listWrap);
