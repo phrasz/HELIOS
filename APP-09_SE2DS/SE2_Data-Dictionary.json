@@ -90,72 +90,74 @@
   },
   "production": {
     "simpleComponents": {
-      "producedBy": [
-        "Smelter",
-        "Backpack"
-      ],
-      "items": [
-        "Steel Plate",
-        "Steel Tube",
-        "Glass",
-        "Electronic Parts",
-        "Motor",
-        "Construction Component",
-        "Wire",
-        "Turbine Blades",
-        "Metal Grids",
-        "Magnesium Powder",
-        "Lead Bar",
-        "Gold Thread",
-        "Chrome Coating"
-      ]
-    },
-    "refineryProducts": {
-      "producedBy": [
-        "Refinery"
-      ],
-      "items": [
-        "Enriched Uranium",
-        "Platinum Electrode",
-        "Silver Rod",
-        "Titanium Sheet",
-        "Permanent Magnet",
-        "Superconductor",
-        "Radiation Shielding",
-        "Stainless Steel",
-        "Magnesium Bar"
+      "producedBy": ["Smelter", "Backpack"],
+      "items": ["Steel Plate", "Steel Tube", "Glass", "Electronic Parts", "Motor", "Construction Component", "Wire", "Turbine Blades", "Metal Grids", "Magnesium Powder", "Lead Bar", "Gold Thread", "Chrome Coating"],
+      "recipes": [
+        {
+          "output": "Steel Plate",
+          "madeBy": "Smelter",
+          "inputs": [ { "name": "Iron Ore", "amount": 100 } ],
+          "buildTimeSeconds": 100,
+          "powerDrawKw": 100
+        },
+        {
+          "output": "Electronic Parts",
+          "madeBy": "Backpack",
+          "inputs": [ { "name": "Silicon", "amount": 100 } ],
+          "buildTimeSeconds": 100,
+          "powerDrawKw": 0
+        }
       ]
     },
     "complexComponents": {
-      "producedBy": [
-        "Assembler"
-      ],
-      "items": [
-        "Compressor",
-        "Motherboard",
-        "Combustion Chamber",
-        "Pressure Pipe",
-        "Ion Chamber",
-        "Chemical Synthesizer",
-        "Heavy-duty Plate",
-        "Radio-comm Module",
-        "Reactor Core",
-        "Hard Drive"
+      "producedBy": ["Assembler"],
+      "items": ["Compressor", "Motherboard", "Combustion Chamber", "Pressure Pipe", "Ion Chamber", "Chemical Synthesizer", "Heavy-duty Plate", "Radio-comm Module", "Reactor Core", "Hard Drive"],
+      "recipes": [
+        {
+          "output": "Compressor",
+          "madeBy": "Assembler",
+          "inputs": [
+            { "name": "Steel Plate", "amount": 100 },
+            { "name": "Motor", "amount": 100 }
+          ],
+          "buildTimeSeconds": 100,
+          "powerDrawKw": 100
+        }
+      ]
+    },
+    "refineryProducts": {
+      "producedBy": ["Refinery"],
+      "items": ["Enriched Uranium", "Platinum Electrode", "Silver Rod", "Titanium Sheet", "Permanent Magnet", "Superconductor", "Radiation Shielding", "Stainless Steel", "Magnesium Bar"],
+      "recipes": [
+        {
+          "output": "Enriched Uranium",
+          "madeBy": "Refinery",
+          "inputs": [ { "name": "Uranium Ore", "amount": 1000 } ],
+          "buildTimeSeconds": 500,
+          "powerDrawKw": 500
+        }
       ]
     },
     "highTechComponents": {
-      "producedBy": [
-        "Fabricator"
-      ],
-      "items": [
-        "Mainframe",
-        "Ion Accelerator",
-        "Ultra-resistant Plate",
-        "Advanced Compressor",
-        "Gravity Core",
-        "Titanium Blades",
-        "Laser"
+      "producedBy": ["Fabricator"],
+      "items": ["Mainframe", "Ion Accelerator", "Ultra-resistant Plate", "Advanced Compressor", "Gravity Core", "Titanium Blades", "Laser"],
+      "recipes": [
+        {
+          "output": "Mainframe",
+          "madeBy": "Fabricator",
+          "inputs": [
+            { "name": "Motherboard", "amount": 100 },
+            { "name": "Superconductor", "amount": 100 }
+          ],
+          "buildTimeSeconds": 1000,
+          "powerDrawKw": 1000
+        }
       ]
+    },
+    "gearforgeProducts": {
+      "producedBy": ["Gearforge"],
+      "items": [],
+      "recipes": []
     }
   },
   "blocks": {
@@ -197,6 +199,16 @@
       "Wind Turbine",
       "Window"
     ],
+    "categories": [
+      { "category": "Propulsion", "subcategories": ["Atmospheric Thruster", "Hydrogen Thruster", "Ion Thruster", "Wheel Suspension"] },
+      { "category": "Power", "subcategories": ["Battery", "Solar Panel", "Wind Turbine"] },
+      { "category": "Structural", "subcategories": ["Armor", "Heavy Armor", "Light Armor", "Catwalk", "Handrail", "Structures", "Window", "Detailing", "Corner Light"] },
+      { "category": "Logistics", "subcategories": ["Cargo Container", "Connector", "Conveyor"] },
+      { "category": "Automation & Logic", "subcategories": ["Control Panel", "Control Seat", "Event Controller", "Sensor", "Timer", "Contract Terminal", "Survival Kit"] },
+      { "category": "Mechanical", "subcategories": ["Rotor", "Hinge", "Piston"] },
+      { "category": "Utility", "subcategories": ["Utility", "Gravity Generator", "Drill", "Warhead"] }
+    ],
+    "blockLifecycleStates": ["unbuilt", "building", "functional", "damaged", "destroyed"],
     "items": [
       {
         "name": "Antenna",
@@ -208,7 +220,14 @@
       },
       {
         "name": "Assembler",
-        "largestDimensionM": 5.0
+        "largestDimensionM": 5,
+        "subcategories": [],
+        "massKg": 1000,
+        "powerDrawKw": 100,
+        "integrity": 1000,
+        "storageCapacityL": 1000,
+        "description": "placeholder — one-line in-game tooltip text",
+        "wikiUrl": "placeholder — link to wiki.gg page"
       },
       {
         "name": "Atmospheric Thruster",
