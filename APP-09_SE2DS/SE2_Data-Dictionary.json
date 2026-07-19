@@ -86,39 +86,86 @@
         "from": "High-tech Components",
         "to": "Gearforge"
       }
-    ]
+    ],
+    "isolatedNodes": []
   },
   "production": {
     "simpleComponents": {
-      "producedBy": ["Smelter", "Backpack"],
-      "items": ["Steel Plate", "Steel Tube", "Glass", "Electronic Parts", "Motor", "Construction Component", "Wire", "Turbine Blades", "Metal Grids", "Magnesium Powder", "Lead Bar", "Gold Thread", "Chrome Coating"],
+      "producedBy": [
+        "Smelter",
+        "Backpack"
+      ],
+      "items": [
+        "Steel Plate",
+        "Steel Tube",
+        "Glass",
+        "Electronic Parts",
+        "Motor",
+        "Construction Component",
+        "Wire",
+        "Turbine Blades",
+        "Metal Grids",
+        "Magnesium Powder",
+        "Lead Bar",
+        "Gold Thread",
+        "Chrome Coating"
+      ],
       "recipes": [
         {
           "output": "Steel Plate",
           "madeBy": "Smelter",
-          "inputs": [ { "name": "Iron Ore", "amount": 100 } ],
+          "inputs": [
+            {
+              "name": "Iron Ore",
+              "amount": 100
+            }
+          ],
           "buildTimeSeconds": 100,
           "powerDrawKw": 100
         },
         {
           "output": "Electronic Parts",
           "madeBy": "Backpack",
-          "inputs": [ { "name": "Silicon", "amount": 100 } ],
+          "inputs": [
+            {
+              "name": "Silicon",
+              "amount": 100
+            }
+          ],
           "buildTimeSeconds": 100,
           "powerDrawKw": 0
         }
       ]
     },
     "complexComponents": {
-      "producedBy": ["Assembler"],
-      "items": ["Compressor", "Motherboard", "Combustion Chamber", "Pressure Pipe", "Ion Chamber", "Chemical Synthesizer", "Heavy-duty Plate", "Radio-comm Module", "Reactor Core", "Hard Drive"],
+      "producedBy": [
+        "Assembler"
+      ],
+      "items": [
+        "Compressor",
+        "Motherboard",
+        "Combustion Chamber",
+        "Pressure Pipe",
+        "Ion Chamber",
+        "Chemical Synthesizer",
+        "Heavy-duty Plate",
+        "Radio-comm Module",
+        "Reactor Core",
+        "Hard Drive"
+      ],
       "recipes": [
         {
           "output": "Compressor",
           "madeBy": "Assembler",
           "inputs": [
-            { "name": "Steel Plate", "amount": 100 },
-            { "name": "Motor", "amount": 100 }
+            {
+              "name": "Steel Plate",
+              "amount": 100
+            },
+            {
+              "name": "Motor",
+              "amount": 100
+            }
           ],
           "buildTimeSeconds": 100,
           "powerDrawKw": 100
@@ -126,28 +173,61 @@
       ]
     },
     "refineryProducts": {
-      "producedBy": ["Refinery"],
-      "items": ["Enriched Uranium", "Platinum Electrode", "Silver Rod", "Titanium Sheet", "Permanent Magnet", "Superconductor", "Radiation Shielding", "Stainless Steel", "Magnesium Bar"],
+      "producedBy": [
+        "Refinery"
+      ],
+      "items": [
+        "Enriched Uranium",
+        "Platinum Electrode",
+        "Silver Rod",
+        "Titanium Sheet",
+        "Permanent Magnet",
+        "Superconductor",
+        "Radiation Shielding",
+        "Stainless Steel",
+        "Magnesium Bar"
+      ],
       "recipes": [
         {
           "output": "Enriched Uranium",
           "madeBy": "Refinery",
-          "inputs": [ { "name": "Uranium Ore", "amount": 1000 } ],
+          "inputs": [
+            {
+              "name": "Uranium Ore",
+              "amount": 1000
+            }
+          ],
           "buildTimeSeconds": 500,
           "powerDrawKw": 500
         }
       ]
     },
     "highTechComponents": {
-      "producedBy": ["Fabricator"],
-      "items": ["Mainframe", "Ion Accelerator", "Ultra-resistant Plate", "Advanced Compressor", "Gravity Core", "Titanium Blades", "Laser"],
+      "producedBy": [
+        "Fabricator"
+      ],
+      "items": [
+        "Mainframe",
+        "Ion Accelerator",
+        "Ultra-resistant Plate",
+        "Advanced Compressor",
+        "Gravity Core",
+        "Titanium Blades",
+        "Laser"
+      ],
       "recipes": [
         {
           "output": "Mainframe",
           "madeBy": "Fabricator",
           "inputs": [
-            { "name": "Motherboard", "amount": 100 },
-            { "name": "Superconductor", "amount": 100 }
+            {
+              "name": "Motherboard",
+              "amount": 100
+            },
+            {
+              "name": "Superconductor",
+              "amount": 100
+            }
           ],
           "buildTimeSeconds": 1000,
           "powerDrawKw": 1000
@@ -155,7 +235,9 @@
       ]
     },
     "gearforgeProducts": {
-      "producedBy": ["Gearforge"],
+      "producedBy": [
+        "Gearforge"
+      ],
       "items": [],
       "recipes": []
     }
@@ -200,15 +282,82 @@
       "Window"
     ],
     "categories": [
-      { "category": "Propulsion", "subcategories": ["Atmospheric Thruster", "Hydrogen Thruster", "Ion Thruster", "Wheel Suspension"] },
-      { "category": "Power", "subcategories": ["Battery", "Solar Panel", "Wind Turbine"] },
-      { "category": "Structural", "subcategories": ["Armor", "Heavy Armor", "Light Armor", "Catwalk", "Handrail", "Structures", "Window", "Detailing", "Corner Light"] },
-      { "category": "Logistics", "subcategories": ["Cargo Container", "Connector", "Conveyor"] },
-      { "category": "Automation & Logic", "subcategories": ["Control Panel", "Control Seat", "Event Controller", "Sensor", "Timer", "Contract Terminal", "Survival Kit"] },
-      { "category": "Mechanical", "subcategories": ["Rotor", "Hinge", "Piston"] },
-      { "category": "Utility", "subcategories": ["Utility", "Gravity Generator", "Drill", "Warhead"] }
+      {
+        "category": "Propulsion",
+        "subcategories": [
+          "Atmospheric Thruster",
+          "Hydrogen Thruster",
+          "Ion Thruster",
+          "Wheel Suspension"
+        ]
+      },
+      {
+        "category": "Power",
+        "subcategories": [
+          "Battery",
+          "Solar Panel",
+          "Wind Turbine"
+        ]
+      },
+      {
+        "category": "Structural",
+        "subcategories": [
+          "Armor",
+          "Heavy Armor",
+          "Light Armor",
+          "Catwalk",
+          "Handrail",
+          "Structures",
+          "Window",
+          "Detailing",
+          "Corner Light"
+        ]
+      },
+      {
+        "category": "Logistics",
+        "subcategories": [
+          "Cargo Container",
+          "Connector",
+          "Conveyor"
+        ]
+      },
+      {
+        "category": "Automation & Logic",
+        "subcategories": [
+          "Control Panel",
+          "Control Seat",
+          "Event Controller",
+          "Sensor",
+          "Timer",
+          "Contract Terminal",
+          "Survival Kit"
+        ]
+      },
+      {
+        "category": "Mechanical",
+        "subcategories": [
+          "Rotor",
+          "Hinge",
+          "Piston"
+        ]
+      },
+      {
+        "category": "Utility",
+        "subcategories": [
+          "Utility",
+          "Gravity Generator",
+          "Drill",
+          "Warhead"
+        ]
+      }
     ],
-    "blockLifecycleStates": ["unbuilt", "building", "functional", "damaged", "destroyed"],
+    "blockLifecycleStates": [
+      "unbuilt",
+      "building",
+      "functional",
+      "damaged",
+      "destroyed"
+    ],
     "items": [
       {
         "name": "Antenna",
@@ -231,19 +380,19 @@
       },
       {
         "name": "Atmospheric Thruster",
-        "largestDimensionM": 1.0
+        "largestDimensionM": 1
       },
       {
         "name": "Atmospheric Thruster",
-        "largestDimensionM": 2.0
+        "largestDimensionM": 2
       },
       {
         "name": "Atmospheric Thruster",
-        "largestDimensionM": 5.0
+        "largestDimensionM": 5
       },
       {
         "name": "Atmospheric Thruster",
-        "largestDimensionM": 10.0
+        "largestDimensionM": 10
       },
       {
         "name": "Barrel",
@@ -255,15 +404,25 @@
       },
       {
         "name": "Battery",
-        "largestDimensionM": 1.5
+        "largestDimensionM": 1.5,
+        "subcategories": []
       },
       {
         "name": "Battery",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "componentsSimple": {
+          "Wire": 4,
+          "Lead Bar": 1
+        },
+        "subcategories": [],
+        "componentsComplex": {
+          "Heavy-Duty Plate": 14,
+          "Motherboard": 1
+        }
       },
       {
         "name": "Bed",
-        "largestDimensionM": 2.0
+        "largestDimensionM": 2
       },
       {
         "name": "Button",
@@ -367,15 +526,21 @@
       },
       {
         "name": "Conveyor Curved",
-        "largestDimensionM": 2.0
+        "largestDimensionM": 2
       },
       {
         "name": "Conveyor Node Junction",
-        "largestDimensionM": 0.5
+        "largestDimensionM": 0.5,
+        "subcategories": []
       },
       {
         "name": "Conveyor Node Junction",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [],
+        "componentsSimple": {
+          "Steel Plate": 16,
+          "Steel Tube": 4
+        }
       },
       {
         "name": "Conveyor Short",
@@ -411,7 +576,12 @@
       },
       {
         "name": "Conveyor T-Junction",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [],
+        "componentsSimple": {
+          "Steel Plate": 8,
+          "Steel Tube": 2
+        }
       },
       {
         "name": "Corner Light",
@@ -427,7 +597,7 @@
       },
       {
         "name": "Crate",
-        "largestDimensionM": 1.0
+        "largestDimensionM": 1
       },
       {
         "name": "Deck Panel",
@@ -471,15 +641,29 @@
       },
       {
         "name": "Event Controller",
-        "largestDimensionM": 1.0
+        "largestDimensionM": 1
       },
       {
         "name": "Fabricator",
-        "largestDimensionM": 10.0
+        "largestDimensionM": 10,
+        "description": "placeholder — one-line in-game tooltip text",
+        "massKg": 1000,
+        "powerDrawKw": 100,
+        "storageCapacityL": 1000,
+        "wikiUrl": "placeholder — link to wiki.gg page",
+        "componentsComplex": {
+          "Heavy-Duty Plate": 100,
+          "Compressor": 16
+        },
+        "refineryProducts": {
+          "Titanium Sheet": 2,
+          "Platinum Electrode": 2
+        },
+        "subcategories": []
       },
       {
         "name": "Gatling Cannon",
-        "largestDimensionM": 2.0
+        "largestDimensionM": 2
       },
       {
         "name": "Gatling Turret",
@@ -487,11 +671,18 @@
       },
       {
         "name": "Gearforge",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "componentsSimple": {
+          "Steel Plate": 28,
+          "Metal Grid": 2,
+          "Eletronic Parts": 2,
+          "Motor": 8
+        },
+        "subcategories": []
       },
       {
         "name": "Gravity Generator",
-        "largestDimensionM": 5.0
+        "largestDimensionM": 5
       },
       {
         "name": "Grinder",
@@ -499,7 +690,7 @@
       },
       {
         "name": "Grinder",
-        "largestDimensionM": 4.0
+        "largestDimensionM": 4
       },
       {
         "name": "Gyroscope",
@@ -747,7 +938,7 @@
       },
       {
         "name": "Hydrogen Tank",
-        "largestDimensionM": 5.0
+        "largestDimensionM": 5
       },
       {
         "name": "Hydrogen Thruster",
@@ -755,7 +946,7 @@
       },
       {
         "name": "Hydrogen Thruster",
-        "largestDimensionM": 2.0
+        "largestDimensionM": 2
       },
       {
         "name": "Hydrogen Thruster",
@@ -815,7 +1006,7 @@
       },
       {
         "name": "Ion Thruster",
-        "largestDimensionM": 1.0
+        "largestDimensionM": 1
       },
       {
         "name": "Ion Thruster",
@@ -823,7 +1014,7 @@
       },
       {
         "name": "Ion Thruster",
-        "largestDimensionM": 5.0
+        "largestDimensionM": 5
       },
       {
         "name": "Ion Thruster",
@@ -835,11 +1026,11 @@
       },
       {
         "name": "Landing Gear",
-        "largestDimensionM": 1.0
+        "largestDimensionM": 1
       },
       {
         "name": "Landing Gear",
-        "largestDimensionM": 5.0
+        "largestDimensionM": 5
       },
       {
         "name": "LCD Corner",
@@ -875,11 +1066,11 @@
       },
       {
         "name": "LCD Wide",
-        "largestDimensionM": 3.0
+        "largestDimensionM": 3
       },
       {
         "name": "LCD Wide",
-        "largestDimensionM": 5.0
+        "largestDimensionM": 5
       },
       {
         "name": "Light Armor Corner",
@@ -1067,11 +1258,11 @@
       },
       {
         "name": "Locker",
-        "largestDimensionM": 2.0
+        "largestDimensionM": 2
       },
       {
         "name": "Medical Room",
-        "largestDimensionM": 5.0
+        "largestDimensionM": 5
       },
       {
         "name": "Narrow Sliding Door",
@@ -1087,15 +1278,15 @@
       },
       {
         "name": "O2 H2 Generator",
-        "largestDimensionM": 5.0
+        "largestDimensionM": 5
       },
       {
         "name": "Ore Detector",
-        "largestDimensionM": 1.0
+        "largestDimensionM": 1
       },
       {
         "name": "Ore Detector",
-        "largestDimensionM": 5.0
+        "largestDimensionM": 5
       },
       {
         "name": "Oxygen Tank",
@@ -1143,7 +1334,7 @@
       },
       {
         "name": "Ramp",
-        "largestDimensionM": 5.0
+        "largestDimensionM": 5
       },
       {
         "name": "Reactor",
@@ -1155,23 +1346,30 @@
       },
       {
         "name": "Refinery",
-        "largestDimensionM": 7.5
+        "largestDimensionM": 7.5,
+        "subcategories": [],
+        "componentsComplex": {
+          "Heavy-Duty Plate": 50,
+          "Compressor": 8,
+          "Chemical Synthesizer": 1,
+          "Motherboard": 1
+        }
       },
       {
         "name": "Rocket Launcher",
-        "largestDimensionM": 2.0
+        "largestDimensionM": 2
       },
       {
         "name": "Rocket Launcher",
-        "largestDimensionM": 5.0
+        "largestDimensionM": 5
       },
       {
         "name": "Rocket Turret",
-        "largestDimensionM": 2.0
+        "largestDimensionM": 2
       },
       {
         "name": "Rocket Turret",
-        "largestDimensionM": 5.0
+        "largestDimensionM": 5
       },
       {
         "name": "Rotor",
@@ -1211,23 +1409,25 @@
       },
       {
         "name": "Sink",
-        "largestDimensionM": 1.0
+        "largestDimensionM": 1
       },
       {
         "name": "Smelter",
-        "largestDimensionM": null
-      },
-      {
-        "name": "Smelter",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "subcategories": [],
+        "componentsSimple": {
+          "Steel Plate": 35,
+          "Eletronic Parts": 7,
+          "Motor": 28
+        }
       },
       {
         "name": "Solar Panel",
-        "largestDimensionM": 10.0
+        "largestDimensionM": 10
       },
       {
         "name": "Solar Panel",
-        "largestDimensionM": 5.0
+        "largestDimensionM": 5
       },
       {
         "name": "Sound Block",
@@ -1247,7 +1447,7 @@
       },
       {
         "name": "Stairs",
-        "largestDimensionM": 5.0
+        "largestDimensionM": 5
       },
       {
         "name": "Stairway",
@@ -1287,7 +1487,7 @@
       },
       {
         "name": "Toilet",
-        "largestDimensionM": 1.0
+        "largestDimensionM": 1
       },
       {
         "name": "Trade Terminal",
@@ -1339,11 +1539,11 @@
       },
       {
         "name": "Welder",
-        "largestDimensionM": 4.0
+        "largestDimensionM": 4
       },
       {
         "name": "Wheel Suspension",
-        "largestDimensionM": 1.0
+        "largestDimensionM": 1
       },
       {
         "name": "Wheel Suspension",
@@ -1359,7 +1559,7 @@
       },
       {
         "name": "Wheel Suspension",
-        "largestDimensionM": 5.0
+        "largestDimensionM": 5
       },
       {
         "name": "Wheel Suspension",
@@ -1415,11 +1615,11 @@
       },
       {
         "name": "Window Slanted Long",
-        "largestDimensionM": 5.0
+        "largestDimensionM": 5
       },
       {
         "name": "Window Slanted Long Inverted",
-        "largestDimensionM": 5.0
+        "largestDimensionM": 5
       },
       {
         "name": "Window Slope",
@@ -1435,15 +1635,15 @@
       },
       {
         "name": "Window Slope Long",
-        "largestDimensionM": 5.0
+        "largestDimensionM": 5
       },
       {
         "name": "Window Slope Long with Side Left",
-        "largestDimensionM": 5.0
+        "largestDimensionM": 5
       },
       {
         "name": "Window Slope Long with Side Right",
-        "largestDimensionM": 5.0
+        "largestDimensionM": 5
       },
       {
         "name": "Window Slope With Side",
@@ -1459,7 +1659,7 @@
       },
       {
         "name": "Window Triangle Side Large",
-        "largestDimensionM": 5.0
+        "largestDimensionM": 5
       },
       {
         "name": "Window Triangle Slanted",
@@ -1479,11 +1679,11 @@
       },
       {
         "name": "Window Triangle Slanted Large",
-        "largestDimensionM": 5.0
+        "largestDimensionM": 5
       },
       {
         "name": "Window Triangle Slanted Large Inverted",
-        "largestDimensionM": 5.0
+        "largestDimensionM": 5
       }
     ]
   }
