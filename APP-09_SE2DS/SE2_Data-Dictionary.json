@@ -490,7 +490,16 @@
       },
       {
         "name": "Connector",
-        "largestDimensionM": 1.5
+        "largestDimensionM": 1.5,
+        "componentsSimple": {
+          "Eletronic Parts": 12,
+          "Construction Component": 48
+        },
+        "materialsRaw": {
+          "Iron": 240,
+          "Silicon": 60
+        },
+        "subcategories": []
       },
       {
         "name": "Contract Terminal",
@@ -1086,7 +1095,13 @@
       },
       {
         "name": "Light Armor Cube",
-        "largestDimensionM": 2.5
+        "largestDimensionM": 2.5,
+        "materialsRaw": {
+          "Iron": 1050
+        },
+        "componentsSimple": {
+          "Steel Plate": 30
+        }
       },
       {
         "name": "Light Armor Half",
@@ -1567,7 +1582,19 @@
       },
       {
         "name": "Wind Turbine",
-        "largestDimensionM": 7.5
+        "largestDimensionM": 7.5,
+        "subcategories": [],
+        "componentsSimple": {
+          "Steel Plate": 96,
+          "Eletronic Parts": 16,
+          "Motor": 16,
+          "Construction Component": 32
+        },
+        "materialsRaw": {
+          "Iron": 3520,
+          "Silicon": 80,
+          "Nickel": 400
+        }
       },
       {
         "name": "Window Corner",
