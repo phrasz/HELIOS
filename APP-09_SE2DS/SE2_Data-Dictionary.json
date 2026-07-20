@@ -66,30 +66,87 @@
         "Uranium"
       ]
     },
+
     "refineryProducts": {
       "aliases": [],
-      "items": {}
+      "items": [
+        "Enriched Uranium",
+        "Platinum Electrode",
+        "Silver Rod",
+        "Titanium Sheet",
+        "Permanent Magnet",
+        "Superconductor",
+        "Radiation Shielding",
+        "Stainless Steel",
+        "Magnesium Bar"
+      ]
     },
+
     "simpleComponents": {
       "aliases": [],
-      "items": {}
+      "items": [
+        "Steel Plate",
+        "Steel Tube",
+        "Glass",
+        "Electronic Parts",
+        "Motor",
+        "Construction Component",
+        "Wire",
+        "Turbine Blades",
+        "Metal Grids",
+        "Magnesium Powder",
+        "Lead Bar",
+        "Gold Thread",
+        "Chrome Coating"
+      ]
     },
+
     "complexComponents": {
       "aliases": [],
-      "items": {}
+      "items": [
+        "Compressor",
+        "Motherboard",
+        "Combustion Chamber",
+        "Pressure Pipe",
+        "Ion Chamber",
+        "Chemical Synthesizer",
+        "Heavy-duty Plate",
+        "Radio-comm Module",
+        "Reactor Core",
+        "Hard Drive"
+      ]
     },
+
     "highTechComponents": {
       "aliases": [],
-      "items": {}
+      "items": [
+        "Mainframe",
+        "Ion Accelerator",
+        "Ultra-resistant Plate",
+        "Advanced Compressor",
+        "Gravity Core",
+        "Titanium Blades",
+        "Laser"
+      ]
     },
+
     "gearforgeProducts": {
       "aliases": [],
-      "items": {}
+      "items": []
     },
+
     "machines": {
       "aliases": [],
-      "items": {}
+      "items": [
+        "Backpack",
+        "Smelter",
+        "Refinery",
+        "Assembler",
+        "Fabricator",
+        "Gearforge"
+      ]
     },
+
     "blockCategories": [
       {
         "category": "Propulsion",
@@ -160,6 +217,7 @@
         ]
       }
     ],
+
     "blockSubcategories": [
       "Armor",
       "Atmospheric Thruster",
@@ -195,6 +253,7 @@
       "Wind Turbine",
       "Window"
     ],
+
     "states": {
       "blockLifecycleStates": [
         "unbuilt",
@@ -204,7 +263,9 @@
         "destroyed"
       ]
     },
+
     "units": {},
+
     "localization": {}
   },
   "productionFlow": {
