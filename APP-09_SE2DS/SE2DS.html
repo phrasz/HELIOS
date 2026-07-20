@@ -132,6 +132,8 @@ input[type=file]{display:none;}
 .chip{display:inline-flex; align-items:center; gap:6px; background:var(--panel3); border:1px solid var(--line-strong); padding:4px 8px; font-family:var(--mono); font-size:calc(var(--gui-font-size) * 11.5/14); margin:3px 4px 3px 0;}
 .chip .x{cursor:pointer; color:var(--red); font-weight:bold;}
 .chip.active{border-color:var(--amber); color:var(--amber);}
+.chip.danger{border-color:var(--red); color:var(--red); cursor:pointer;}
+.chip.danger:hover{background:var(--panel2);}
 .chip.tog{cursor:pointer;}
 
 /* FLOW */
@@ -1690,7 +1692,7 @@ function renderBlocks(){
       }},[txt(c)]));
     });
     if(blockFilter.cats.size > 0){
-      cw.appendChild(el('span',{class:'chip', onclick:function(){ blockFilter.cats.clear(); renderBlockList(); renderCatChips(); }},[txt('Clear \u2715')]));
+      cw.appendChild(el('span',{class:'chip danger', onclick:function(){ blockFilter.cats.clear(); renderBlockList(); renderCatChips(); }},[txt('Clear \u2715')]));
     }
   }
   function filteredBlocks(){
