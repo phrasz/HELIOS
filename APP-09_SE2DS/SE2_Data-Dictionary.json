@@ -50,21 +50,78 @@
         "Ores"
       ],
       "items": [
-        "Chromium",
-        "Cobalt",
-        "Copper",
-        "Gold",
-        "Ice",
-        "Iron",
-        "Lead",
-        "Magnesium",
-        "Nickel",
-        "Platinum",
-        "Silicon",
-        "Silver",
-        "Titanium",
-        "Uranium"
-      ]
+        {
+          "name": "Chromium",
+          "massKg": null,
+          "subcategories": []
+        },
+        {
+          "name": "Cobalt",
+          "massKg": null,
+          "subcategories": []
+        },
+        {
+          "name": "Copper",
+          "massKg": null,
+          "subcategories": []
+        },
+        {
+          "name": "Gold",
+          "massKg": null,
+          "subcategories": []
+        },
+        {
+          "name": "Ice",
+          "massKg": null,
+          "subcategories": []
+        },
+        {
+          "name": "Iron",
+          "massKg": null,
+          "subcategories": []
+        },
+        {
+          "name": "Lead",
+          "massKg": null,
+          "subcategories": []
+        },
+        {
+          "name": "Magnesium",
+          "massKg": null,
+          "subcategories": []
+        },
+        {
+          "name": "Nickel",
+          "massKg": null,
+          "subcategories": []
+        },
+        {
+          "name": "Platinum",
+          "massKg": null,
+          "subcategories": []
+        },
+        {
+          "name": "Silicon",
+          "massKg": null,
+          "subcategories": []
+        },
+        {
+          "name": "Silver",
+          "massKg": null,
+          "subcategories": []
+        },
+        {
+          "name": "Titanium",
+          "massKg": null,
+          "subcategories": []
+        },
+        {
+          "name": "Uranium",
+          "massKg": null,
+          "subcategories": []
+        }
+      ],
+      "subcategories": []
     },
     "refineryProducts": {
       "aliases": [],
@@ -72,6 +129,7 @@
       "items": [
         {
           "name": "Enriched Uranium",
+          "massKg": null,
           "requiredResources": {
             "Uranium": 100
           },
@@ -82,6 +140,7 @@
         },
         {
           "name": "Platinum Electrode",
+          "massKg": null,
           "requiredResources": {
             "Platinum": 5
           },
@@ -92,6 +151,7 @@
         },
         {
           "name": "Silver Rod",
+          "massKg": null,
           "requiredResources": {
             "Silver": 25
           },
@@ -102,6 +162,7 @@
         },
         {
           "name": "Titanium Sheet",
+          "massKg": null,
           "requiredResources": {
             "Titanium": 30
           },
@@ -112,6 +173,7 @@
         },
         {
           "name": "Permanent Magnet",
+          "massKg": null,
           "requiredResources": {
             "Magnesium": 10
           },
@@ -122,6 +184,7 @@
         },
         {
           "name": "Superconductor",
+          "massKg": null,
           "requiredResources": {
             "Gold": 100
           },
@@ -132,6 +195,7 @@
         },
         {
           "name": "Radiation Shielding",
+          "massKg": null,
           "requiredResources": {
             "Lead": 150
           },
@@ -142,6 +206,7 @@
         },
         {
           "name": "Stainless Steel",
+          "massKg": null,
           "requiredResources": {
             "Iron": 35
           },
@@ -152,6 +217,7 @@
         },
         {
           "name": "Magnesium Bar",
+          "massKg": null,
           "requiredResources": {
             "Magnesium": 25
           },
@@ -169,6 +235,7 @@
       "items": [
         {
           "name": "Steel Plate",
+          "massKg": null,
           "requiredResources": {
             "Iron": 35
           },
@@ -180,6 +247,7 @@
         },
         {
           "name": "Steel Tube",
+          "massKg": null,
           "requiredResources": {
             "Iron": 5
           },
@@ -191,6 +259,7 @@
         },
         {
           "name": "Glass",
+          "massKg": null,
           "requiredResources": {
             "Silicon": 20
           },
@@ -202,6 +271,7 @@
         },
         {
           "name": "Electronic Parts",
+          "massKg": null,
           "requiredResources": {
             "Silicon": 5
           },
@@ -213,6 +283,7 @@
         },
         {
           "name": "Motor",
+          "massKg": null,
           "requiredResources": {
             "Nickel": 25
           },
@@ -224,6 +295,7 @@
         },
         {
           "name": "Construction Component",
+          "massKg": null,
           "requiredResources": {
             "Iron": 5
           },
@@ -235,6 +307,7 @@
         },
         {
           "name": "Wire",
+          "massKg": null,
           "requiredResources": {
             "Copper": 20
           },
@@ -246,6 +319,7 @@
         },
         {
           "name": "Turbine Blades",
+          "massKg": null,
           "requiredResources": {
             "Nickel": 10
           },
@@ -257,6 +331,7 @@
         },
         {
           "name": "Metal Grids",
+          "massKg": null,
           "requiredResources": {
             "Iron": 15
           },
@@ -268,6 +343,7 @@
         },
         {
           "name": "Magnesium Powder",
+          "massKg": null,
           "requiredResources": {
             "Magnesium": 15
           },
@@ -279,6 +355,7 @@
         },
         {
           "name": "Lead Bar",
+          "massKg": null,
           "requiredResources": {
             "Lead": 50
           },
@@ -290,6 +367,7 @@
         },
         {
           "name": "Gold Thread",
+          "massKg": null,
           "requiredResources": {
             "Gold": 5
           },
@@ -301,6 +379,7 @@
         },
         {
           "name": "Chrome Coating",
+          "massKg": null,
           "requiredResources": {
             "Chromium": 15
           },
@@ -319,6 +398,7 @@
       "items": [
         {
           "name": "Compressor",
+          "massKg": null,
           "requiredResources": {
             "Motor": 2,
             "Wire": 2,
@@ -331,6 +411,7 @@
         },
         {
           "name": "Motherboard",
+          "massKg": null,
           "requiredResources": {
             "Electronic Parts": "1",
             "Gold Thread": "7"
@@ -342,6 +423,7 @@
         },
         {
           "name": "Combustion Chamber",
+          "massKg": null,
           "requiredResources": {
             "Turbine Blades": 2,
             "Metal Grid": 1,
@@ -354,6 +436,7 @@
         },
         {
           "name": "Pressure Pipe",
+          "massKg": null,
           "requiredResources": {
             "Turbine Blades": 2,
             "Lead Bar": 1,
@@ -366,6 +449,7 @@
         },
         {
           "name": "Ion Chamber",
+          "massKg": null,
           "requiredResources": {
             "Wire": 1,
             "Gold Thread": 2,
@@ -378,6 +462,7 @@
         },
         {
           "name": "Chemical Synthesizer",
+          "massKg": null,
           "requiredResources": {
             "Wire": 3,
             "Chrome Coating": 2
@@ -389,6 +474,7 @@
         },
         {
           "name": "Heavy-duty Plate",
+          "massKg": null,
           "requiredResources": {
             "Steel Plate": 4
           },
@@ -399,6 +485,7 @@
         },
         {
           "name": "Radio-comm Module",
+          "massKg": null,
           "requiredResources": {
             "Electronic Parts": 5,
             "Wire": 3
@@ -410,6 +497,7 @@
         },
         {
           "name": "Reactor Core",
+          "massKg": null,
           "requiredResources": {
             "Metal Grid": 4,
             "Lead Bar": 5,
@@ -422,6 +510,7 @@
         },
         {
           "name": "Hard Drive",
+          "massKg": null,
           "requiredResources": {
             "Electronic Parts": 8,
             "Gold Thread": 8
@@ -440,6 +529,7 @@
       "items": [
         {
           "name": "Mainframe",
+          "massKg": null,
           "requiredResources": {
             "Motherboard": 2,
             "Hard Drive": 2
@@ -451,6 +541,7 @@
         },
         {
           "name": "Ion Accelerator",
+          "massKg": null,
           "requiredResources": {
             "Platinum": 5,
             "Silver Rod": 3,
@@ -463,6 +554,7 @@
         },
         {
           "name": "Ultra-resistant Plate",
+          "massKg": null,
           "requiredResources": {
             "Titanium Sheet": 7
           },
@@ -473,6 +565,7 @@
         },
         {
           "name": "Advanced Compressor",
+          "massKg": null,
           "requiredResources": {
             "Compressor": 1,
             "Pressure Plate": 2,
@@ -485,6 +578,7 @@
         },
         {
           "name": "Gravity Core",
+          "massKg": null,
           "requiredResources": {
             "Silver Rod": 10,
             "Permanent Magnet": 5,
@@ -497,6 +591,7 @@
         },
         {
           "name": "Titanium Blades",
+          "massKg": null,
           "requiredResources": {
             "Titanium Sheet": 6,
             "Stainless Steel": 2
@@ -508,6 +603,7 @@
         },
         {
           "name": "Laser",
+          "massKg": null,
           "requiredResources": {
             "Ion Chamber": 3,
             "Magnesium Bar": 5
