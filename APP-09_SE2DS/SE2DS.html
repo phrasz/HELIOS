@@ -557,6 +557,12 @@ function registeredPathsOfType(type){
 function autoDetectAndRegister(){
   if(DATA.productionFlow && DATA.productionFlow.flow && !typeRegistry['productionFlow']) typeRegistry['productionFlow'] = 'flow';
   if(DATA.production && typeof DATA.production === 'object' && !Array.isArray(DATA.production) && !typeRegistry['production']) typeRegistry['production'] = 'pipeline';
+  // Auto-register all asset-type sections (production data and blocks)
+  if(DATA.referenceData){
+    ['rawMaterials','refineryProducts','simpleComponents','complexComponents','highTechComponents'].forEach(function(key){
+      if(DATA.referenceData[key] && DATA.referenceData[key].items && !typeRegistry['referenceData.'+key]) typeRegistry['referenceData.'+key] = 'assets';
+    });
+  }
   if(DATA.blocks && DATA.blocks.items && !typeRegistry['blocks']) typeRegistry['blocks'] = 'assets';
 }
 function ensureFocus(){
