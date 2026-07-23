@@ -155,21 +155,21 @@ input[type=file]{display:none;}
 .item-line{display:flex; gap:6px; align-items:center; margin-bottom:4px;}
 .item-line input{flex:1;}
 
-/* BLOCKS */
-.blocks-layout{display:grid; grid-template-columns:230px 1fr 300px; gap:14px; align-items:start;}
-.block-search{width:100%; background:var(--panel3); border:1px solid var(--line-strong); color:var(--text); font-family:var(--mono); padding:7px 9px; font-size:calc(var(--gui-font-size) * 12/14); margin-bottom:10px;}
+/* ASSETS */
+.assets-layout{display:grid; grid-template-columns:230px 1fr 300px; gap:14px; align-items:start;}
+.asset-search{width:100%; background:var(--panel3); border:1px solid var(--line-strong); color:var(--text); font-family:var(--mono); padding:7px 9px; font-size:calc(var(--gui-font-size) * 12/14); margin-bottom:10px;}
 .cat-chip-wrap{display:flex; flex-wrap:wrap;}
-.block-table-wrap{max-height:70vh; overflow:auto; border:1px solid var(--line);}
-.block-row{display:flex; justify-content:space-between; padding:8px 10px; border-bottom:1px solid var(--line); cursor:pointer; font-family:var(--mono); font-size:calc(var(--gui-font-size) * 12/14);}
-.block-row:hover{background:var(--panel2);}
-.block-row.sel{background:var(--panel3); border-left:3px solid var(--amber); padding-left:7px;}
-.block-row .dim{color:var(--text-dim);}
+.asset-table-wrap{max-height:70vh; overflow:auto; border:1px solid var(--line);}
+.asset-row{display:flex; justify-content:space-between; padding:8px 10px; border-bottom:1px solid var(--line); cursor:pointer; font-family:var(--mono); font-size:calc(var(--gui-font-size) * 12/14);}
+.asset-row:hover{background:var(--panel2);}
+.asset-row.sel{background:var(--panel3); border-left:3px solid var(--amber); padding-left:7px;}
+.asset-row .dim{color:var(--text-dim);}
 .detail-field{margin-bottom:10px;}
 .detail-label{font-family:var(--mono); font-size:calc(var(--gui-font-size) * 10/14); text-transform:uppercase; color:var(--text-dim); letter-spacing:1px; margin-bottom:4px;}
 .empty-hint{font-family:var(--mono); font-size:calc(var(--gui-font-size) * 12/14); color:var(--text-dim); padding:20px 0; text-align:center; border:1px dashed var(--line);}
 .field-del{color:var(--red); cursor:pointer; font-size:calc(var(--gui-font-size) * 11/14); margin-left:6px;}
 
-/* NESTED VALUE EDITOR (block manager dict/array fields) */
+/* NESTED VALUE EDITOR (asset manager dict/array fields) */
 .nested-box{border-left:2px solid var(--line-strong); margin:4px 0 4px 2px; padding-left:12px;}
 .nested-row{display:flex; align-items:flex-start; gap:8px; margin-bottom:6px;}
 .nested-key{font-family:var(--mono); color:var(--cyan); font-size:calc(var(--gui-font-size) * 11.5/14); min-width:100px; padding-top:6px; cursor:text; border-bottom:1px dashed transparent;}
@@ -269,12 +269,12 @@ input[type=file]{display:none;}
 
 var SAMPLE = JSON.parse(document.getElementById('default-data').textContent);
 var DATA = {};
-var typeRegistry = {}; // pathKey string -> 'flow' | 'pipeline' | 'blocks'
+var typeRegistry = {}; // pathKey string -> 'flow' | 'pipeline' | 'assets'
 var VIEW = 'node';
 var focusPath = []; // node editor pivot
-var flowFocus = null, pipelineFocus = null, blocksFocus = null; // path arrays
-var blockFilter = { search:'', cats:new Set() };
-var selectedBlockIdx = null;
+var flowFocus = null, pipelineFocus = null, assetsFocus = null; // path arrays
+var assetFilter = { search:'', cats:new Set() };
+var selectedAssetIdx = null;
 var manageCats = false;
 var flowOrientation = 'LR';
 var settings = { theme:'dark', previewDepth:1, flowRouting:'orthogonal', flowHighlight:true, guiFontSize:14 };
@@ -304,7 +304,7 @@ function doPersist(){
   if(!hasStorage()) return;
   var snapshot = {
     DATA: DATA, typeRegistry: typeRegistry, settings: settings,
-    flowFocus: flowFocus, pipelineFocus: pipelineFocus, blocksFocus: blocksFocus,
+    flowFocus: flowFocus, pipelineFocus: pipelineFocus, assetsFocus: assetsFocus,
     flowOrientation: flowOrientation, VIEW: VIEW, focusPath: focusPath
   };
   try{
@@ -329,7 +329,7 @@ function loadPersisted(){
           settings = Object.assign(settings, snap.settings || {});
           flowFocus = snap.flowFocus || null;
           pipelineFocus = snap.pipelineFocus || null;
-          blocksFocus = snap.blocksFocus || null;
+          assetsFocus = snap.assetsFocus || null;
           flowOrientation = snap.flowOrientation || 'LR';
           VIEW = snap.VIEW || 'node';
           focusPath = snap.focusPath || [];
@@ -422,7 +422,7 @@ function defaultForType(t){
 function defaultShapeFor(type){
   if(type === 'flow') return {flow:[], isolatedNodes:[]};
   if(type === 'pipeline') return {};
-  if(type === 'blocks') return {subcategories:[], items:[]};
+  if(type === 'assets') return {subcategories:[], items:[]};
   return {};
 }
 function previewValue(v, depthOverride){
@@ -557,7 +557,7 @@ function registeredPathsOfType(type){
 function autoDetectAndRegister(){
   if(DATA.productionFlow && DATA.productionFlow.flow && !typeRegistry['productionFlow']) typeRegistry['productionFlow'] = 'flow';
   if(DATA.production && typeof DATA.production === 'object' && !Array.isArray(DATA.production) && !typeRegistry['production']) typeRegistry['production'] = 'pipeline';
-  if(DATA.blocks && DATA.blocks.items && !typeRegistry['blocks']) typeRegistry['blocks'] = 'blocks';
+  if(DATA.blocks && DATA.blocks.items && !typeRegistry['blocks']) typeRegistry['blocks'] = 'assets';
 }
 function ensureFocus(){
   var fp = registeredPathsOfType('flow');
@@ -568,9 +568,9 @@ function ensureFocus(){
   if(!pipelineFocus || !pathExists(pipelineFocus) || typeRegistry[pathKey(pipelineFocus)] !== 'pipeline'){
     pipelineFocus = pp.length ? parsePathKey(pp[0]) : null;
   }
-  var bp = registeredPathsOfType('blocks');
-  if(!blocksFocus || !pathExists(blocksFocus) || typeRegistry[pathKey(blocksFocus)] !== 'blocks'){
-    blocksFocus = bp.length ? parsePathKey(bp[0]) : null;
+  var ap = registeredPathsOfType('assets');
+  if(!assetsFocus || !pathExists(assetsFocus) || typeRegistry[pathKey(assetsFocus)] !== 'assets'){
+    assetsFocus = ap.length ? parsePathKey(ap[0]) : null;
   }
 }
 function createNewTyped(type){
@@ -880,7 +880,7 @@ function onImportFile(e){
       var mode = window.confirm('Click OK to MERGE this file into current data.\nClick Cancel to REPLACE current data entirely.');
       if(mode){ DATA = deepMerge(DATA, incoming); } else { DATA = incoming; }
       autoDetectAndRegister();
-      focusPath = []; selectedBlockIdx = null;
+      focusPath = []; selectedAssetIdx = null;
       ensureFocus();
       renderShell();
       schedulePersist();
@@ -903,7 +903,7 @@ function loadFromRelativePath(filename){
       var mode = window.confirm('Click OK to MERGE "'+filename+'" into current data.\nClick Cancel to REPLACE current data entirely.');
       if(mode){ DATA = deepMerge(DATA, incoming); } else { DATA = incoming; }
       autoDetectAndRegister();
-      focusPath = []; selectedBlockIdx = null;
+      focusPath = []; selectedAssetIdx = null;
       ensureFocus();
       renderShell();
       schedulePersist();
@@ -927,8 +927,8 @@ function onReset(){
   if(!window.confirm('This permanently clears ALL data and tagging \u2014 including the autosaved copy \u2014 back to a completely empty workspace. Export first if you want to keep anything. Continue?')) return;
   DATA = {};
   typeRegistry = {};
-  focusPath = []; flowFocus = null; pipelineFocus = null; blocksFocus = null;
-  selectedBlockIdx = null; blockFilter = { search:'', cats:new Set() }; manageCats = false;
+  focusPath = []; flowFocus = null; pipelineFocus = null; assetsFocus = null;
+  selectedAssetIdx = null; assetFilter = { search:'', cats:new Set() }; manageCats = false;
   if(hasStorage()){
     try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
   }
@@ -939,7 +939,7 @@ var NAV_ITEMS = [
   {id:'node', idx:'00', label:'Node Editor'},
   {id:'flow', idx:'01', label:'Flow Diagram'},
   {id:'pipeline', idx:'03', label:'Pipeline Stages'},
-  {id:'blocks', idx:'04', label:'Block Manager'}
+  {id:'assets', idx:'04', label:'Asset Manager'}
 ];
 function buildNav(){
   var nav = el('div',{class:'nav'});
@@ -952,7 +952,7 @@ function buildNav(){
   });
   nav.appendChild(el('div',{class:'nav-sep'}));
   nav.appendChild(el('div',{class:'nav-hint'},[txt(
-    'Any object node can be tagged Flow / Pipeline / Blocks from the Node Editor, or created fresh with the + New buttons in each view. Workspace starts empty \u2014 nothing is loaded until you import or Load Sample.'
+    'Any object node can be tagged Flow / Pipeline / Assets from the Node Editor, or created fresh with the + New buttons in each view. Workspace starts empty \u2014 nothing is loaded until you import or Load Sample.'
   )]));
   return nav;
 }
@@ -960,13 +960,13 @@ function buildStatus(){
   var s = el('div',{class:'status'});
   var flowPaths = registeredPathsOfType('flow');
   var pipePaths = registeredPathsOfType('pipeline');
-  var blockPaths = registeredPathsOfType('blocks');
+  var assetPaths = registeredPathsOfType('assets');
   var edgeCount = flowPaths.reduce(function(sum,p){ var n=getAtPath(parsePathKey(p)); return sum+((n&&n.flow)?n.flow.length:0); },0);
   var stageCount = pipePaths.reduce(function(sum,p){ var n=getAtPath(parsePathKey(p)); return sum+(n?Object.keys(n).length:0); },0);
-  var blockCount = blockPaths.reduce(function(sum,p){ var n=getAtPath(parsePathKey(p)); return sum+((n&&n.items)?n.items.length:0); },0);
+  var assetCount = assetPaths.reduce(function(sum,p){ var n=getAtPath(parsePathKey(p)); return sum+((n&&n.items)?n.items.length:0); },0);
   s.appendChild(el('span',{},[txt('FLOW NODES: '), el('b',{},[txt(String(flowPaths.length))]), txt(' ('+edgeCount+' edges)')]));
   s.appendChild(el('span',{},[txt('PIPELINE NODES: '), el('b',{},[txt(String(pipePaths.length))]), txt(' ('+stageCount+' stages)')]));
-  s.appendChild(el('span',{},[txt('BLOCK SETS: '), el('b',{},[txt(String(blockPaths.length))]), txt(' ('+blockCount+' blocks)')]));
+  s.appendChild(el('span',{},[txt('ASSET SETS: '), el('b',{},[txt(String(assetPaths.length))]), txt(' ('+assetCount+' items)')]));  
   if(hasStorage()){
     var saveTxt;
     if(lastSaveOk === false) saveTxt = 'AUTOSAVE FAILED \u2014 EXPORT TO BE SAFE';
@@ -985,7 +985,7 @@ function renderView(){
   if(VIEW === 'node') main.appendChild(renderNodeEditor());
   else if(VIEW === 'flow') main.appendChild(renderFlow());
   else if(VIEW === 'pipeline') main.appendChild(renderPipeline());
-  else if(VIEW === 'blocks') main.appendChild(renderBlocks());
+  else if(VIEW === 'assets') main.appendChild(renderAssets());
   schedulePersist();
 }
 function refreshStatusBar(){ var old = $('.status'); if(old) old.replaceWith(buildStatus()); schedulePersist(); }
@@ -1054,7 +1054,7 @@ function renderNodeEditor(){
       valCell.appendChild(el('button',{class:'btn small', style:'margin-left:10px;', onclick:function(){ focusPath = curPath; renderView(); }},[txt('Focus \u2192')]));
       if(vt === 'object'){
         var tagSel = el('select',{class:'val-input', style:'margin-left:8px; width:auto; display:inline-block;'});
-        ['none','flow','pipeline','blocks'].forEach(function(opt){
+        ['none','flow','pipeline','assets'].forEach(function(opt){
           var o = el('option',{value:opt},[txt(opt === 'none' ? 'Tag: none' : 'Tag: '+titleCase(opt))]);
           if((typeRegistry[curPk]||'none') === opt) o.setAttribute('selected','selected');
           tagSel.appendChild(o);
@@ -1063,7 +1063,7 @@ function renderNodeEditor(){
           if(tagSel.value === 'none'){ delete typeRegistry[curPk]; }
           else {
             if(tagSel.value === 'flow'){ if(!value.flow) value.flow=[]; if(!value.isolatedNodes) value.isolatedNodes=[]; }
-            else if(tagSel.value === 'blocks'){ if(!value.subcategories) value.subcategories=[]; if(!value.items) value.items=[]; }
+            else if(tagSel.value === 'assets'){ if(!value.subcategories) value.subcategories=[]; if(!value.items) value.items=[]; }
             typeRegistry[curPk] = tagSel.value;
           }
           renderView(); refreshStatusBar();
@@ -1111,7 +1111,7 @@ function renderNodeEditor(){
     var nameInp = el('input',{placeholder:'new key name'});
     var typeSel = el('select',{});
     [['string','string'],['number','number'],['boolean','boolean'],['object','object'],['array','array'],
-     ['obj:flow','\u2014 Flow (Type 1) \u2014'],['obj:pipeline','\u2014 Pipeline (Type 3) \u2014'],['obj:blocks','\u2014 Block Set (Type 4) \u2014']]
+     ['obj:flow','\u2014 Flow (Type 1) \u2014'],['obj:pipeline','\u2014 Pipeline (Type 3) \u2014'],['obj:assets','\u2014 Asset Set (Type 4) \u2014']]
       .forEach(function(pair){ typeSel.appendChild(el('option',{value:pair[0]},[txt(pair[1])])); });
     addRow.appendChild(nameInp); addRow.appendChild(typeSel);
     addRow.appendChild(el('button',{class:'btn primary', onclick:function(){
@@ -1616,147 +1616,147 @@ function scanPropertyImport(blocksObj){
   document.body.appendChild(modalBg);
 }
 
-/* ================= BLOCK MANAGER ================= */
-function renderBlocks(){
+/* ================= ASSET MANAGER ================= */
+function renderAssets(){
   var wrap = el('div',{class:'panel'});
-  wrap.appendChild(el('div',{class:'section-title'},[txt('BLOCK MANAGER'), el('span',{class:'n'},[txt('block catalogue + per-block metadata')])]));
-  wrap.appendChild(buildFocusBar('blocks', blocksFocus, function(p){ blocksFocus = p; selectedBlockIdx = null; }));
+  wrap.appendChild(el('div',{class:'section-title'},[txt('ASSET MANAGER'), el('span',{class:'n'},[txt('asset catalogue + metadata')])]));
+  wrap.appendChild(buildFocusBar('assets', assetsFocus, function(p){ assetsFocus = p; selectedAssetIdx = null; }));
 
-  if(!blocksFocus){
-    wrap.appendChild(el('div',{class:'empty-hint'},[txt('No Block Set focused yet. Click "+ New Blocks" above to create one, or tag an existing object node as Blocks from the Node Editor.')]));
+  if(!assetsFocus){
+    wrap.appendChild(el('div',{class:'empty-hint'},[txt('No Asset Set focused yet. Click "+ New Assets" above to create one, or tag an existing object node as Assets from the Node Editor.')]));
     return wrap;
   }
 
-  var blocks = getAtPath(blocksFocus);
-  if(!blocks.subcategories) blocks.subcategories = [];
-  if(!blocks.items) blocks.items = [];
+  var assets = getAtPath(assetsFocus);
+  if(!assets.subcategories) assets.subcategories = [];
+  if(!assets.items) assets.items = [];
 
-  var layout = el('div',{class:'blocks-layout'});
+  var layout = el('div',{class:'assets-layout'});
 
   var left = el('div',{});
-  var search = el('input',{class:'block-search', placeholder:'Search blocks\u2026', value:blockFilter.search});
-  search.addEventListener('input', function(){ blockFilter.search = search.value; renderBlockList(); });
+  var search = el('input',{class:'asset-search', placeholder:'Search assets\u2026', value:assetFilter.search});
+  search.addEventListener('input', function(){ assetFilter.search = search.value; renderAssetList(); });
   left.appendChild(search);
   left.appendChild(el('div',{class:'pipe-sub'},[
     txt('Filter by subcategory'),
-    tooltip('This filter only matches blocks that have already been tagged with that subcategory \u2014 having categories in this list doesn\u2019t tag every block automatically. To make a block show up under "Armor" (or any tag), select the block below, open its detail panel, and use the Subcategories "add tag\u2026" dropdown to assign it. Untagged blocks (like a freshly-added "Wind Turbine") won\u2019t match any category filter until tagged.')
+    tooltip('This filter only matches assets that have already been tagged with that subcategory \u2014 having categories in this list doesn\u2019t tag every asset automatically. To make an asset show up under "Armor" (or any tag), select the asset below, open its detail panel, and use the Subcategories "add tag\u2026" dropdown to assign it. Untagged assets (like a freshly-added "Wind Turbine") won\u2019t match any category filter until tagged.')
   ]));
   var catWrap = el('div',{class:'cat-chip-wrap', id:'catWrap'});
   left.appendChild(catWrap);
   left.appendChild(el('button',{class:'btn small', style:'margin-top:8px;', onclick:function(){ manageCats = !manageCats; renderView(); }},[txt(manageCats ? 'Done managing' : 'Manage categories')]));
   if(manageCats){
     var manageWrap = el('div',{style:'margin-top:8px;'});
-    blocks.subcategories.forEach(function(c, ci){
-      manageWrap.appendChild(el('span',{class:'chip'},[txt(c), el('span',{class:'x', onclick:function(){ blocks.subcategories.splice(ci,1); blockFilter.cats.delete(c); renderView(); }},[txt('\u2715')])]));
+    assets.subcategories.forEach(function(c, ci){
+      manageWrap.appendChild(el('span',{class:'chip'},[txt(c), el('span',{class:'x', onclick:function(){ assets.subcategories.splice(ci,1); assetFilter.cats.delete(c); renderView(); }},[txt('\u2715')])]));
     });
     var addCatLine = el('div',{class:'item-line', style:'margin-top:6px;'});
     var addCatInp = el('input',{class:'val-input', placeholder:'new subcategory'});
     addCatLine.appendChild(addCatInp);
-    addCatLine.appendChild(el('button',{class:'btn small', onclick:function(){ if(addCatInp.value.trim()){ blocks.subcategories.push(addCatInp.value.trim()); renderView(); } }},[txt('+')]));
+    addCatLine.appendChild(el('button',{class:'btn small', onclick:function(){ if(addCatInp.value.trim()){ assets.subcategories.push(addCatInp.value.trim()); renderView(); } }},[txt('+')]));
     manageWrap.appendChild(addCatLine);
     left.appendChild(manageWrap);
   }
 
   var mid = el('div',{});
   var listHeader = el('div',{style:'display:flex; justify-content:space-between; align-items:center; gap:6px; margin-bottom:8px; flex-wrap:wrap;'});
-  listHeader.appendChild(el('span',{class:'pipe-sub'},[txt('Blocks')]));
+  listHeader.appendChild(el('span',{class:'pipe-sub'},[txt('Assets')]));
   var btnWrap = el('div',{style:'display:flex; gap:6px;'});
   btnWrap.appendChild(el('button',{class:'btn small', onclick:function(){
-    scanPropertyImport(blocks);
+    scanPropertyImport(assets);
   }},[txt('Scan & Import')]));
   btnWrap.appendChild(el('button',{class:'btn primary small', onclick:function(){
-    blocks.items.push({name:'New Block', largestDimensionM:null, subcategories:[]});
-    selectedBlockIdx = blocks.items.length - 1;
+    assets.items.push({name:'New Asset', largestDimensionM:null, subcategories:[]});
+    selectedAssetIdx = assets.items.length - 1;
     renderView();
-  }},[txt('+ Add block')]));
+  }},[txt('+ Add asset')]));
   listHeader.appendChild(btnWrap);
   mid.appendChild(listHeader);
-  var listWrap = el('div',{class:'block-table-wrap', id:'blockListWrap'});
+  var listWrap = el('div',{class:'asset-table-wrap', id:'assetListWrap'});
   mid.appendChild(listWrap);
 
-  var right = el('div',{class:'panel', id:'blockDetail'});
+  var right = el('div',{class:'panel', id:'assetDetail'});
 
   layout.appendChild(left); layout.appendChild(mid); layout.appendChild(right);
   wrap.appendChild(layout);
 
-  setTimeout(function(){ renderCatChips(); renderBlockList(); renderBlockDetail(); }, 0);
+  setTimeout(function(){ renderCatChips(); renderAssetList(); renderAssetDetail(); }, 0);
 
   function renderCatChips(){
     var cw = $('#catWrap'); if(!cw) return;
     cw.innerHTML = '';
-    blocks.subcategories.forEach(function(c){
-      var active = blockFilter.cats.has(c);
+    assets.subcategories.forEach(function(c){
+      var active = assetFilter.cats.has(c);
       cw.appendChild(el('span',{class:'chip tog'+(active?' active':''), onclick:function(){
-        if(active) blockFilter.cats.delete(c); else blockFilter.cats.add(c);
-        renderBlockList(); renderCatChips();
+        if(active) assetFilter.cats.delete(c); else assetFilter.cats.add(c);
+        renderAssetList(); renderCatChips();
       }},[txt(c)]));
     });
-    if(blockFilter.cats.size > 0){
-      cw.appendChild(el('span',{class:'chip danger', onclick:function(){ blockFilter.cats.clear(); renderBlockList(); renderCatChips(); }},[txt('Clear \u2715')]));
+    if(assetFilter.cats.size > 0){
+      cw.appendChild(el('span',{class:'chip danger', onclick:function(){ assetFilter.cats.clear(); renderAssetList(); renderCatChips(); }},[txt('Clear \u2715')]));
     }
   }
-  function filteredBlocks(){
-    var s = blockFilter.search.toLowerCase();
-    return blocks.items.map(function(b,i){return {b:b,i:i};}).filter(function(o){
-      var matchesSearch = !s || String(o.b.name).toLowerCase().indexOf(s) !== -1;
-      var matchesCat = blockFilter.cats.size === 0 || (o.b.subcategories||[]).some(function(c){ return blockFilter.cats.has(c); });
+  function filteredAssets(){
+    var s = assetFilter.search.toLowerCase();
+    return assets.items.map(function(a,i){return {a:a,i:i};}).filter(function(o){
+      var matchesSearch = !s || String(o.a.name).toLowerCase().indexOf(s) !== -1;
+      var matchesCat = assetFilter.cats.size === 0 || (o.a.subcategories||[]).some(function(c){ return assetFilter.cats.has(c); });
       return matchesSearch && matchesCat;
     });
   }
-  function renderBlockList(){
-    var lw = $('#blockListWrap'); if(!lw) return;
+  function renderAssetList(){
+    var lw = $('#assetListWrap'); if(!lw) return;
     lw.innerHTML = '';
-    var list = filteredBlocks();
-    if(list.length === 0){ lw.appendChild(el('div',{class:'empty-hint'},[txt('No blocks match this filter.')])); return; }
+    var list = filteredAssets();
+    if(list.length === 0){ lw.appendChild(el('div',{class:'empty-hint'},[txt('No assets match this filter.')])); return; }
     list.forEach(function(o){
-      var dimTxt = (o.b.largestDimensionM === null || o.b.largestDimensionM === undefined) ? '\u2014' : (o.b.largestDimensionM + 'm');
-      lw.appendChild(el('div',{class:'block-row'+(selectedBlockIdx===o.i?' sel':''), onclick:function(){ selectedBlockIdx = o.i; renderBlockDetail(); renderBlockList(); }},[
-        el('span',{},[txt(o.b.name)]), el('span',{class:'dim'},[txt(dimTxt)])
+      var dimTxt = (o.a.largestDimensionM === null || o.a.largestDimensionM === undefined) ? '\u2014' : (o.a.largestDimensionM + 'm');
+      lw.appendChild(el('div',{class:'asset-row'+(selectedAssetIdx===o.i?' sel':''), onclick:function(){ selectedAssetIdx = o.i; renderAssetDetail(); renderAssetList(); }},[
+        el('span',{},[txt(o.a.name)]), el('span',{class:'dim'},[txt(dimTxt)])
       ]));
     });
   }
-  function renderBlockDetail(){
-    var d = $('#blockDetail'); if(!d) return;
+  function renderAssetDetail(){
+    var d = $('#assetDetail'); if(!d) return;
     d.innerHTML = '';
-    if(selectedBlockIdx === null || !blocks.items[selectedBlockIdx]){
-      d.appendChild(el('div',{class:'empty-hint'},[txt('Select a block to view and edit its metadata.')]));
+    if(selectedAssetIdx === null || !assets.items[selectedAssetIdx]){
+      d.appendChild(el('div',{class:'empty-hint'},[txt('Select an asset to view and edit its metadata.')]));  
       return;
     }
-    var b = blocks.items[selectedBlockIdx];
-    if(!b.subcategories) b.subcategories = []; // guarantee this exists so the tag picker always shows, even for blocks imported without it
-    d.appendChild(el('div',{class:'section-title'},[txt('BLOCK DETAIL')]));
+    var a = assets.items[selectedAssetIdx];
+    if(!a.subcategories) a.subcategories = []; // guarantee this exists so the tag picker always shows, even for assets imported without it
+    d.appendChild(el('div',{class:'section-title'},[txt('ASSET DETAIL')]));
 
     // Subcategories always gets its own fixed, always-visible section
     var subField = el('div',{class:'detail-field'});
     subField.appendChild(el('div',{class:'detail-label'},[txt('Subcategories')]));
-    if(blocks.subcategories.length === 0){
+    if(assets.subcategories.length === 0){
       subField.appendChild(el('div',{class:'child-ref'},[txt('No subcategories defined yet \u2014 add some under "Manage categories" on the left first.')]));
     } else {
       var tagWrap = el('div',{});
-      b.subcategories.forEach(function(c, ci){
-        tagWrap.appendChild(el('span',{class:'chip'},[txt(c), el('span',{class:'x', onclick:function(){ b.subcategories.splice(ci,1); renderBlockDetail(); renderBlockList(); }},[txt('\u2715')])]));
+      a.subcategories.forEach(function(c, ci){
+        tagWrap.appendChild(el('span',{class:'chip'},[txt(c), el('span',{class:'x', onclick:function(){ a.subcategories.splice(ci,1); renderAssetDetail(); renderAssetList(); }},[txt('\u2715')])]));
       });
-      if(b.subcategories.length === 0) tagWrap.appendChild(el('span',{class:'child-ref'},[txt('(untagged \u2014 won\u2019t match any filter yet)')]));
+      if(a.subcategories.length === 0) tagWrap.appendChild(el('span',{class:'child-ref'},[txt('(untagged \u2014 won\u2019t match any filter yet)')]));
       subField.appendChild(tagWrap);
       var tagAdd = el('div',{class:'item-line'});
       var sel = el('select',{class:'val-input'});
       sel.appendChild(el('option',{value:''},[txt('add tag\u2026')]));
-      blocks.subcategories.forEach(function(c){ if(b.subcategories.indexOf(c) === -1) sel.appendChild(el('option',{value:c},[txt(c)])); });
+      assets.subcategories.forEach(function(c){ if(a.subcategories.indexOf(c) === -1) sel.appendChild(el('option',{value:c},[txt(c)])); });
       sel.addEventListener('change', function(){
-        if(sel.value && b.subcategories.indexOf(sel.value) === -1){ b.subcategories.push(sel.value); renderBlockDetail(); renderBlockList(); }
+        if(sel.value && a.subcategories.indexOf(sel.value) === -1){ a.subcategories.push(sel.value); renderAssetDetail(); renderAssetList(); }
       });
       tagAdd.appendChild(sel); subField.appendChild(tagAdd);
     }
     d.appendChild(subField);
 
-    Object.keys(b).forEach(function(key){
+    Object.keys(a).forEach(function(key){
       if(key === 'subcategories') return; // already rendered above as a fixed section
-      var val = b[key];
+      var val = a[key];
       var field = el('div',{class:'detail-field'});
       field.appendChild(el('div',{class:'detail-label'},[txt(titleCase(key)),
-        el('span',{class:'field-del', onclick:function(){ if(window.confirm('Remove field "'+key+'"?')){ delete b[key]; renderBlockDetail(); } }},[txt('\u2715')])
+        el('span',{class:'field-del', onclick:function(){ if(window.confirm('Remove field "'+key+'"?')){ delete a[key]; renderAssetDetail(); } }},[txt('\u2715')])
       ]));
-      field.appendChild(buildValueEditor(b, key, function(){ renderBlockDetail(); refreshStatusBar(); renderBlockList(); }));
+      field.appendChild(buildValueEditor(a, key, function(){ renderAssetDetail(); refreshStatusBar(); renderAssetList(); }));
       d.appendChild(field);
     });
     var addFieldRow = el('div',{class:'add-row'});
@@ -1765,13 +1765,13 @@ function renderBlocks(){
     addFieldRow.appendChild(el('button',{class:'btn primary', onclick:function(){
       var nm = fNameInp.value.trim();
       if(!nm) return;
-      if(b.hasOwnProperty(nm)){ alert('Field already exists'); return; }
-      b[nm] = ''; renderBlockDetail();
+      if(a.hasOwnProperty(nm)){ alert('Field already exists'); return; }
+      a[nm] = ''; renderAssetDetail();
     }},[txt('+ Add field')]));
     d.appendChild(addFieldRow);
     d.appendChild(el('button',{class:'btn danger', style:'margin-top:14px;', onclick:function(){
-      if(window.confirm('Delete block "'+b.name+'"?')){ blocks.items.splice(selectedBlockIdx,1); selectedBlockIdx = null; renderView(); }
-    }},[txt('Delete block')]));
+      if(window.confirm('Delete asset "'+a.name+'"?')){ assets.items.splice(selectedAssetIdx,1); selectedAssetIdx = null; renderView(); }
+    }},[txt('Delete asset')]));
   }
 
   return wrap;
