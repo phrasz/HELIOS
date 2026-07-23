@@ -68,65 +68,461 @@
     },
     "refineryProducts": {
       "aliases": [],
+      "description": "Materials produced by refining raw materials. Each requires only rawMaterials as inputs.",
       "items": [
-        "Enriched Uranium",
-        "Platinum Electrode",
-        "Silver Rod",
-        "Titanium Sheet",
-        "Permanent Magnet",
-        "Superconductor",
-        "Radiation Shielding",
-        "Stainless Steel",
-        "Magnesium Bar"
-      ]
+        {
+          "name": "Enriched Uranium",
+          "requiredResources": {
+            "Uranium": 100
+          },
+          "sourceProduction": [
+            "Refinery"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Platinum Electrode",
+          "requiredResources": {
+            "Platinum": 5
+          },
+          "sourceProduction": [
+            "Refinery"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Silver Rod",
+          "requiredResources": {
+            "Silver": 25
+          },
+          "sourceProduction": [
+            "Refinery"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Titanium Sheet",
+          "requiredResources": {
+            "Titanium": 30
+          },
+          "sourceProduction": [
+            "Refinery"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Permanent Magnet",
+          "requiredResources": {
+            "Magnesium": 10
+          },
+          "sourceProduction": [
+            "Refinery"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Superconductor",
+          "requiredResources": {
+            "Gold": 100
+          },
+          "sourceProduction": [
+            "Refinery"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Radiation Shielding",
+          "requiredResources": {
+            "Lead": 150
+          },
+          "sourceProduction": [
+            "Refinery"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Stainless Steel",
+          "requiredResources": {
+            "Iron": 35
+          },
+          "sourceProduction": [
+            "Refinery"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Magnesium Bar",
+          "requiredResources": {
+            "Magnesium": 25
+          },
+          "sourceProduction": [
+            "Refinery"
+          ],
+          "subcategories": []
+        }
+      ],
+      "subcategories": []
     },
     "simpleComponents": {
       "aliases": [],
+      "description": "Basic components produced by Smelter (from rawMaterials) and Backpack (manual crafting). These are fundamental building blocks.",
       "items": [
-        "Steel Plate",
-        "Steel Tube",
-        "Glass",
-        "Electronic Parts",
-        "Motor",
-        "Construction Component",
-        "Wire",
-        "Turbine Blades",
-        "Metal Grids",
-        "Magnesium Powder",
-        "Lead Bar",
-        "Gold Thread",
-        "Chrome Coating"
-      ]
+        {
+          "name": "Steel Plate",
+          "requiredResources": {
+            "Iron": 35
+          },
+          "sourceProduction": [
+            "Smelter",
+            "Backpack"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Steel Tube",
+          "requiredResources": {
+            "Iron": 5
+          },
+          "sourceProduction": [
+            "Smelter",
+            "Backpack"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Glass",
+          "requiredResources": {
+            "Silicon": 20
+          },
+          "sourceProduction": [
+            "Smelter",
+            "Backpack"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Electronic Parts",
+          "requiredResources": {
+            "Silicon": 5
+          },
+          "sourceProduction": [
+            "Smelter",
+            "Backpack"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Motor",
+          "requiredResources": {
+            "Nickel": 25
+          },
+          "sourceProduction": [
+            "Smelter",
+            "Backpack"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Construction Component",
+          "requiredResources": {
+            "Iron": 5
+          },
+          "sourceProduction": [
+            "Smelter",
+            "Backpack"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Wire",
+          "requiredResources": {
+            "Copper": 20
+          },
+          "sourceProduction": [
+            "Smelter",
+            "Backpack"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Turbine Blades",
+          "requiredResources": {
+            "Nickel": 10
+          },
+          "sourceProduction": [
+            "Smelter",
+            "Backpack"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Metal Grids",
+          "requiredResources": {
+            "Iron": 15
+          },
+          "sourceProduction": [
+            "Smelter",
+            "Backpack"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Magnesium Powder",
+          "requiredResources": {
+            "Magnesium": 15
+          },
+          "sourceProduction": [
+            "Smelter",
+            "Backpack"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Lead Bar",
+          "requiredResources": {
+            "Lead": 50
+          },
+          "sourceProduction": [
+            "Smelter",
+            "Backpack"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Gold Thread",
+          "requiredResources": {
+            "Gold": 5
+          },
+          "sourceProduction": [
+            "Smelter",
+            "Backpack"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Chrome Coating",
+          "requiredResources": {
+            "Chromium": 15
+          },
+          "sourceProduction": [
+            "Smelter",
+            "Backpack"
+          ],
+          "subcategories": []
+        }
+      ],
+      "subcategories": []
     },
     "complexComponents": {
       "aliases": [],
+      "description": "Intermediate components produced by Assembler from simpleComponents. Used to build highTechComponents.",
       "items": [
-        "Compressor",
-        "Motherboard",
-        "Combustion Chamber",
-        "Pressure Pipe",
-        "Ion Chamber",
-        "Chemical Synthesizer",
-        "Heavy-duty Plate",
-        "Radio-comm Module",
-        "Reactor Core",
-        "Hard Drive"
-      ]
+        {
+          "name": "Compressor",
+          "requiredResources": {
+            "Motor": 2,
+            "Wire": 2,
+            "Steel Tube": 1
+          },
+          "sourceProduction": [
+            "Assembler"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Motherboard",
+          "requiredResources": {
+            "Electronic Parts": "1",
+            "Gold Thread": "7"
+          },
+          "sourceProduction": [
+            "Assembler"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Combustion Chamber",
+          "requiredResources": {
+            "Turbine Blades": 2,
+            "Metal Grid": 1,
+            "Steel Tube": 1
+          },
+          "sourceProduction": [
+            "Assembler"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Pressure Pipe",
+          "requiredResources": {
+            "Turbine Blades": 2,
+            "Lead Bar": 1,
+            "Steel Tube": 1
+          },
+          "sourceProduction": [
+            "Assembler"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Ion Chamber",
+          "requiredResources": {
+            "Wire": 1,
+            "Gold Thread": 2,
+            "Steel Tube": 1
+          },
+          "sourceProduction": [
+            "Assembler"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Chemical Synthesizer",
+          "requiredResources": {
+            "Wire": 3,
+            "Chrome Coating": 2
+          },
+          "sourceProduction": [
+            "Assembler"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Heavy-duty Plate",
+          "requiredResources": {
+            "Steel Plate": 4
+          },
+          "sourceProduction": [
+            "Assembler"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Radio-comm Module",
+          "requiredResources": {
+            "Electronic Parts": 5,
+            "Wire": 3
+          },
+          "sourceProduction": [
+            "Assembler"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Reactor Core",
+          "requiredResources": {
+            "Metal Grid": 4,
+            "Lead Bar": 5,
+            "Gold Thread": 10
+          },
+          "sourceProduction": [
+            "Assembler"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Hard Drive",
+          "requiredResources": {
+            "Electronic Parts": 8,
+            "Gold Thread": 8
+          },
+          "sourceProduction": [
+            "Assembler"
+          ],
+          "subcategories": []
+        }
+      ],
+      "subcategories": []
     },
     "highTechComponents": {
       "aliases": [],
+      "description": "Advanced components produced by Fabricator from complexComponents and/or refineryProducts. End-stage manufactured items.",
       "items": [
-        "Mainframe",
-        "Ion Accelerator",
-        "Ultra-resistant Plate",
-        "Advanced Compressor",
-        "Gravity Core",
-        "Titanium Blades",
-        "Laser"
-      ]
+        {
+          "name": "Mainframe",
+          "requiredResources": {
+            "Motherboard": 2,
+            "Hard Drive": 2
+          },
+          "sourceProduction": [
+            "Fabricator"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Ion Accelerator",
+          "requiredResources": {
+            "Platinum": 5,
+            "Silver Rod": 3,
+            "Superconductor": 3
+          },
+          "sourceProduction": [
+            "Fabricator"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Ultra-resistant Plate",
+          "requiredResources": {
+            "Titanium Sheet": 7
+          },
+          "sourceProduction": [
+            "Fabricator"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Advanced Compressor",
+          "requiredResources": {
+            "Compressor": 1,
+            "Pressure Plate": 2,
+            "Titanium Sheet": 8
+          },
+          "sourceProduction": [
+            "Fabricator"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Gravity Core",
+          "requiredResources": {
+            "Silver Rod": 10,
+            "Permanent Magnet": 5,
+            "Superconductor": 4
+          },
+          "sourceProduction": [
+            "Fabricator"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Titanium Blades",
+          "requiredResources": {
+            "Titanium Sheet": 6,
+            "Stainless Steel": 2
+          },
+          "sourceProduction": [
+            "Fabricator"
+          ],
+          "subcategories": []
+        },
+        {
+          "name": "Laser",
+          "requiredResources": {
+            "Ion Chamber": 3,
+            "Magnesium Bar": 5
+          },
+          "sourceProduction": [
+            "Fabricator"
+          ],
+          "subcategories": []
+        }
+      ],
+      "subcategories": []
     },
     "gearforgeProducts": {
       "aliases": [],
+      "description": "Specialized products from Gearforge (currently underdefined in game).",
       "items": []
     },
     "machines": {
@@ -139,6 +535,186 @@
         "Fabricator",
         "Gearforge"
       ]
+    },
+    "allProductionOutputs": {
+      "description": "Comprehensive list of ALL possible production outputs, organized by source machine and level. Use for referencing what can be produced.",
+      "by_source": {
+        "Refinery": {
+          "level": 1,
+          "outputs": [
+            "Enriched Uranium",
+            "Platinum Electrode",
+            "Silver Rod",
+            "Titanium Sheet",
+            "Permanent Magnet",
+            "Superconductor",
+            "Radiation Shielding",
+            "Stainless Steel",
+            "Magnesium Bar"
+          ]
+        },
+        "Smelter": {
+          "level": 1,
+          "outputs": [
+            "Steel Plate",
+            "Steel Tube",
+            "Glass",
+            "Electronic Parts",
+            "Motor",
+            "Construction Component",
+            "Wire",
+            "Turbine Blades",
+            "Metal Grids",
+            "Magnesium Powder",
+            "Lead Bar",
+            "Gold Thread",
+            "Chrome Coating"
+          ]
+        },
+        "Backpack": {
+          "level": 1,
+          "outputs": [
+            "Steel Plate",
+            "Electronic Parts",
+            "Construction Component"
+          ]
+        },
+        "Assembler": {
+          "level": 2,
+          "outputs": [
+            "Compressor",
+            "Motherboard",
+            "Combustion Chamber",
+            "Pressure Pipe",
+            "Ion Chamber",
+            "Chemical Synthesizer",
+            "Heavy-duty Plate",
+            "Radio-comm Module",
+            "Reactor Core",
+            "Hard Drive"
+          ]
+        },
+        "Fabricator": {
+          "level": 3,
+          "outputs": [
+            "Mainframe",
+            "Ion Accelerator",
+            "Ultra-resistant Plate",
+            "Advanced Compressor",
+            "Gravity Core",
+            "Titanium Blades",
+            "Laser"
+          ]
+        },
+        "Gearforge": {
+          "level": 3,
+          "outputs": []
+        }
+      },
+      "by_level": {
+        "0": [
+          "Chromium",
+          "Cobalt",
+          "Copper",
+          "Gold",
+          "Ice",
+          "Iron",
+          "Lead",
+          "Magnesium",
+          "Nickel",
+          "Platinum",
+          "Silicon",
+          "Silver",
+          "Titanium",
+          "Uranium"
+        ],
+        "1_refinery": [
+          "Enriched Uranium",
+          "Platinum Electrode",
+          "Silver Rod",
+          "Titanium Sheet",
+          "Permanent Magnet",
+          "Superconductor",
+          "Radiation Shielding",
+          "Stainless Steel",
+          "Magnesium Bar"
+        ],
+        "1_simple": [
+          "Steel Plate",
+          "Steel Tube",
+          "Glass",
+          "Electronic Parts",
+          "Motor",
+          "Construction Component",
+          "Wire",
+          "Turbine Blades",
+          "Metal Grids",
+          "Magnesium Powder",
+          "Lead Bar",
+          "Gold Thread",
+          "Chrome Coating"
+        ],
+        "2_complex": [
+          "Compressor",
+          "Motherboard",
+          "Combustion Chamber",
+          "Pressure Pipe",
+          "Ion Chamber",
+          "Chemical Synthesizer",
+          "Heavy-duty Plate",
+          "Radio-comm Module",
+          "Reactor Core",
+          "Hard Drive"
+        ],
+        "3_hightech": [
+          "Mainframe",
+          "Ion Accelerator",
+          "Ultra-resistant Plate",
+          "Advanced Compressor",
+          "Gravity Core",
+          "Titanium Blades",
+          "Laser"
+        ]
+      }
+    },
+    "chainUnrollingGuide": {
+      "description": "Instructions for using this data structure to calculate total raw material costs through the production chain.",
+      "methodology": [
+        "1. START with a target high-tech component (e.g., Mainframe).",
+        "2. LOOK UP its 'requiredResources' object (e.g., {Motherboard: 1, Superconductor: 1}).",
+        "3. FOR EACH required resource, check if it exists in a higher production level (level 2, 1, or 0).",
+        "4. IF the resource is level1+, recursively look up ITS requiredResources.",
+        "5. IF the resource is level0 (rawMaterial), ADD its quantity to the total for that material.",
+        "6. SUM all raw materials found at the bottom of the recursion tree.",
+        "7. NAMING CONVENTION: Composite items (Heavy-duty Plate, etc.) indicate their composition in the name (4x Steel Plate = 4 Steel Plates).",
+        "8. The naming allows validation: if you calculate differently than the name suggests, data needs verification."
+      ],
+      "example": {
+        "target": "Heavy-duty Plate (1x)",
+        "step1_lookup": {
+          "Heavy-duty Plate": {
+            "requiredResources": {
+              "Steel Plate": 4
+            },
+            "level": 2
+          }
+        },
+        "step2_recurse": {
+          "Steel Plate": {
+            "requiredResources": {
+              "Iron": 100
+            },
+            "level": 1
+          }
+        },
+        "step3_total": {
+          "for_1x_Heavy-duty_Plate": {
+            "Steel_Plate_needed": 4,
+            "Iron_needed": 400,
+            "calculation": "4 Steel Plates × 100 kg Iron per Plate = 400 kg Iron"
+          }
+        }
+      }
     },
     "blockCategories": [
       {
@@ -255,7 +831,9 @@
       ]
     },
     "units": {},
-    "localization": {}
+    "localization": {},
+    "subcategories": [],
+    "items": []
   },
   "productionFlow": {
     "rawMaterialsSelected": [
@@ -355,9 +933,7 @@
               "name": "Iron Ore",
               "amount": 100
             }
-          ],
-          "buildTimeSeconds": 100,
-          "powerDrawKw": 100
+          ]
         },
         {
           "output": "Electronic Parts",
@@ -367,9 +943,7 @@
               "name": "Silicon",
               "amount": 100
             }
-          ],
-          "buildTimeSeconds": 100,
-          "powerDrawKw": 0
+          ]
         }
       ]
     },
@@ -402,9 +976,7 @@
               "name": "Motor",
               "amount": 100
             }
-          ],
-          "buildTimeSeconds": 100,
-          "powerDrawKw": 100
+          ]
         }
       ]
     },
@@ -432,9 +1004,7 @@
               "name": "Uranium Ore",
               "amount": 1000
             }
-          ],
-          "buildTimeSeconds": 500,
-          "powerDrawKw": 500
+          ]
         }
       ]
     },
@@ -464,9 +1034,7 @@
               "name": "Superconductor",
               "amount": 100
             }
-          ],
-          "buildTimeSeconds": 1000,
-          "powerDrawKw": 1000
+          ]
         }
       ]
     },
