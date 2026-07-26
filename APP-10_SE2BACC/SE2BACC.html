@@ -421,6 +421,34 @@
     text-align: center;
   }
 
+  /* Planner tier panels: list-based body supporting Direct vs Derived split */
+  .result-list {
+    width: 100%;
+    min-height: 160px;
+    max-height: 340px;
+    overflow-y: auto;
+    padding: 11px 13px;
+    font-size: 12px;
+    font-family: var(--mono);
+    color: var(--text);
+  }
+  .result-line { display: flex; justify-content: space-between; gap: 10px; padding: 2px 0; }
+  .result-line-qty { font-weight: 600; }
+  .result-line.derived { opacity: 0.6; font-style: italic; }
+  .result-line.derived .result-line-qty { font-weight: 400; }
+
+  .result-sublabel {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text);
+    font-weight: 700;
+    margin: 10px 0 4px;
+  }
+  .result-sublabel:first-child { margin-top: 0; }
+  .result-sublabel.derived { color: var(--muted); font-weight: 400; font-style: italic; }
+
   /* ── Planner block selector ──────────────────────────── */
   .picker-row {
     display: flex;
@@ -21851,32 +21879,36 @@ function plRenderSelectedTable() {
 /* ════════════════════════════════════════════════════════════════
    PLANNER: production-chain explosion + calculation
    ════════════════════════════════════════════════════════════════ */
-function plExplode(name, qty, acc) {
+function plExplode(name, qty, acc, isDirect) {
   if (qty <= 0) return;
 
   if (PL_RAW_SET.has(name)) { acc.raw[name] = (acc.raw[name]||0) + qty; return; }
   if (PL_HIGHTECH_MAP.has(name)) {
-    acc.hightech[name] = (acc.hightech[name]||0) + qty;
+    var hBucket = isDirect ? acc.hightech.direct : acc.hightech.derived;
+    hBucket[name] = (hBucket[name]||0) + qty;
     var req = PL_HIGHTECH_MAP.get(name);
-    for (var k in req) plExplode(k, plNum(req[k]) * qty, acc);
+    for (var k in req) plExplode(k, plNum(req[k]) * qty, acc, false); // ingredients are always derived
     return;
   }
   if (PL_COMPLEX_MAP.has(name)) {
-    acc.complex[name] = (acc.complex[name]||0) + qty;
+    var cBucket = isDirect ? acc.complex.direct : acc.complex.derived;
+    cBucket[name] = (cBucket[name]||0) + qty;
     var req2 = PL_COMPLEX_MAP.get(name);
-    for (var k2 in req2) plExplode(k2, plNum(req2[k2]) * qty, acc);
+    for (var k2 in req2) plExplode(k2, plNum(req2[k2]) * qty, acc, false);
     return;
   }
   if (PL_REFINERY_MAP.has(name)) {
-    acc.refinery[name] = (acc.refinery[name]||0) + qty;
+    var rBucket = isDirect ? acc.refinery.direct : acc.refinery.derived;
+    rBucket[name] = (rBucket[name]||0) + qty;
     var req3 = PL_REFINERY_MAP.get(name);
-    for (var k3 in req3) plExplode(k3, plNum(req3[k3]) * qty, acc);
+    for (var k3 in req3) plExplode(k3, plNum(req3[k3]) * qty, acc, false);
     return;
   }
   if (PL_SIMPLE_MAP.has(name)) {
-    acc.simple[name] = (acc.simple[name]||0) + qty;
+    var sBucket = isDirect ? acc.simple.direct : acc.simple.derived;
+    sBucket[name] = (sBucket[name]||0) + qty;
     var req4 = PL_SIMPLE_MAP.get(name);
-    for (var k4 in req4) plExplode(k4, plNum(req4[k4]) * qty, acc);
+    for (var k4 in req4) plExplode(k4, plNum(req4[k4]) * qty, acc, false);
     return;
   }
 
@@ -21884,8 +21916,8 @@ function plExplode(name, qty, acc) {
   var hit = PL_NORM_INDEX.get(plNormalize(name));
   if (hit) {
     acc.warnings.add(name + ' → resolved as "' + hit.name + '" (' + hit.tier + ')');
-    if (hit.tier === 'raw')      { acc.raw[hit.name] = (acc.raw[hit.name]||0) + qty; return; }
-    plExplode(hit.name, qty, acc);
+    if (hit.tier === 'raw') { acc.raw[hit.name] = (acc.raw[hit.name]||0) + qty; return; }
+    plExplode(hit.name, qty, acc, isDirect); // preserve direct/derived through the fuzzy match
     return;
   }
 
@@ -21904,7 +21936,15 @@ function plRecalculate() {
     return;
   }
 
-  var acc = { raw:{}, refinery:{}, simple:{}, complex:{}, hightech:{}, unknown:{}, warnings: new Set() };
+  var acc = {
+    raw: {},
+    refinery: { direct:{}, derived:{} },
+    simple:   { direct:{}, derived:{} },
+    complex:  { direct:{}, derived:{} },
+    hightech: { direct:{}, derived:{} },
+    unknown: {},
+    warnings: new Set()
+  };
 
   PL_SELECTIONS.forEach(function(qty, name){
     var block = PL_BLOCKS_MAP.get(name);
@@ -21914,16 +21954,16 @@ function plRecalculate() {
     for (var k in mr) { var v = plNum(mr[k]); if (v > 0) acc.raw[k] = (acc.raw[k]||0) + v * qty; }
 
     var rp = block.refineryProducts || {};
-    for (var k2 in rp) { var v2 = plNum(rp[k2]); if (v2 > 0) plExplode(k2, v2 * qty, acc); }
+    for (var k2 in rp) { var v2 = plNum(rp[k2]); if (v2 > 0) plExplode(k2, v2 * qty, acc, true); }
 
     var cs = block.componentsSimple || {};
-    for (var k3 in cs) { var v3 = plNum(cs[k3]); if (v3 > 0) plExplode(k3, v3 * qty, acc); }
+    for (var k3 in cs) { var v3 = plNum(cs[k3]); if (v3 > 0) plExplode(k3, v3 * qty, acc, true); }
 
     var cc = block.componentsComplex || {};
-    for (var k4 in cc) { var v4 = plNum(cc[k4]); if (v4 > 0) plExplode(k4, v4 * qty, acc); }
+    for (var k4 in cc) { var v4 = plNum(cc[k4]); if (v4 > 0) plExplode(k4, v4 * qty, acc, true); }
 
     var ch = block.componentsHighTech || {};
-    for (var k5 in ch) { var v5 = plNum(ch[k5]); if (v5 > 0) plExplode(k5, v5 * qty, acc); }
+    for (var k5 in ch) { var v5 = plNum(ch[k5]); if (v5 > 0) plExplode(k5, v5 * qty, acc, true); }
   });
 
   plRenderResults(acc);
@@ -21941,10 +21981,20 @@ function plRecalculate() {
   plSetPlannerStatus(msg, kind);
 }
 
+function plEscapeHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function plLineHTML(name, qty, extraCls) {
+  return '<div class="result-line' + (extraCls ? ' ' + extraCls : '') + '">'
+    + '<span class="result-line-name">' + plEscapeHtml(name) + '</span>'
+    + '<span class="result-line-qty">' + plFormatNum(qty) + '</span>'
+    + '</div>';
+}
+
 function plRenderResults(acc) {
   var grid = document.getElementById('pl-results-grid');
-  var tiers = [
-    { key:'raw',      cls:'panel-raw',      label:'Raw Materials' },
+  var splitTiers = [
     { key:'refinery', cls:'panel-refinery', label:'Refinery Products' },
     { key:'simple',   cls:'panel-simple',   label:'Simple Components' },
     { key:'complex',  cls:'panel-complex',  label:'Complex Components' },
@@ -21954,35 +22004,58 @@ function plRenderResults(acc) {
   var html = '';
   var any = false;
 
-  tiers.forEach(function(t){
-    var entries = Object.keys(acc[t.key] || {});
-    if (!entries.length) return;
+  // Raw Materials — single combined total, no direct/derived split
+  var rawEntries = Object.keys(acc.raw || {});
+  if (rawEntries.length) {
+    any = true;
+    rawEntries.sort(function(a,b){ return a.localeCompare(b); });
+    var rawTotal = 0;
+    var rawBody = rawEntries.map(function(n){ rawTotal += acc.raw[n]; return plLineHTML(n, acc.raw[n], ''); }).join('');
+    html += '<div class="result-panel panel-raw">'
+      + '<div class="result-header"><span class="result-header-title">Raw Materials</span>'
+      + '<span class="result-total">' + plFormatNum(rawTotal) + ' total</span></div>'
+      + '<div class="result-list">' + rawBody + '</div>'
+      + '</div>';
+  }
+
+  // Refinery / Simple / Complex / High-Tech — split into Direct (queue this) vs Derived (auto-included)
+  splitTiers.forEach(function(t){
+    var direct  = acc[t.key].direct  || {};
+    var derived = acc[t.key].derived || {};
+    var directKeys  = Object.keys(direct);
+    var derivedKeys = Object.keys(derived);
+    if (!directKeys.length && !derivedKeys.length) return;
     any = true;
 
-    entries.sort(function(a,b){ return a.localeCompare(b); });
-    var total = 0;
-    var lines = entries.map(function(name){
-      var v = acc[t.key][name];
-      total += v;
-      return name + ': ' + plFormatNum(v);
-    });
+    directKeys.sort(function(a,b){ return a.localeCompare(b); });
+    derivedKeys.sort(function(a,b){ return a.localeCompare(b); });
 
+    var directTotal = 0, derivedTotal = 0, body = '';
+
+    if (directKeys.length) {
+      body += '<div class="result-sublabel">🔧 Queue at Station</div>';
+      directKeys.forEach(function(n){ directTotal += direct[n]; body += plLineHTML(n, direct[n], ''); });
+    }
+    if (derivedKeys.length) {
+      body += '<div class="result-sublabel derived">↳ Auto-Included (reference only)</div>';
+      derivedKeys.forEach(function(n){ derivedTotal += derived[n]; body += plLineHTML(n, derived[n], 'derived'); });
+    }
+
+    var grandTotal = directTotal + derivedTotal;
     html += '<div class="result-panel ' + t.cls + '">'
-      + '<div class="result-header">'
-      + '<span class="result-header-title">' + t.label + '</span>'
-      + '<span class="result-total">' + plFormatNum(total) + ' total</span>'
-      + '</div>'
-      + '<textarea class="result-body" rows="12" readonly spellcheck="false">' + lines.join('\n') + '</textarea>'
+      + '<div class="result-header"><span class="result-header-title">' + t.label + '</span>'
+      + '<span class="result-total">' + plFormatNum(grandTotal) + ' total</span></div>'
+      + '<div class="result-list">' + body + '</div>'
       + '</div>';
   });
 
   if (Object.keys(acc.unknown || {}).length) {
     any = true;
     var uEntries = Object.keys(acc.unknown).sort();
-    var uLines = uEntries.map(function(n){ return n + ': ' + plFormatNum(acc.unknown[n]); });
+    var uBody = uEntries.map(function(n){ return plLineHTML(n, acc.unknown[n], ''); }).join('');
     html += '<div class="result-panel">'
       + '<div class="result-header"><span class="result-header-title" style="color:var(--muted)">Unresolved</span></div>'
-      + '<textarea class="result-body" rows="8" readonly spellcheck="false">' + uLines.join('\n') + '</textarea>'
+      + '<div class="result-list">' + uBody + '</div>'
       + '</div>';
   }
 
