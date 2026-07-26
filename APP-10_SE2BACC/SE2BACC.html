@@ -25,6 +25,8 @@
     --tier-simple:   #FFD93D; /* Yellow   — Simple Components */
     --tier-complex:  #3DDC84; /* Green    — Complex Components */
     --tier-hightech: #4D96FF; /* Blue     — High-Tech Components */
+
+    --ui-zoom: 1;
   }
 
   [data-theme="dark"] {
@@ -552,9 +554,110 @@
   ::-webkit-scrollbar-track { background: var(--panel); }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* ── UI zoom wrapper (everything scales together) ───── */
+  #app-zoom-wrapper {
+    zoom: var(--ui-zoom, 1);
+  }
+
+  /* ── Settings drawer ─────────────────────────────────── */
+  .settings-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    z-index: 90;
+  }
+  .settings-backdrop.open { opacity: 1; pointer-events: auto; }
+
+  .settings-drawer {
+    position: fixed;
+    top: 0; right: 0;
+    height: 100%;
+    width: 300px;
+    max-width: 86vw;
+    background: var(--panel);
+    border-left: 1px solid var(--border);
+    box-shadow: -8px 0 24px var(--shadow);
+    transform: translateX(100%);
+    transition: transform 0.25s ease;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+  }
+  .settings-drawer.open { transform: translateX(0); }
+
+  .settings-drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cyan);
+  }
+  .drawer-close-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 16px;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .drawer-close-btn:hover { color: var(--text); }
+
+  .settings-drawer-body { padding: 18px; display: flex; flex-direction: column; gap: 24px; }
+
+  .settings-group { display: flex; flex-direction: column; gap: 10px; }
+  .settings-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .settings-label span { color: var(--amber); }
+
+  .theme-switch-row { display: flex; gap: 8px; }
+  .theme-switch-btn {
+    flex: 1;
+    padding: 8px 10px;
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 12px;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .theme-switch-btn:hover { border-color: var(--cyan); color: var(--text); }
+  .theme-switch-btn.active { border-color: var(--cyan); color: var(--cyan); background: rgba(0,200,224,0.08); }
+
+  #ui-scale-slider { width: 100%; accent-color: var(--cyan); }
+
+  #ui-scale-slider { width: 100%; accent-color: var(--cyan); }
+    .ui-scale-row { display: flex; align-items: center; gap: 8px; }
+    #ui-scale-number {
+      width: 58px;
+      text-align: center;
+      padding: 5px 4px;
+    }
+  .ui-scale-pct { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+
 </style>
 </head>
 <body>
+
+<div id="app-zoom-wrapper">
 
 <!-- ══ HEADER ════════════════════════════════════════════ -->
 <header class="hero">
@@ -566,9 +669,9 @@
     <p class="hero-sub">Block &amp; Component Calculator — Planner, SE2/BACC, and the original SE/BACC in one place.</p>
   </div>
 
-  <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn" title="Toggle light/dark mode">
-    <span class="theme-icon" id="theme-icon">☀️</span>
-    <span id="theme-label">Light</span>
+  <button class="theme-toggle" onclick="openSettingsDrawer()" id="settings-btn" title="Settings">
+    <span class="theme-icon">⚙️</span>
+    <span>Settings</span>
   </button>
 </header>
 
@@ -776,6 +879,37 @@
 
 <footer class="footer">HELIOS SUITE // SE2BACC v0.1.0-alpha // SE2 Manufacturing &amp; Blocks Calculator</footer>
 
+</div><!-- /#app-zoom-wrapper -->
+
+<!-- ══ SETTINGS DRAWER (outside the zoom wrapper — stays fixed size) ══ -->
+<div class="settings-backdrop" id="settings-backdrop" onclick="closeSettingsDrawer()"></div>
+<aside class="settings-drawer" id="settings-drawer">
+  <div class="settings-drawer-header">
+    <span>Settings</span>
+    <button class="drawer-close-btn" onclick="closeSettingsDrawer()">✕</button>
+  </div>
+  <div class="settings-drawer-body">
+
+    <div class="settings-group">
+      <label class="settings-label">Theme</label>
+      <div class="theme-switch-row">
+        <button class="theme-switch-btn" id="theme-switch-light" onclick="applyTheme('light', true)">☀️ Light</button>
+        <button class="theme-switch-btn" id="theme-switch-dark" onclick="applyTheme('dark', true)">🌙 Dark</button>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <label class="settings-label">UI Size</label>
+      <div class="ui-scale-row">
+        <input type="range" id="ui-scale-slider" min="80" max="150" step="5" value="100" oninput="setUiScale(this.value)" style="flex:1;">
+        <input type="number" id="ui-scale-number" min="10" max="500" step="5" value="100" oninput="setUiScale(this.value)" class="val-input">
+        <span class="ui-scale-pct">%</span>
+      </div>
+    </div>
+
+  </div>
+</aside>
+
 <script>
 /* ════════════════════════════════════════════════════════════════
    GLOBAL: theme + tabs
@@ -787,17 +921,51 @@
 
 function applyTheme(theme, save) {
   document.documentElement.setAttribute('data-theme', theme);
-  var icon  = document.getElementById('theme-icon');
-  var label = document.getElementById('theme-label');
-  if (theme === 'dark') { icon.textContent = '☀️'; label.textContent = 'Light'; }
-  else { icon.textContent = '🌙'; label.textContent = 'Dark'; }
+  var lightBtn = document.getElementById('theme-switch-light');
+  var darkBtn  = document.getElementById('theme-switch-dark');
+  if (lightBtn && darkBtn) {
+    lightBtn.classList.toggle('active', theme === 'light');
+    darkBtn.classList.toggle('active', theme === 'dark');
+  }
   if (save) localStorage.setItem('se2bacc-theme', theme);
 }
 
-function toggleTheme() {
-  var current = document.documentElement.getAttribute('data-theme');
-  applyTheme(current === 'dark' ? 'light' : 'dark', true);
+function openSettingsDrawer() {
+  document.getElementById('settings-drawer').classList.add('open');
+  document.getElementById('settings-backdrop').classList.add('open');
 }
+
+function closeSettingsDrawer() {
+  document.getElementById('settings-drawer').classList.remove('open');
+  document.getElementById('settings-backdrop').classList.remove('open');
+}
+
+var UI_SCALE_KEY = 'se2bacc-ui-scale';
+
+function setUiScale(value) {
+  // Wide outer bound just to stop garbage input (0%, negative, absurd values).
+  // The slider's own min/max (80–150) only limits the slider widget itself —
+  // typing a number outside that range in the number box still works.
+  var pct = Math.max(10, Math.min(500, parseInt(value, 10) || 100));
+  var wrapper = document.getElementById('app-zoom-wrapper');
+  if (!wrapper) {
+    console.error('SE2BACC: #app-zoom-wrapper not found — check the wrapper div is intact around the header/tabs/main content.');
+    return;
+  }
+  wrapper.style.setProperty('--ui-zoom', pct / 100);
+  document.getElementById('ui-scale-slider').value = pct;   // auto-clamped visually to 80–150 by the browser if pct is outside that
+  document.getElementById('ui-scale-number').value = pct;   // always shows the true value, unclamped
+  localStorage.setItem(UI_SCALE_KEY, String(pct));
+
+  if (window.CSS && CSS.supports && !CSS.supports('zoom', '1')) {
+    console.warn('SE2BACC: this browser does not support the CSS "zoom" property — the size slider will have no visible effect here.');
+  }
+}
+
+(function initUiScale() {
+  var saved = parseInt(localStorage.getItem(UI_SCALE_KEY), 10);
+  setUiScale(isFinite(saved) ? saved : 100);
+})();
 
 function switchTab(name) {
   ['planner','se2bacc','se1bacc'].forEach(function(t){
