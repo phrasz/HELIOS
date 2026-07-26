@@ -423,7 +423,100 @@
     text-align: center;
   }
 
-  /* Planner tier panels: list-based body supporting Direct vs Derived split */
+  /* ── Planner block selector ──────────────────────────── */
+  .picker-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    margin-bottom: 10px;
+  }
+  .picker-field { display: flex; flex-direction: column; gap: 5px; }
+  .picker-field-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .autocomplete-wrap { position: relative; }
+  #pl-block-input { padding-right: 28px; }
+  .input-clear-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1;
+    padding: 2px;
+  }
+  .input-clear-btn:hover { color: var(--error); }
+
+  .autocomplete-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 4px;
+    max-height: 220px;
+    overflow-y: auto;
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    box-shadow: 0 6px 18px var(--shadow);
+    z-index: 50;
+    display: none;
+  }
+  .autocomplete-dropdown.open { display: block; }
+  .autocomplete-item {
+    padding: 7px 12px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text);
+    cursor: pointer;
+  }
+  .autocomplete-item:hover { background: rgba(0,200,224,0.1); color: var(--cyan); }
+  .autocomplete-empty {
+    padding: 10px 12px;
+    color: var(--muted);
+    font-size: 12px;
+    font-family: var(--mono);
+  }
+
+  .block-name-hover { cursor: help; border-bottom: 1px dotted var(--muted); }
+
+  .row-tooltip {
+    position: fixed;
+    max-width: 300px;
+    background: var(--panel);
+    border: 1px solid var(--cyan);
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--text);
+    box-shadow: 0 8px 20px var(--shadow);
+    z-index: 200;
+    pointer-events: none;
+    display: none;
+  }
+  .row-tooltip.open { display: block; }
+  .row-tooltip .tt-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  /* Planner-specific: list-based result body supporting direct/derived split */
   .result-list {
     width: 100%;
     min-height: 160px;
@@ -450,17 +543,6 @@
   }
   .result-sublabel:first-child { margin-top: 0; }
   .result-sublabel.derived { color: var(--muted); font-weight: 400; font-style: italic; }
-
-  /* ── Planner block selector ──────────────────────────── */
-  .picker-row {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    align-items: center;
-    margin-bottom: 14px;
-  }
-  .picker-row .val-input { flex: 2; min-width: 220px; }
-  .picker-row select { flex: 1; min-width: 160px; }
 
   .selected-table-wrap { overflow-x: auto; }
   table.selected-table {
@@ -555,7 +637,7 @@
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
-/* ── UI zoom wrapper (everything scales together) ───── */
+  /* ── UI zoom wrapper (everything scales together) ───── */
   #app-zoom-wrapper {
     zoom: var(--ui-zoom, 1);
   }
@@ -643,16 +725,6 @@
   .theme-switch-btn.active { border-color: var(--cyan); color: var(--cyan); background: rgba(0,200,224,0.08); }
 
   #ui-scale-slider { width: 100%; accent-color: var(--cyan); }
-
-  #ui-scale-slider { width: 100%; accent-color: var(--cyan); }
-    .ui-scale-row { display: flex; align-items: center; gap: 8px; }
-    #ui-scale-number {
-      width: 58px;
-      text-align: center;
-      padding: 5px 4px;
-    }
-  .ui-scale-pct { font-family: var(--mono); font-size: 11px; color: var(--muted); }
-
 </style>
 </head>
 <body>
@@ -725,16 +797,39 @@
       <p class="step-title">Add the blocks you want to build</p>
 
       <div class="picker-row">
-        <select id="pl-category-filter" onchange="plRenderBlockDatalist()">
-          <option value="">All Categories</option>
-        </select>
-        <input type="text" class="val-input" id="pl-block-input" list="pl-block-datalist" placeholder="Type or pick a block name…">
-        <datalist id="pl-block-datalist"></datalist>
-        <input type="number" class="val-input qty-input" id="pl-qty-input" value="1" min="1" step="1">
-        <button class="btn" onclick="plAddSelectedBlock()">+ Add</button>
+        <div class="picker-field" style="flex:1; min-width:150px;">
+          <label class="picker-field-label" for="pl-category-filter">Category</label>
+          <select id="pl-category-filter" onchange="plRenderBlockDropdown()">
+            <option value="">All Categories</option>
+          </select>
+        </div>
+
+        <div class="picker-field" style="flex:2; min-width:220px;">
+          <label class="picker-field-label" for="pl-block-input">Block Name</label>
+          <div class="autocomplete-wrap">
+            <input type="text" class="val-input" id="pl-block-input" placeholder="Type to search…" autocomplete="off">
+            <button class="input-clear-btn" id="pl-block-clear" onclick="plClearBlockInput()" title="Clear" style="display:none;">✕</button>
+            <div class="autocomplete-dropdown" id="pl-block-dropdown"></div>
+          </div>
+        </div>
+
+        <div class="picker-field" style="width:90px;">
+          <label class="picker-field-label" for="pl-qty-input">Quantity</label>
+          <input type="number" class="val-input qty-input" id="pl-qty-input" value="1" min="1" step="1">
+        </div>
+
+        <div class="picker-field">
+          <label class="picker-field-label" style="visibility:hidden;">Add</label>
+          <button class="btn" onclick="plAddSelectedBlock()">+ Add</button>
+        </div>
       </div>
 
-      <div class="step-help" id="pl-block-preview" style="display:none; margin-top:-8px; margin-bottom:14px;"></div>
+      <div id="pl-block-preview-wrap" style="display:none; margin-top:-4px; margin-bottom:14px;">
+        <div class="picker-field-label" style="margin-bottom:4px;">🔍 Block Preview</div>
+        <div class="step-help" id="pl-block-preview" style="margin:0;"></div>
+      </div>
+
+      <div class="row-tooltip" id="pl-row-tooltip"></div>
 
       <div class="selected-table-wrap">
         <table class="selected-table">
@@ -899,12 +994,8 @@
     </div>
 
     <div class="settings-group">
-      <label class="settings-label">UI Size</label>
-      <div class="ui-scale-row">
-        <input type="range" id="ui-scale-slider" min="80" max="150" step="5" value="100" oninput="setUiScale(this.value)" style="flex:1;">
-        <input type="number" id="ui-scale-number" min="10" max="500" step="5" value="100" oninput="setUiScale(this.value)" class="val-input">
-        <span class="ui-scale-pct">%</span>
-      </div>
+      <label class="settings-label">UI Size <span id="ui-scale-value">100%</span></label>
+      <input type="range" id="ui-scale-slider" min="80" max="150" step="5" value="100" oninput="setUiScale(this.value)">
     </div>
 
   </div>
@@ -943,23 +1034,11 @@ function closeSettingsDrawer() {
 var UI_SCALE_KEY = 'se2bacc-ui-scale';
 
 function setUiScale(value) {
-  // Wide outer bound just to stop garbage input (0%, negative, absurd values).
-  // The slider's own min/max (80–150) only limits the slider widget itself —
-  // typing a number outside that range in the number box still works.
-  var pct = Math.max(10, Math.min(500, parseInt(value, 10) || 100));
-  var wrapper = document.getElementById('app-zoom-wrapper');
-  if (!wrapper) {
-    console.error('SE2BACC: #app-zoom-wrapper not found — check the wrapper div is intact around the header/tabs/main content.');
-    return;
-  }
-  wrapper.style.setProperty('--ui-zoom', pct / 100);
-  document.getElementById('ui-scale-slider').value = pct;   // auto-clamped visually to 80–150 by the browser if pct is outside that
-  document.getElementById('ui-scale-number').value = pct;   // always shows the true value, unclamped
+  var pct = Math.max(50, Math.min(200, parseInt(value, 10) || 100));
+  document.getElementById('app-zoom-wrapper').style.setProperty('--ui-zoom', pct / 100);
+  document.getElementById('ui-scale-value').textContent = pct + '%';
+  document.getElementById('ui-scale-slider').value = pct;
   localStorage.setItem(UI_SCALE_KEY, String(pct));
-
-  if (window.CSS && CSS.supports && !CSS.supports('zoom', '1')) {
-    console.warn('SE2BACC: this browser does not support the CSS "zoom" property — the size slider will have no visible effect here.');
-  }
 }
 
 (function initUiScale() {
@@ -993,6 +1072,16 @@ function plBlockKey(block) {
 
 function plFormatNum(v) {
   return Number.isInteger(v) ? String(v) : v.toFixed(2);
+}
+
+function plEscapeHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function plHasNonZero(obj) {
+  if (!obj) return false;
+  for (var k in obj) { if (plNum(obj[k]) > 0) return true; }
+  return false;
 }
 
 function plDeepMerge(target, incoming) {
@@ -20970,7 +21059,6 @@ function plSetDataDictionary(data, merge) {
   PL_DICT = merge && PL_DICT ? plDeepMerge(PL_DICT, data) : data;
   plBuildIndexes();
   plRenderCategoryOptions();
-  plRenderBlockDatalist();
   plLoadPersistedSelections();
   plRenderSelectedTable();
   plRecalculate();
@@ -21037,21 +21125,58 @@ function plRenderCategoryOptions() {
   });
 }
 
-function plRenderBlockDatalist() {
-  var dl = document.getElementById('pl-block-datalist');
-  dl.innerHTML = '';
-  if (!PL_BLOCKS_MAP) return;
+function plGetFilteredBlockKeys() {
+  if (!PL_BLOCKS_MAP) return [];
   var filter = document.getElementById('pl-category-filter').value;
-  var names = [];
-  PL_BLOCKS_MAP.forEach(function(b, name){
-    if (!filter || (b.subcategories || []).indexOf(filter) !== -1) names.push(name);
+  var typed = document.getElementById('pl-block-input').value.trim().toLowerCase();
+  var keys = [];
+  PL_BLOCKS_MAP.forEach(function(b, key){
+    if (filter && (b.subcategories || []).indexOf(filter) === -1) return;
+    if (typed && key.toLowerCase().indexOf(typed) === -1) return;
+    keys.push(key);
   });
-  names.sort();
-  names.forEach(function(n){
-    var opt = document.createElement('option');
-    opt.value = n;
-    dl.appendChild(opt);
-  });
+  keys.sort();
+  return keys;
+}
+
+function plRenderBlockDropdown() {
+  var dd = document.getElementById('pl-block-dropdown');
+  if (!PL_BLOCKS_MAP) { dd.classList.remove('open'); return; }
+  var keys = plGetFilteredBlockKeys();
+  if (!keys.length) {
+    dd.innerHTML = '<div class="autocomplete-empty">No matching blocks</div>';
+  } else {
+    dd.innerHTML = keys.slice(0, 200).map(function(k){
+      return '<div class="autocomplete-item" data-key="' + plEscapeHtml(k) + '">' + plEscapeHtml(k) + '</div>';
+    }).join('');
+  }
+  dd.classList.add('open');
+}
+
+function plCloseBlockDropdown() {
+  document.getElementById('pl-block-dropdown').classList.remove('open');
+}
+
+function plSelectBlockFromDropdown(key) {
+  document.getElementById('pl-block-input').value = key;
+  plCloseBlockDropdown();
+  plUpdateBlockPreview();
+  plUpdateClearButtonVisibility();
+  document.getElementById('pl-qty-input').focus();
+}
+
+function plClearBlockInput() {
+  var input = document.getElementById('pl-block-input');
+  input.value = '';
+  plUpdateBlockPreview();
+  plUpdateClearButtonVisibility();
+  plRenderBlockDropdown();
+  input.focus();
+}
+
+function plUpdateClearButtonVisibility() {
+  var input = document.getElementById('pl-block-input');
+  document.getElementById('pl-block-clear').style.display = input.value ? 'block' : 'none';
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -21082,29 +21207,60 @@ function plLoadPersistedSelections() {
   } catch (e) { /* ignore corrupt storage */ }
 }
 
-function plUpdateBlockPreview() {
-  var el = document.getElementById('pl-block-preview');
-  var key = document.getElementById('pl-block-input').value.trim();
-  if (!PL_BLOCKS_MAP || !PL_BLOCKS_MAP.has(key)) { el.style.display = 'none'; el.innerHTML = ''; return; }
-
-  var b = PL_BLOCKS_MAP.get(key);
+function plBuildBlockSummaryHTML(block, qty) {
+  qty = qty || 1;
   var lines = [];
-  if (b.largestDimensionM !== undefined && b.largestDimensionM !== null) lines.push('Largest dimension: ' + b.largestDimensionM + 'm');
-  if (b.subcategories && b.subcategories.length) lines.push('Subcategories: ' + b.subcategories.join(', '));
+  if (block.largestDimensionM !== undefined && block.largestDimensionM !== null) lines.push('Largest dimension: ' + block.largestDimensionM + 'm');
+  if (block.subcategories && block.subcategories.length) lines.push('Subcategories: ' + block.subcategories.join(', '));
 
   var fieldLabels = { materialsRaw:'Raw', refineryProducts:'Refinery', componentsSimple:'Simple', componentsComplex:'Complex', componentsHighTech:'High-Tech' };
   var costLines = [];
   Object.keys(fieldLabels).forEach(function(f){
-    var obj = b[f];
+    var obj = block[f];
     if (!obj) return;
     var nz = Object.keys(obj).filter(function(k){ return plNum(obj[k]) > 0; });
-    if (nz.length) costLines.push(fieldLabels[f] + ' — ' + nz.map(function(k){ return k + ': ' + obj[k]; }).join(', '));
+    if (nz.length) costLines.push(fieldLabels[f] + ' — ' + nz.map(function(k){ return plEscapeHtml(k) + ': ' + plFormatNum(plNum(obj[k]) * qty); }).join(', '));
   });
 
-  el.innerHTML = '<strong style="color:var(--text)">' + b.name + '</strong><br>'
-    + (lines.length ? lines.join(' · ') + '<br>' : '')
+  return '<strong style="color:var(--text)">' + plEscapeHtml(block.name) + '</strong><br>'
+    + (lines.length ? plEscapeHtml(lines.join(' · ')) + '<br>' : '')
     + (costLines.length ? costLines.join('<br>') : '(no direct costs on this block)');
-  el.style.display = 'block';
+}
+
+function plUpdateBlockPreview() {
+  var wrap = document.getElementById('pl-block-preview-wrap');
+  var el = document.getElementById('pl-block-preview');
+  var key = document.getElementById('pl-block-input').value.trim();
+  if (!PL_BLOCKS_MAP || !PL_BLOCKS_MAP.has(key)) { wrap.style.display = 'none'; el.innerHTML = ''; return; }
+
+  el.innerHTML = plBuildBlockSummaryHTML(PL_BLOCKS_MAP.get(key), 1);
+  wrap.style.display = 'block';
+}
+
+/* ── Row hover tooltip: same cost summary, scaled to that row's qty ── */
+function plPositionTooltip(evt, tt) {
+  var pad = 14;
+  tt.style.left = '0px'; tt.style.top = '0px';
+  var rect = tt.getBoundingClientRect();
+  var x = evt.clientX + pad;
+  var y = evt.clientY + pad;
+  if (x + rect.width  > window.innerWidth  - 10) x = evt.clientX - rect.width  - pad;
+  if (y + rect.height > window.innerHeight - 10) y = evt.clientY - rect.height - pad;
+  tt.style.left = Math.max(6, x) + 'px';
+  tt.style.top  = Math.max(6, y) + 'px';
+}
+
+function plShowRowTooltip(evt, key) {
+  if (!PL_BLOCKS_MAP || !PL_BLOCKS_MAP.has(key)) return;
+  var qty = PL_SELECTIONS.get(key) || 1;
+  var tt = document.getElementById('pl-row-tooltip');
+  tt.innerHTML = '<span class="tt-label">Row Subtotal — Qty ' + qty + '</span>' + plBuildBlockSummaryHTML(PL_BLOCKS_MAP.get(key), qty);
+  tt.classList.add('open');
+  plPositionTooltip(evt, tt);
+}
+
+function plHideRowTooltip() {
+  document.getElementById('pl-row-tooltip').classList.remove('open');
 }
 
 function plAddSelectedBlock() {
@@ -21125,8 +21281,7 @@ function plAddSelectedBlock() {
   plUpdateBlockPreview();
   plPersistSelections();
   plRenderSelectedTable();
-  plRecalculate();
-  plSetPlannerStatus('Added ' + qty + ' × ' + name + '.', 'ok');
+  plRecalculate('Added ' + qty + ' × ' + name + '. ');
 }
 
 function plUpdateQty(name, newVal) {
@@ -21163,7 +21318,13 @@ function plRenderSelectedTable() {
     var tr = document.createElement('tr');
 
     var tdName = document.createElement('td');
-    tdName.textContent = name;
+    var nameSpan = document.createElement('span');
+    nameSpan.className = 'block-name-hover';
+    nameSpan.textContent = name;
+    nameSpan.addEventListener('mouseenter', function(e){ plShowRowTooltip(e, name); });
+    nameSpan.addEventListener('mousemove', function(e){ plPositionTooltip(e, document.getElementById('pl-row-tooltip')); });
+    nameSpan.addEventListener('mouseleave', plHideRowTooltip);
+    tdName.appendChild(nameSpan);
 
     var tdQty = document.createElement('td');
     var qtyEl = document.createElement('input');
@@ -21196,7 +21357,7 @@ function plExplode(name, qty, acc, isDirect) {
     var hBucket = isDirect ? acc.hightech.direct : acc.hightech.derived;
     hBucket[name] = (hBucket[name]||0) + qty;
     var req = PL_HIGHTECH_MAP.get(name);
-    for (var k in req) plExplode(k, plNum(req[k]) * qty, acc, false); // ingredients are always derived
+    for (var k in req) plExplode(k, plNum(req[k]) * qty, acc, false);
     return;
   }
   if (PL_COMPLEX_MAP.has(name)) {
@@ -21226,14 +21387,14 @@ function plExplode(name, qty, acc, isDirect) {
   if (hit) {
     acc.warnings.add(name + ' → resolved as "' + hit.name + '" (' + hit.tier + ')');
     if (hit.tier === 'raw') { acc.raw[hit.name] = (acc.raw[hit.name]||0) + qty; return; }
-    plExplode(hit.name, qty, acc, isDirect); // preserve direct/derived through the fuzzy match
+    plExplode(hit.name, qty, acc, isDirect);
     return;
   }
 
   acc.unknown[name] = (acc.unknown[name]||0) + qty;
 }
 
-function plRecalculate() {
+function plRecalculate(prefix) {
   var grid = document.getElementById('pl-results-grid');
 
   if (!PL_BLOCKS_MAP) {
@@ -21252,7 +21413,8 @@ function plRecalculate() {
     complex:  { direct:{}, derived:{} },
     hightech: { direct:{}, derived:{} },
     unknown: {},
-    warnings: new Set()
+    warnings: new Set(),
+    eitherOrBlocks: new Set()
   };
 
   PL_SELECTIONS.forEach(function(qty, name){
@@ -21260,12 +21422,21 @@ function plRecalculate() {
     if (!block) return;
 
     var mr = block.materialsRaw || {};
-    for (var k in mr) { var v = plNum(mr[k]); if (v > 0) acc.raw[k] = (acc.raw[k]||0) + v * qty; }
+    var cs = block.componentsSimple || {};
+    var mrHasNonzero = plHasNonZero(mr);
+    var csHasNonzero = plHasNonZero(cs);
+
+    if (mrHasNonzero && csHasNonzero) {
+      // Either/or block: raw-ore build and simple-component build are alternate methods for
+      // the same block, not both required. Default: use Simple Components, skip materialsRaw.
+      acc.eitherOrBlocks.add(name);
+    } else if (mrHasNonzero) {
+      for (var k in mr) { var v = plNum(mr[k]); if (v > 0) acc.raw[k] = (acc.raw[k]||0) + v * qty; }
+    }
 
     var rp = block.refineryProducts || {};
     for (var k2 in rp) { var v2 = plNum(rp[k2]); if (v2 > 0) plExplode(k2, v2 * qty, acc, true); }
 
-    var cs = block.componentsSimple || {};
     for (var k3 in cs) { var v3 = plNum(cs[k3]); if (v3 > 0) plExplode(k3, v3 * qty, acc, true); }
 
     var cc = block.componentsComplex || {};
@@ -21277,8 +21448,12 @@ function plRecalculate() {
 
   plRenderResults(acc);
 
-  var msg = '✔ Calculated ' + PL_SELECTIONS.size + ' unique block type(s).';
+  var msg = (prefix || '') + '✔ Calculated ' + PL_SELECTIONS.size + ' unique block type(s).';
   var kind = 'ok';
+  if (acc.eitherOrBlocks.size) {
+    msg += ' ⚙ ' + acc.eitherOrBlocks.size + ' block(s) had both a raw-ore and simple-component build option — used Simple Components, skipped materialsRaw.';
+    console.info('SE2BACC: either/or blocks (materialsRaw skipped in favor of componentsSimple):', Array.from(acc.eitherOrBlocks));
+  }
   if (acc.unknown && Object.keys(acc.unknown).length) {
     msg += ' ⚠ ' + Object.keys(acc.unknown).length + ' unresolved resource name(s) — check console.';
     kind = 'warn';
@@ -21288,10 +21463,6 @@ function plRecalculate() {
     console.info('SE2BACC: fuzzy-matched resource names:\n' + Array.from(acc.warnings).join('\n'));
   }
   plSetPlannerStatus(msg, kind);
-}
-
-function plEscapeHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function plLineHTML(name, qty, extraCls) {
@@ -21327,7 +21498,7 @@ function plRenderResults(acc) {
       + '</div>';
   }
 
-  // Refinery / Simple / Complex / High-Tech — split into Direct (queue this) vs Derived (auto-produced)
+  // Refinery / Simple / Complex / High-Tech — split into Direct (queue this) vs Derived (auto-production)
   splitTiers.forEach(function(t){
     var direct  = acc[t.key].direct  || {};
     var derived = acc[t.key].derived || {};
@@ -21371,7 +21542,40 @@ function plRenderResults(acc) {
   grid.innerHTML = any ? html : '<div class="results-empty">Selected blocks require nothing (all zero costs).</div>';
 }
 
-document.getElementById('pl-block-input').addEventListener('input', plUpdateBlockPreview);
+(function plWireBlockAutocomplete() {
+  var input = document.getElementById('pl-block-input');
+  var dropdown = document.getElementById('pl-block-dropdown');
+
+  input.addEventListener('input', function(){
+    plUpdateBlockPreview();
+    plUpdateClearButtonVisibility();
+    plRenderBlockDropdown();
+  });
+
+  input.addEventListener('focus', plRenderBlockDropdown);
+
+  input.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') { plCloseBlockDropdown(); return; }
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      var keys = plGetFilteredBlockKeys();
+      if (keys.length) plSelectBlockFromDropdown(keys[0]);
+    }
+  });
+
+  // mousedown (not click) so this fires before the input's blur closes the dropdown
+  dropdown.addEventListener('mousedown', function(e){
+    var item = e.target.closest('.autocomplete-item');
+    if (item && item.dataset.key) {
+      e.preventDefault();
+      plSelectBlockFromDropdown(item.dataset.key);
+    }
+  });
+
+  document.addEventListener('click', function(e){
+    if (!e.target.closest('.autocomplete-wrap')) plCloseBlockDropdown();
+  });
+})();
 
 /* ── Kick off Planner on load ───────────────────────────────────── */
 (function plInit() {
@@ -21388,7 +21592,6 @@ document.getElementById('pl-block-input').addEventListener('input', plUpdateBloc
    Theme is shared globally; this tab has no theme control of its own.
    ════════════════════════════════════════════════════════════════ */
 
-// ── EMBEDDED JSON DATA for SE1 (optional) ──────────────────────
 // ── EMBEDDED JSON DATA for SE1 (optional) ──────────────────────
 var SE1_EMBEDDED_BLOCKS = {
   "LargeRailStraight": {
