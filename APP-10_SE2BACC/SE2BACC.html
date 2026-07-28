@@ -2279,7 +2279,8 @@ var SE2_EMBEDDED_DATA = {
       "Warhead",
       "Wheel Suspension",
       "Window",
-      "Gyroscope"
+      "Gyroscope",
+      "Production"
     ],
     "categories": [
       {
@@ -2389,7 +2390,61 @@ var SE2_EMBEDDED_DATA = {
       {
         "name": "Assembler",
         "largestDimensionM": 5,
-        "subcategories": [],
+        "materialsRaw": {
+          "Iron": 3920,
+          "Nickel": 800,
+          "Silicon": 40
+        },
+        "refineryProducts": {
+          "Enriched Uranium": 0,
+          "Platinum Electrode": 0,
+          "Silver Rod": 0,
+          "Titanium Sheet": 0,
+          "Permanent Magnet": 0,
+          "Superconductor": 0,
+          "Radiation Shielding": 0,
+          "Stainless Steel": 0,
+          "Magnesium Bar": 0
+        },
+        "componentsSimple": {
+          "Steel Plate": 0,
+          "Steel Tube": 0,
+          "Glass": 0,
+          "Electronic Parts": 0,
+          "Motor": 0,
+          "Construction Component": 0,
+          "Wire": 0,
+          "Turbine Blades": 0,
+          "Metal Grids": 0,
+          "Magnesium Powder": 0,
+          "Lead Bar": 0,
+          "Gold Thread": 0,
+          "Chrome Coating": 0
+        },
+        "componentsComplex": {
+          "Compressor": 0,
+          "Motherboard": 0,
+          "Combustion Chamber": 0,
+          "Pressure Pipe": 0,
+          "Ion Chamber": 0,
+          "Chemical Synthesizer": 0,
+          "Heavy-duty Plate": 0,
+          "Radio-comm Module": 0,
+          "Reactor Core": 0,
+          "Hard Drive": 0
+        },
+        "componentsHighTech": {
+          "Mainframe": 0,
+          "Ion Accelerator": 0,
+          "Ultra-resistant Plate": 0,
+          "Advanced Compressor": 0,
+          "Gravity Core": 0,
+          "Titanium Blades": 0,
+          "Laser": 0
+        },
+        "subcategories": [
+          "Production"
+        ],
         "massKg": 1000,
         "powerDrawKw": 100,
         "integrity": 1000,
@@ -2688,7 +2743,8 @@ var SE2_EMBEDDED_DATA = {
           "Gravity Core": 0,
           "Titanium Blades": 0,
           "Laser": 0
-        }
+        },
+        "subcategories": []
       },
       {
         "name": "Button",
@@ -5777,7 +5833,9 @@ var SE2_EMBEDDED_DATA = {
           "Titanium Sheet": 2,
           "Platinum Electrode": 2
         },
-        "subcategories": []
+        "subcategories": [
+          "Production"
+        ]
       },
       {
         "name": "Gatling Cannon",
@@ -5916,13 +5974,20 @@ var SE2_EMBEDDED_DATA = {
       {
         "name": "Gearforge",
         "largestDimensionM": 2.5,
+        "materialsRaw": {
+          "Iron": 980,
+          "Nickel": 200,
+          "Silicon": 10
+        },
         "componentsSimple": {
           "Steel Plate": 28,
           "Metal Grid": 2,
           "Eletronic Parts": 2,
           "Motor": 8
         },
-        "subcategories": []
+        "subcategories": [
+          "Production"
+        ]
       },
       {
         "name": "Gravity Generator",
@@ -15393,7 +15458,9 @@ var SE2_EMBEDDED_DATA = {
       {
         "name": "Refinery",
         "largestDimensionM": 7.5,
-        "subcategories": [],
+        "subcategories": [
+          "Production"
+        ],
         "componentsComplex": {
           "Heavy-Duty Plate": 50,
           "Compressor": 8,
@@ -16354,7 +16421,14 @@ var SE2_EMBEDDED_DATA = {
       {
         "name": "Smelter",
         "largestDimensionM": 2.5,
-        "subcategories": [],
+        "subcategories": [
+          "Production"
+        ],
+        "materialsRaw": {
+          "Iron": 1230,
+          "Nickel": 700,
+          "Silicon": 35
+        },
         "componentsSimple": {
           "Steel Plate": 35,
           "Eletronic Parts": 7,
