@@ -762,33 +762,37 @@
     <div class="step-card">
       <div class="step-label">Step 01 — Data Dictionary</div>
       <p class="step-title">Load the SE2 Data Dictionary</p>
-      <p class="step-help">
-        Auto-load tries the relative path below on page load. If your browser blocks <code>fetch()</code>
-        (common when opening this file directly via <code>file://</code> instead of a web server / GitHub Pages),
-        use the file picker or paste option instead.
-      </p>
 
-      <div class="file-row" style="margin-bottom:12px;">
-        <span class="file-label">Relative path</span>
-        <input type="text" class="val-input" id="pl-relpath-input"
-               value="../APP-09_SE2DS/SE2_Data-Dictionary.json"
-               style="flex:1; min-width:220px;">
-        <button class="btn" onclick="plLoadFromRelativePath(document.getElementById('pl-relpath-input').value)">⭯ Load</button>
-      </div>
+      <div id="pl-data-options">
+        <p class="step-help">
+          Auto-load tries the relative path below on page load. If your browser blocks <code>fetch()</code>
+          (common when opening this file directly via <code>file://</code> instead of a web server / GitHub Pages),
+          use the file picker or paste option instead.
+        </p>
 
-      <div class="divider-or">or choose a file</div>
-      <div class="file-row" style="margin-bottom:12px;">
-        <div class="file-input-wrap">
-          <div class="file-btn">📂 Choose Data-Dictionary.json</div>
-          <input type="file" id="pl-file-input" accept=".json" onchange="plHandleDictFile(this)">
+        <div class="file-row" style="margin-bottom:12px;">
+          <span class="file-label">Relative path</span>
+          <input type="text" class="val-input" id="pl-relpath-input"
+                 value="../APP-09_SE2DS/SE2_Data-Dictionary.json"
+                 style="flex:1; min-width:220px;">
+          <button class="btn" onclick="plLoadFromRelativePath(document.getElementById('pl-relpath-input').value)">⭯ Load</button>
         </div>
-      </div>
 
-      <div class="divider-or">or paste JSON</div>
-      <textarea id="pl-paste-textarea" rows="3" placeholder="Paste the full SE2_Data-Dictionary.json contents here…" style="margin-bottom:10px;"></textarea>
-      <button class="btn subtle" onclick="plParsePastedJson()">Parse Pasted JSON</button>
+        <div class="divider-or">or choose a file</div>
+        <div class="file-row" style="margin-bottom:12px;">
+          <div class="file-input-wrap">
+            <div class="file-btn">📂 Choose Data-Dictionary.json</div>
+            <input type="file" id="pl-file-input" accept=".json" onchange="plHandleDictFile(this)">
+          </div>
+        </div>
+
+        <div class="divider-or">or paste JSON</div>
+        <textarea id="pl-paste-textarea" rows="3" placeholder="Paste the full SE2_Data-Dictionary.json contents here…" style="margin-bottom:10px;"></textarea>
+        <button class="btn subtle" onclick="plParsePastedJson()">Parse Pasted JSON</button>
+      </div>
 
       <div class="status-bar" id="pl-data-status">Attempting auto-load…</div>
+      <button class="btn subtle" id="pl-data-toggle-btn" onclick="plToggleDataOptions()" style="display:none; margin-top:10px;">⚙ Change Data Source</button>
     </div>
 
     <!-- Step 2: Select Blocks -->
@@ -20542,6 +20546,29 @@ function plSetStatus(text, kind) {
   var el = document.getElementById('pl-data-status');
   el.textContent = text;
   el.className = 'status-bar' + (kind ? (' ' + kind) : '');
+
+  if (kind === 'ok') plCollapseDataOptions();
+  else if (kind === 'error') plExpandDataOptions();
+}
+
+function plCollapseDataOptions() {
+  document.getElementById('pl-data-options').style.display = 'none';
+  var btn = document.getElementById('pl-data-toggle-btn');
+  btn.style.display = 'inline-flex';
+  btn.textContent = '⚙ Change Data Source';
+}
+
+function plExpandDataOptions() {
+  document.getElementById('pl-data-options').style.display = '';
+  var btn = document.getElementById('pl-data-toggle-btn');
+  btn.style.display = 'inline-flex';
+  btn.textContent = '✕ Cancel';
+}
+
+function plToggleDataOptions() {
+  var opts = document.getElementById('pl-data-options');
+  if (opts.style.display === 'none') plExpandDataOptions();
+  else plCollapseDataOptions();
 }
 
 function plSetPlannerStatus(text, kind) {
