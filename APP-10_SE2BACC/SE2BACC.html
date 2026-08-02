@@ -1109,7 +1109,7 @@ function plDeepMerge(target, incoming) {
 //  To ship this file with the SE2 Data Dictionary baked in, paste
 //  the full SE2_Data-Dictionary.json object here instead of null.
 //  When set, it's preferred over any relative-path fetch.
-var SE2_EMBEDDED_DATA = {
+var SE2_EMBEDDED_DATA ={
   "se2DataStudioConventions": {
     "displayNames": "Display names match in-game terminology whenever practical.",
     "internalKeys": "Internal JSON property names use camelCase.",
@@ -3806,22 +3806,6 @@ var SE2_EMBEDDED_DATA = {
           "Heavy Armor",
           "Armor"
         ],
-        "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
         "componentsComplex": {
           "Heavy-duty Plate": 1
         }
@@ -4322,67 +4306,12 @@ var SE2_EMBEDDED_DATA = {
         "name": "Landing Gear",
         "largestDimensionM": 1,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 315,
+          "Silicon": 0
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Steel Plate": 9,
+          "Electronic Parts": 1
         },
         "subcategories": []
       },
@@ -4390,68 +4319,17 @@ var SE2_EMBEDDED_DATA = {
         "name": "Landing Gear",
         "largestDimensionM": 5,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Silicon": 5,
+          "Nickel": 200
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Electronic Parts": 1,
+          "Motor": 8
         },
         "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
+          "Heavy-duty Plate": 51
         },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "LCD Corner",
@@ -6999,7 +6877,7 @@ var SE2_EMBEDDED_DATA = {
       }
     ]
   }
-}
+};
 // ↑ PASTE YOUR SE2_Data-Dictionary.json OBJECT HERE (or keep null)
 
 var PL_DICT = null;           // raw parsed data dictionary
