@@ -4153,67 +4153,15 @@
         "name": "Medical Room",
         "largestDimensionM": 5,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 1960
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 56
         },
         "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Compressor": 20,
+          "Motherboard": 2,
+          "Chemical Synthesizer": 2
         },
         "subcategories": []
       },
@@ -4221,269 +4169,61 @@
         "name": "Narrow Sliding Door",
         "largestDimensionM": 2.5,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 490,
+          "Nickel": 100,
+          "Silicon": 10
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 14,
+          "Electronic Parts": 2,
+          "Motor": 4
         },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "O2 H2 Generator",
         "largestDimensionM": 1.5,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 490,
+          "Nickel": 100
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 14,
+          "Motor": 4,
+          "Turbine Blades": 2
         },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "O2 H2 Generator",
         "largestDimensionM": 5,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 1470
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 42,
+          "Turbine Blades": 3,
+          "Magnesium Powder": 3
         },
         "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
+          "Compressor": 12
         },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Ore Detector",
         "largestDimensionM": 1,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 125,
+          "Silicon": 5
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 3,
+          "Electronic Parts": 1,
+          "Construction Component": 4,
+          "Wire": 2
         },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Ore Detector",
@@ -4504,403 +4244,74 @@
         "name": "Oxygen Tank",
         "largestDimensionM": 1.5,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 250
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 7,
+          "Steel Tube": 1,
+          "Turbine Blades": 2
         },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Passage Arch",
         "largestDimensionM": 2.5,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 230
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 6,
+          "Construction Component": 4
         },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Passage Corner",
         "largestDimensionM": 2.5,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 460
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 12,
+          "Construction Component": 8
         },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Passage Half Arch",
         "largestDimensionM": 2.5,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 230
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 6,
+          "Construction Component": 4
         },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Passage Junction",
         "largestDimensionM": 2.5,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 460
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 12,
+          "Construction Component": 8
         },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Passage T-Junction",
         "largestDimensionM": 2.5,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 460
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 12,
+          "Construction Component": 8
         },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Piston",
@@ -4909,67 +4320,17 @@
           "Piston"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
+          "Iron": 145
         },
         "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Permanent Magnet": 2
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 4,
+          "Steel Tube": 1
         },
         "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Compressor": 3
         }
       },
       {
@@ -4979,67 +4340,17 @@
           "Piston"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
+          "Iron": 580
         },
         "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Permanent Magnet": 8
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 16,
+          "Steel Tube": 4
         },
         "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Compressor": 12
         }
       },
       {
@@ -5049,67 +4360,12 @@
           "Piston"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 255
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Steel Plate": 7,
+          "Steel Tube": 2,
+          "Metal Grids": 1
         }
       },
       {
@@ -5119,269 +4375,52 @@
           "Piston"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 255
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Steel Plate": 7,
+          "Steel Tube": 2,
+          "Metal Grids": 1
         }
       },
       {
         "name": "Ramp",
         "largestDimensionM": 5,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 1120
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 32
         },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Reactor",
         "largestDimensionM": 2.5,
-        "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
-        },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Wire": 1
         },
         "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
+          "Motherboard": 1,
+          "Heavy-duty Plate": 14,
+          "Reactor Core": 4
         },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Reactor",
         "largestDimensionM": 7.5,
-        "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
         "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
-        },
-        "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Silver Rod": 3,
+          "Radiation Shielding": 3
         },
         "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
+          "Reactor Core": 12
         },
         "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+          "Ultra-resistant Plate": 42
+        },
+        "subcategories": []
       },
       {
         "name": "Refinery",
@@ -5400,269 +4439,65 @@
         "name": "Rocket Launcher",
         "largestDimensionM": 2,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 150
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 4,
+          "Steel Tube": 2
         },
         "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
+          "Combustion Chamber": 4
         },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Rocket Launcher",
         "largestDimensionM": 5,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 2200
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 60,
+          "Steel Tube": 20
         },
         "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
+          "Combustion Chamber": 20
         },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Rocket Turret",
         "largestDimensionM": 2,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 620,
+          "Nickel": 200
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 16,
+          "Steel Tube": 12,
+          "Motor": 8
         },
         "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
+          "Motherboard": 4
         },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Rocket Turret",
         "largestDimensionM": 5,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 2640,
+          "Nickel": 850
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 68,
+          "Steel Tube": 51,
+          "Motor": 34
         },
         "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
+          "Motherboard": 17
         },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Rotor",
@@ -5671,67 +4506,15 @@
           "Rotor"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
+          "Iron": 140,
+          "Nickel": 25
         },
         "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Permanent Magnet": 5
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Steel Plate": 4,
+          "Motor": 1
         }
       },
       {
@@ -5741,67 +4524,15 @@
           "Rotor"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
+          "Iron": 280,
+          "Nickel": 50
         },
         "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Permanent Magnet": 10
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Steel Plate": 8,
+          "Motor": 2
         }
       },
       {
@@ -5811,67 +4542,15 @@
           "Rotor"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
+          "Iron": 185
         },
         "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Permanent Magnet": 1
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Steel Plate": 5,
+          "Steel Tube": 2,
+          "Metal Grids": 2
         }
       },
       {
@@ -5881,470 +4560,95 @@
           "Rotor"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
+          "Iron": 370
         },
         "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Permanent Magnet": 2
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Steel Plate": 10,
+          "Steel Tube": 4,
+          "Metal Grids": 4
         }
       },
       {
         "name": "Seat",
         "largestDimensionM": 1.5,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 245,
+          "Nickel": 50,
+          "Silicon": 5
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 7,
+          "Electronic Parts": 1,
+          "Motor": 2
         },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Sensor",
         "largestDimensionM": 0.25,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 105,
+          "Silicon": 20
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 3,
+          "Electronic Parts": 4,
+          "Wire": 3
         },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Short Passage",
         "largestDimensionM": 2.5,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 460
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 12,
+          "Construction Component": 8
         },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Shower",
         "largestDimensionM": 2.5,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 320
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 9,
+          "Construction Component": 1
         },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Single Window Passage",
         "largestDimensionM": 2.5,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 460,
+          "Silicon": 40
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 12,
+          "Construction Component": 8,
+          "Glass": 2
         },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Sink",
         "largestDimensionM": 1,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 320
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 9,
+          "Construction Component": 1
         },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Smelter",
@@ -6370,67 +4674,11 @@
           "Solar Panel"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Silicon": 555
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Glass": 27,
+          "Electronic Parts": 3
         }
       },
       {
@@ -6440,135 +4688,29 @@
           "Solar Panel"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 385,
+          "Silicon": 1600
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Steel Plate": 11,
+          "Glass": 77,
+          "Wire": 11,
+          "Electronic Parts": 11
         }
       },
       {
         "name": "Sound Block",
         "largestDimensionM": 0.25,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 105,
+          "Silicon": 25
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 3,
+          "Electronic Parts": 5,
+          "Wire": 2
         },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Spotlight",
@@ -6598,269 +4740,46 @@
         "name": "Stairs",
         "largestDimensionM": 5,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 1230
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 35
         },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Straight Passage",
         "largestDimensionM": 2.5,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 460
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 12,
+          "Construction Component": 8
         },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Structural Support Straight",
         "largestDimensionM": 2.5,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 70
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 2
         },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Structural Support Wide",
         "largestDimensionM": 2.5,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 105
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 3
         },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Survival Kit",
@@ -6881,202 +4800,40 @@
         "name": "Table",
         "largestDimensionM": 2.5,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 320
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 9,
+          "Construction Component": 1
         },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Timer",
         "largestDimensionM": 0.5,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 20
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Construction Component": 4
         },
         "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
+          "Motherboard": 1,
+          "Hard Drive": 5
         },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Toilet",
         "largestDimensionM": 1,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 320
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 9,
+          "Construction Component": 1
         },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Trade Terminal",
@@ -7143,141 +4900,30 @@
           "Gravity Core": 0,
           "Titanium Blades": 0,
           "Laser": 0
-        }
+        },
+        "subcategories": []
       },
       {
         "name": "Truss Block",
         "largestDimensionM": 0.5,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 35
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 1
         },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Truss Block",
         "largestDimensionM": 2.5,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 350
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 10
         },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Wall Insert Conveyor",
@@ -7347,67 +4993,13 @@
           "Warhead"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 175,
+          "Silicon": 5
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Steel Plate": 5,
+          "Electronic Parts": 1,
+          "Magnesium Powder": 4
         }
       },
       {
@@ -7417,202 +5009,43 @@
           "Warhead"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 1400,
+          "Silicon": 40
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Steel Plate": 40,
+          "Magnesium Powder": 32,
+          "Electronic Parts": 8
         }
       },
       {
         "name": "Welder",
         "largestDimensionM": 3.5,
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Iron": 630
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Steel Plate": 18,
+          "Gold Thread": 3
         },
         "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
+          "Compressor": 3,
+          "Ion Chamber": 6
         },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Welder",
         "largestDimensionM": 4,
-        "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
-        },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
+          "Gold Thread": 3
         },
         "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
+          "Compressor": 3,
+          "Ion Chamber": 6,
+          "Heavy-duty Plate": 18
         },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
-        }
+        "subcategories": []
       },
       {
         "name": "Wheel Suspension",
@@ -7675,52 +5108,11 @@
           "Iron": 750,
           "Nickel": 250
         },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
-        },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Steel Plate": 10,
+          "Steel Tube": 10,
+          "Motor": 10,
+          "Construction Component": 70
         }
       },
       {
@@ -7782,67 +5174,10 @@
           "Window"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Silicon": 640
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Glass": 32
         }
       },
       {
@@ -7852,67 +5187,10 @@
           "Window"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Silicon": 800
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Glass": 40
         }
       },
       {
@@ -8202,67 +5480,10 @@
           "Window"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Silicon": 140
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Glass": 7
         }
       },
       {
@@ -8272,67 +5493,10 @@
           "Window"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Silicon": 400
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Glass": 20
         }
       },
       {
@@ -8342,67 +5506,10 @@
           "Window"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Silicon": 240
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Glass": 12
         }
       },
       {
@@ -8552,67 +5659,10 @@
           "Window"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Silicon": 800
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Glass": 40
         }
       },
       {
@@ -8622,67 +5672,10 @@
           "Window"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Silicon": 920
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Glass": 46
         }
       },
       {
@@ -8692,67 +5685,10 @@
           "Window"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Silicon": 220
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Glass": 11
         }
       },
       {
@@ -8762,67 +5698,10 @@
           "Window"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Silicon": 640
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Glass": 32
         }
       },
       {
@@ -8832,67 +5711,10 @@
           "Window"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Silicon": 380
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Glass": 19
         }
       },
       {
@@ -8902,67 +5724,10 @@
           "Window"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Silicon": 1020
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Glass": 51
         }
       },
       {
@@ -8972,67 +5737,10 @@
           "Window"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Silicon": 1140
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Glass": 57
         }
       },
       {
@@ -9042,67 +5750,10 @@
           "Window"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Silicon": 1140
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Glass": 57
         }
       },
       {
@@ -9112,67 +5763,10 @@
           "Window"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Silicon": 720
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Glass": 36
         }
       },
       {
@@ -9182,67 +5776,10 @@
           "Window"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Silicon": 100
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Glass": 5
         }
       },
       {
@@ -9252,67 +5789,10 @@
           "Window"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Silicon": 260
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Glass": 13
         }
       },
       {
@@ -9322,67 +5802,10 @@
           "Window"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Silicon": 440
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Glass": 22
         }
       },
       {
@@ -9392,67 +5815,10 @@
           "Window"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Silicon": 180
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Glass": 9
         }
       },
       {
@@ -9462,67 +5828,10 @@
           "Window"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Silicon": 500
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Glass": 25
         }
       },
       {
@@ -9532,67 +5841,10 @@
           "Window"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Silicon": 200
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Glass": 10
         }
       },
       {
@@ -9602,67 +5854,10 @@
           "Window"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Silicon": 540
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Glass": 27
         }
       },
       {
@@ -9672,67 +5867,10 @@
           "Window"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Silicon": 1140
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Glass": 57
         }
       },
       {
@@ -9742,67 +5880,10 @@
           "Window"
         ],
         "materialsRaw": {
-          "Chromium": 0,
-          "Cobalt": 0,
-          "Copper": 0,
-          "Gold": 0,
-          "Ice": 0,
-          "Iron": 0,
-          "Lead": 0,
-          "Magnesium": 0,
-          "Nickel": 0,
-          "Platinum": 0,
-          "Silicon": 0,
-          "Silver": 0,
-          "Titanium": 0,
-          "Uranium": 0
-        },
-        "refineryProducts": {
-          "Enriched Uranium": 0,
-          "Platinum Electrode": 0,
-          "Silver Rod": 0,
-          "Titanium Sheet": 0,
-          "Permanent Magnet": 0,
-          "Superconductor": 0,
-          "Radiation Shielding": 0,
-          "Stainless Steel": 0,
-          "Magnesium Bar": 0
+          "Silicon": 1220
         },
         "componentsSimple": {
-          "Steel Plate": 0,
-          "Steel Tube": 0,
-          "Glass": 0,
-          "Electronic Parts": 0,
-          "Motor": 0,
-          "Construction Component": 0,
-          "Wire": 0,
-          "Turbine Blades": 0,
-          "Metal Grids": 0,
-          "Magnesium Powder": 0,
-          "Lead Bar": 0,
-          "Gold Thread": 0,
-          "Chrome Coating": 0
-        },
-        "componentsComplex": {
-          "Compressor": 0,
-          "Motherboard": 0,
-          "Combustion Chamber": 0,
-          "Pressure Pipe": 0,
-          "Ion Chamber": 0,
-          "Chemical Synthesizer": 0,
-          "Heavy-duty Plate": 0,
-          "Radio-comm Module": 0,
-          "Reactor Core": 0,
-          "Hard Drive": 0
-        },
-        "componentsHighTech": {
-          "Mainframe": 0,
-          "Ion Accelerator": 0,
-          "Ultra-resistant Plate": 0,
-          "Advanced Compressor": 0,
-          "Gravity Core": 0,
-          "Titanium Blades": 0,
-          "Laser": 0
+          "Glass": 61
         }
       }
     ]
