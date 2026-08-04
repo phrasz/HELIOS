@@ -1,0 +1,413 @@
+<!--
+  TRELLIS
+  Tiered Resources, Exploration and Layered Lookup Indexing System
+
+  This file renders whatever tree is embedded in the TRELLIS:DATA block
+  below. That block is regenerated from SE2_BlockTiers.json by a separate
+  update script (patch-style: it replaces only the span between the
+  TRELLIS:DATA:START / TRELLIS:DATA:END markers, not the whole file) --
+  do not hand-edit the data between those markers, edit the source JSON
+  and re-run the update script instead.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TRELLIS — SE2 Block Production Explorer</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0e16;
+    --panel: #121826;
+    --panel-border: #253048;
+    --text: #e7edf6;
+    --muted: #7c8aa0;
+    --accent: #4fd1e8;
+    --link: #2a3650;
+    --focus: #4fd1e8;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", Inter, -apple-system, sans-serif;
+  }
+  body { display: flex; flex-direction: column; overflow: hidden; }
+
+  header {
+    display: flex; align-items: center; gap: 14px;
+    flex-wrap: wrap;
+    padding: 14px 20px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--panel-border);
+  }
+  h1 {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin: 0;
+    color: var(--text);
+    white-space: nowrap;
+  }
+  h1 span { color: var(--accent); }
+
+  .controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-left: auto; }
+
+  #search {
+    background: #0d1420;
+    border: 1px solid var(--panel-border);
+    color: var(--text);
+    padding: 7px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    width: 220px;
+    outline: none;
+  }
+  #search:focus { border-color: var(--focus); box-shadow: 0 0 0 2px rgba(79,209,232,0.25); }
+
+  #searchCount { font-size: 12px; color: var(--muted); min-width: 70px; }
+
+  button {
+    background: #0d1420;
+    border: 1px solid var(--panel-border);
+    color: var(--text);
+    padding: 7px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  button:hover { border-color: var(--accent); color: var(--accent); }
+  button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  button.active { background: var(--accent); color: #06232b; border-color: var(--accent); font-weight: 600; }
+
+  main { position: relative; flex: 1; overflow: hidden; }
+  svg#canvas { width: 100%; height: 100%; display: block; cursor: grab; }
+  svg#canvas:active { cursor: grabbing; }
+
+  .link { fill: none; stroke: var(--link); stroke-width: 1.4px; }
+  .node circle { stroke-width: 2px; cursor: pointer; }
+  .node text {
+    font-size: 11px;
+    fill: var(--text);
+    paint-order: stroke;
+    stroke: var(--bg);
+    stroke-width: 3px;
+    pointer-events: none;
+  }
+  .node.dimmed { opacity: 0.12; }
+  .node.matched circle { stroke: var(--accent) !important; stroke-width: 3.5px; }
+  .node.matched text { fill: var(--accent); font-weight: 700; }
+  .link.dimmed { opacity: 0.06; }
+
+  #legend {
+    position: absolute;
+    left: 20px; bottom: 18px;
+    background: rgba(18,24,38,0.9);
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 11px;
+    color: var(--muted);
+    backdrop-filter: blur(4px);
+  }
+  #legend .bar {
+    width: 220px; height: 10px; border-radius: 5px;
+    background: linear-gradient(90deg,#e63946,#f3722c,#f9c74f,#52b788,#4361ee,#6a4c93,#b15eff);
+    margin: 6px 0 4px 0;
+  }
+  #legend .scale-row { display: flex; justify-content: space-between; width: 220px; }
+  #legend .title { color: var(--text); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; font-size: 10px; }
+
+  #status {
+    position: absolute;
+    right: 20px; bottom: 18px;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: right;
+  }
+
+  #hint {
+    position: absolute;
+    left: 20px; top: 14px;
+    font-size: 11px;
+    color: var(--muted);
+    max-width: 280px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>TRELLIS <span>SE2 Block Production Explorer</span></h1>
+  <div class="controls">
+    <input id="search" type="text" placeholder="Search a block name…" autocomplete="off" />
+    <span id="searchCount"></span>
+    <button id="layoutTreeBtn" class="active">Tree layout</button>
+    <button id="layoutRadialBtn">Radial layout</button>
+    <button id="expandAllBtn">Expand all</button>
+    <button id="collapseAllBtn">Collapse all</button>
+  </div>
+</header>
+
+<main>
+  <svg id="canvas"></svg>
+  <div id="hint">Click a node to expand or collapse it. Drag to pan, scroll to zoom.</div>
+  <div id="legend">
+    <div class="title">Size (log scale)</div>
+    <div class="bar"></div>
+    <div class="scale-row"><span>0.25m</span><span>12.5m</span></div>
+  </div>
+  <div id="status"></div>
+</main>
+
+<script>
+/* TRELLIS:DATA:START -- auto-generated, replaced in place by the update script, do not hand-edit */
+const DATA = {"tree": {"name": "SE2 Blocks", "children": [{"name": "T-0 \u00b7 Backpack Only", "tier": "T-0", "children": [{"name": "Backpack", "children": [{"name": "Antenna", "children": [{"name": "Antenna (1.5m)", "size": 1.5, "leaf": true}]}, {"name": "Atmospheric Thruster", "children": [{"name": "Atmospheric Thruster (1m)", "size": 1.0, "leaf": true}]}, {"name": "Barrel", "children": [{"name": "Barrel (1.25m)", "size": 1.25, "leaf": true}]}, {"name": "Battery", "children": [{"name": "Battery (0.5m)", "size": 0.5, "leaf": true}, {"name": "Battery (1.5m)", "size": 1.5, "leaf": true}]}, {"name": "Bed", "children": [{"name": "Bed (2m)", "size": 2.0, "leaf": true}]}, {"name": "Button", "children": [{"name": "Button (0.25m)", "size": 0.25, "leaf": true}]}, {"name": "Button Panel", "children": [{"name": "Button Panel (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Cargo Container", "children": [{"name": "Cargo Container (1.5m)", "size": 1.5, "leaf": true}, {"name": "Cargo Container (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Catwalk Corner Base", "children": [{"name": "Catwalk Corner Base (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Catwalk Narrow Base", "children": [{"name": "Catwalk Narrow Base (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Catwalk Square Base", "children": [{"name": "Catwalk Square Base (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Catwalk Stairs Narrow", "children": [{"name": "Catwalk Stairs Narrow (3.5m)", "size": 3.5, "leaf": true}]}, {"name": "Catwalk Stairs Narrow Half", "children": [{"name": "Catwalk Stairs Narrow Half (2.25m)", "size": 2.25, "leaf": true}]}, {"name": "Catwalk Stairs Wide", "children": [{"name": "Catwalk Stairs Wide (3.5m)", "size": 3.5, "leaf": true}]}, {"name": "Catwalk Stairs Wide Half", "children": [{"name": "Catwalk Stairs Wide Half (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Cockpit", "children": [{"name": "Cockpit (1.5m)", "size": 1.5, "leaf": true}]}, {"name": "Connector", "children": [{"name": "Connector (0.5m)", "size": 0.5, "leaf": true}]}, {"name": "Contract Terminal", "children": [{"name": "Contract Terminal (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Control Panel", "children": [{"name": "Control Panel (0.25m)", "size": 0.25, "leaf": true}]}, {"name": "Conveyor Adaptor End", "children": [{"name": "Conveyor Adaptor End (1.5m)", "size": 1.5, "leaf": true}]}, {"name": "Conveyor Adaptor Straight", "children": [{"name": "Conveyor Adaptor Straight (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Conveyor Cross Junction", "children": [{"name": "Conveyor Cross Junction (0.5m)", "size": 0.5, "leaf": true}, {"name": "Conveyor Cross Junction (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Conveyor Curved", "children": [{"name": "Conveyor Curved (0.5m)", "size": 0.5, "leaf": true}, {"name": "Conveyor Curved (2m)", "size": 2.0, "leaf": true}]}, {"name": "Conveyor Node Junction", "children": [{"name": "Conveyor Node Junction (0.5m)", "size": 0.5, "leaf": true}, {"name": "Conveyor Node Junction (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Conveyor Short", "children": [{"name": "Conveyor Short (1.5m)", "size": 1.5, "leaf": true}]}, {"name": "Conveyor Slice", "children": [{"name": "Conveyor Slice (0.5m)", "size": 0.5, "leaf": true}, {"name": "Conveyor Slice (1.5m)", "size": 1.5, "leaf": true}]}, {"name": "Conveyor Sorter", "children": [{"name": "Conveyor Sorter (0.5m)", "size": 0.5, "leaf": true}, {"name": "Conveyor Sorter (1.5m)", "size": 1.5, "leaf": true}]}, {"name": "Conveyor Straight", "children": [{"name": "Conveyor Straight (0.5m)", "size": 0.5, "leaf": true}, {"name": "Conveyor Straight (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Conveyor T-Junction", "children": [{"name": "Conveyor T-Junction (0.5m)", "size": 0.5, "leaf": true}, {"name": "Conveyor T-Junction (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Corner Light", "children": [{"name": "Corner Light (0.5m)", "size": 0.5, "leaf": true}]}, {"name": "Cover Wall Half", "children": [{"name": "Cover Wall Half (1.25m)", "size": 1.25, "leaf": true}]}, {"name": "Crate", "children": [{"name": "Crate (1m)", "size": 1.0, "leaf": true}]}, {"name": "Deck Panel", "children": [{"name": "Deck Panel (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Detailing Corner", "children": [{"name": "Detailing Corner (0.25m)", "size": 0.25, "leaf": true}]}, {"name": "Detailing Cube", "children": [{"name": "Detailing Cube (0.25m)", "size": 0.25, "leaf": true}]}, {"name": "Detailing Inverted Corner", "children": [{"name": "Detailing Inverted Corner (0.25m)", "size": 0.25, "leaf": true}]}, {"name": "Detailing Slope", "children": [{"name": "Detailing Slope (0.25m)", "size": 0.25, "leaf": true}]}, {"name": "Double Window Passage", "children": [{"name": "Double Window Passage (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Gatling Cannon", "children": [{"name": "Gatling Cannon (2m)", "size": 2.0, "leaf": true}]}, {"name": "Gyroscope", "children": [{"name": "Gyroscope (0.5m)", "size": 0.5, "leaf": true}]}, {"name": "Handrail", "children": [{"name": "Handrail (1.25m)", "size": 1.25, "leaf": true}, {"name": "Handrail (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Handrail Corner", "children": [{"name": "Handrail Corner (1.25m)", "size": 1.25, "leaf": true}, {"name": "Handrail Corner (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Handrail Diagonal", "children": [{"name": "Handrail Diagonal (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Interior Light", "children": [{"name": "Interior Light (0.5m)", "size": 0.5, "leaf": true}]}, {"name": "Interior Wall Corner", "children": [{"name": "Interior Wall Corner (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Interior Wall Corner with Side", "children": [{"name": "Interior Wall Corner with Side (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Interior Wall Cutout", "children": [{"name": "Interior Wall Cutout (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Interior Wall Flat", "children": [{"name": "Interior Wall Flat (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Interior Wall Flat Half", "children": [{"name": "Interior Wall Flat Half (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Interior Wall Pillar Curved Thick", "children": [{"name": "Interior Wall Pillar Curved Thick (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Interior Wall Pillar Curved Thin", "children": [{"name": "Interior Wall Pillar Curved Thin (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Interior Wall Pillar Flat", "children": [{"name": "Interior Wall Pillar Flat (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Interior Wall Pillar Slope", "children": [{"name": "Interior Wall Pillar Slope (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Landing Gear", "children": [{"name": "Landing Gear (1m)", "size": 1.0, "leaf": true}]}, {"name": "Light Armor Corner", "children": [{"name": "Light Armor Corner (0.5m)", "size": 0.5, "leaf": true}, {"name": "Light Armor Corner (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Light Armor Cube", "children": [{"name": "Light Armor Cube (0.5m)", "size": 0.5, "leaf": true}, {"name": "Light Armor Cube (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Light Armor Half", "children": [{"name": "Light Armor Half (0.5m)", "size": 0.5, "leaf": true}, {"name": "Light Armor Half (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Light Armor Half Corner", "children": [{"name": "Light Armor Half Corner (0.25m)", "size": 0.25, "leaf": true}, {"name": "Light Armor Half Corner (1.25m)", "size": 1.25, "leaf": true}]}, {"name": "Light Armor Half Long Slope", "children": [{"name": "Light Armor Half Long Slope (0.5m)", "size": 0.5, "leaf": true}, {"name": "Light Armor Half Long Slope (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Light Armor Half Slope Corner Inverted", "children": [{"name": "Light Armor Half Slope Corner Inverted (0.5m)", "size": 0.5, "leaf": true}, {"name": "Light Armor Half Slope Corner Inverted (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Light Armor Half Slope Inverted", "children": [{"name": "Light Armor Half Slope Inverted (0.5m)", "size": 0.5, "leaf": true}, {"name": "Light Armor Half Slope Inverted (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Light Armor Half Tall Slope", "children": [{"name": "Light Armor Half Tall Slope (0.5m)", "size": 0.5, "leaf": true}, {"name": "Light Armor Half Tall Slope (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Light Armor Inverted Corner", "children": [{"name": "Light Armor Inverted Corner (0.5m)", "size": 0.5, "leaf": true}, {"name": "Light Armor Inverted Corner (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Light Armor Long Slope Corner Base", "children": [{"name": "Light Armor Long Slope Corner Base (0.5m)", "size": 0.5, "leaf": true}, {"name": "Light Armor Long Slope Corner Base (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Light Armor Long Slope Corner Tip", "children": [{"name": "Light Armor Long Slope Corner Tip (0.5m)", "size": 0.5, "leaf": true}, {"name": "Light Armor Long Slope Corner Tip (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Light Armor Long Slope Inverted Corner Base", "children": [{"name": "Light Armor Long Slope Inverted Corner Base (0.5m)", "size": 0.5, "leaf": true}, {"name": "Light Armor Long Slope Inverted Corner Base (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Light Armor Long Slope Inverted Corner Tip", "children": [{"name": "Light Armor Long Slope Inverted Corner Tip (0.5m)", "size": 0.5, "leaf": true}, {"name": "Light Armor Long Slope Inverted Corner Tip (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Light Armor Slope", "children": [{"name": "Light Armor Slope (0.5m)", "size": 0.5, "leaf": true}, {"name": "Light Armor Slope (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Light Armor Slope Transition", "children": [{"name": "Light Armor Slope Transition (0.5m)", "size": 0.5, "leaf": true}, {"name": "Light Armor Slope Transition (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Light Armor Slope Transition Base", "children": [{"name": "Light Armor Slope Transition Base (0.5m)", "size": 0.5, "leaf": true}, {"name": "Light Armor Slope Transition Base (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Light Armor Slope Transition Base Mirrored", "children": [{"name": "Light Armor Slope Transition Base Mirrored (0.5m)", "size": 0.5, "leaf": true}, {"name": "Light Armor Slope Transition Base Mirrored (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Light Armor Slope Transition Mirrored", "children": [{"name": "Light Armor Slope Transition Mirrored (0.5m)", "size": 0.5, "leaf": true}, {"name": "Light Armor Slope Transition Mirrored (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Light Armor Slope Transition Tip", "children": [{"name": "Light Armor Slope Transition Tip (0.5m)", "size": 0.5, "leaf": true}, {"name": "Light Armor Slope Transition Tip (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Light Armor Slope Transition Tip Mirrored", "children": [{"name": "Light Armor Slope Transition Tip Mirrored (0.5m)", "size": 0.5, "leaf": true}, {"name": "Light Armor Slope Transition Tip Mirrored (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Light Armor Wide Half Corner Base", "children": [{"name": "Light Armor Wide Half Corner Base (0.5m)", "size": 0.5, "leaf": true}, {"name": "Light Armor Wide Half Corner Base (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Light Armor Wide Half Corner Tip", "children": [{"name": "Light Armor Wide Half Corner Tip (0.5m)", "size": 0.5, "leaf": true}, {"name": "Light Armor Wide Half Corner Tip (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Light Armor Wide Half Slope", "children": [{"name": "Light Armor Wide Half Slope (0.5m)", "size": 0.5, "leaf": true}, {"name": "Light Armor Wide Half Slope (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Locker", "children": [{"name": "Locker (2m)", "size": 2.0, "leaf": true}]}, {"name": "Narrow Sliding Door", "children": [{"name": "Narrow Sliding Door (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Passage Arch", "children": [{"name": "Passage Arch (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Passage Corner", "children": [{"name": "Passage Corner (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Passage Half Arch", "children": [{"name": "Passage Half Arch (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Passage Junction", "children": [{"name": "Passage Junction (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Passage T-Junction", "children": [{"name": "Passage T-Junction (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Ramp", "children": [{"name": "Ramp (5m)", "size": 5.0, "leaf": true}]}, {"name": "Seat", "children": [{"name": "Seat (1.5m)", "size": 1.5, "leaf": true}]}, {"name": "Short Passage", "children": [{"name": "Short Passage (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Shower", "children": [{"name": "Shower (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Single Window Passage", "children": [{"name": "Single Window Passage (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Sink", "children": [{"name": "Sink (1m)", "size": 1.0, "leaf": true}]}, {"name": "Solar Panel", "children": [{"name": "Solar Panel (5m)", "size": 5.0, "leaf": true}]}, {"name": "Spotlight", "children": [{"name": "Spotlight (0.5m)", "size": 0.5, "leaf": true}, {"name": "Spotlight (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Stairs", "children": [{"name": "Stairs (5m)", "size": 5.0, "leaf": true}]}, {"name": "Straight Passage", "children": [{"name": "Straight Passage (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Structural Support Straight", "children": [{"name": "Structural Support Straight (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Structural Support Wide", "children": [{"name": "Structural Support Wide (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Survival Kit", "children": [{"name": "Survival Kit (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Table", "children": [{"name": "Table (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Toilet", "children": [{"name": "Toilet (1m)", "size": 1.0, "leaf": true}]}, {"name": "Truss Block", "children": [{"name": "Truss Block (0.5m)", "size": 0.5, "leaf": true}, {"name": "Truss Block (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Wall Insert Conveyor", "children": [{"name": "Wall Insert Conveyor (1.5m)", "size": 1.5, "leaf": true}]}, {"name": "Wall Insert Panel", "children": [{"name": "Wall Insert Panel (1.5m)", "size": 1.5, "leaf": true}]}, {"name": "Wall Insert Pipes", "children": [{"name": "Wall Insert Pipes (1.5m)", "size": 1.5, "leaf": true}]}, {"name": "Wall Insert Vent", "children": [{"name": "Wall Insert Vent (1.5m)", "size": 1.5, "leaf": true}]}, {"name": "Wall Insert Window", "children": [{"name": "Wall Insert Window (1.5m)", "size": 1.5, "leaf": true}]}, {"name": "Wheel Suspension", "children": [{"name": "Wheel Suspension (1m)", "size": 1.0, "leaf": true}, {"name": "Wheel Suspension (1.5m)", "size": 1.5, "leaf": true}, {"name": "Wheel Suspension (2.5m)", "size": 2.5, "leaf": true}, {"name": "Wheel Suspension (5m)", "size": 5.0, "leaf": true}, {"name": "Wheel Suspension (7.5m)", "size": 7.5, "leaf": true}, {"name": "Wheel Suspension (12.5m)", "size": 12.5, "leaf": true}]}, {"name": "Window Corner", "children": [{"name": "Window Corner (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Window Corner with Side", "children": [{"name": "Window Corner with Side (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Window Flat", "children": [{"name": "Window Flat (1.25m)", "size": 1.25, "leaf": true}, {"name": "Window Flat (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Window Flat Half", "children": [{"name": "Window Flat Half (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Window Slanted Long", "children": [{"name": "Window Slanted Long (5m)", "size": 5.0, "leaf": true}]}, {"name": "Window Slanted Long Inverted", "children": [{"name": "Window Slanted Long Inverted (5m)", "size": 5.0, "leaf": true}]}, {"name": "Window Slope", "children": [{"name": "Window Slope (1.25m)", "size": 1.25, "leaf": true}, {"name": "Window Slope (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Window Slope Half", "children": [{"name": "Window Slope Half (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Window Slope Long", "children": [{"name": "Window Slope Long (5m)", "size": 5.0, "leaf": true}]}, {"name": "Window Slope Long with Side Left", "children": [{"name": "Window Slope Long with Side Left (5m)", "size": 5.0, "leaf": true}]}, {"name": "Window Slope Long with Side Right", "children": [{"name": "Window Slope Long with Side Right (5m)", "size": 5.0, "leaf": true}]}, {"name": "Window Slope With Side", "children": [{"name": "Window Slope With Side (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Window Triangle Side", "children": [{"name": "Window Triangle Side (1.25m)", "size": 1.25, "leaf": true}, {"name": "Window Triangle Side (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Window Triangle Side Large", "children": [{"name": "Window Triangle Side Large (5m)", "size": 5.0, "leaf": true}]}, {"name": "Window Triangle Slanted", "children": [{"name": "Window Triangle Slanted (1.25m)", "size": 1.25, "leaf": true}, {"name": "Window Triangle Slanted (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Window Triangle Slanted Inverted", "children": [{"name": "Window Triangle Slanted Inverted (1.25m)", "size": 1.25, "leaf": true}, {"name": "Window Triangle Slanted Inverted (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Window Triangle Slanted Large", "children": [{"name": "Window Triangle Slanted Large (5m)", "size": 5.0, "leaf": true}]}, {"name": "Window Triangle Slanted Large Inverted", "children": [{"name": "Window Triangle Slanted Large Inverted (5m)", "size": 5.0, "leaf": true}]}]}]}, {"name": "T-1 \u00b7 Smelter", "tier": "T-1", "children": [{"name": "Smelter", "children": [{"name": "Antenna", "children": [{"name": "Antenna (12.5m)", "size": 12.5, "leaf": true}]}, {"name": "Assembler", "children": [{"name": "Assembler (5m)", "size": 5.0, "leaf": true}]}, {"name": "Atmospheric Thruster", "children": [{"name": "Atmospheric Thruster (2m)", "size": 2.0, "leaf": true}]}, {"name": "Control Seat", "children": [{"name": "Control Seat (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Gyroscope", "children": [{"name": "Gyroscope (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Hydrogen Tank", "children": [{"name": "Hydrogen Tank (1.5m)", "size": 1.5, "leaf": true}, {"name": "Hydrogen Tank (5m)", "size": 5.0, "leaf": true}]}, {"name": "Hydrogen Thruster", "children": [{"name": "Hydrogen Thruster (0.5m)", "size": 0.5, "leaf": true}, {"name": "Hydrogen Thruster (2m)", "size": 2.0, "leaf": true}]}, {"name": "Ion Thruster", "children": [{"name": "Ion Thruster (1m)", "size": 1.0, "leaf": true}]}, {"name": "LCD Corner", "children": [{"name": "LCD Corner (0.5m)", "size": 0.5, "leaf": true}, {"name": "LCD Corner (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "LCD Narrow", "children": [{"name": "LCD Narrow (0.5m)", "size": 0.5, "leaf": true}, {"name": "LCD Narrow (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "LCD Square", "children": [{"name": "LCD Square (0.5m)", "size": 0.5, "leaf": true}, {"name": "LCD Square (1.5m)", "size": 1.5, "leaf": true}, {"name": "LCD Square (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "LCD Wide", "children": [{"name": "LCD Wide (1.5m)", "size": 1.5, "leaf": true}, {"name": "LCD Wide (3m)", "size": 3.0, "leaf": true}, {"name": "LCD Wide (5m)", "size": 5.0, "leaf": true}]}, {"name": "O2 H2 Generator", "children": [{"name": "O2 H2 Generator (1.5m)", "size": 1.5, "leaf": true}]}, {"name": "Ore Detector", "children": [{"name": "Ore Detector (1m)", "size": 1.0, "leaf": true}]}, {"name": "Oxygen Tank", "children": [{"name": "Oxygen Tank (1.5m)", "size": 1.5, "leaf": true}]}, {"name": "Piston Head", "children": [{"name": "Piston Head (0.5m)", "size": 0.5, "leaf": true}, {"name": "Piston Head (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Sensor", "children": [{"name": "Sensor (0.25m)", "size": 0.25, "leaf": true}]}, {"name": "Solar Panel", "children": [{"name": "Solar Panel (10m)", "size": 10.0, "leaf": true}]}, {"name": "Sound Block", "children": [{"name": "Sound Block (0.25m)", "size": 0.25, "leaf": true}]}, {"name": "Warhead", "children": [{"name": "Warhead (0.5m)", "size": 0.5, "leaf": true}, {"name": "Warhead (2.5m)", "size": 2.5, "leaf": true}]}]}]}, {"name": "T-2 \u00b7 Refinery", "tier": "T-2", "children": [{"name": "Refinery", "children": [{"name": "Hinge", "children": [{"name": "Hinge (0.5m)", "size": 0.5, "leaf": true}, {"name": "Hinge (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Hinge Head", "children": [{"name": "Hinge Head (0.5m)", "size": 0.5, "leaf": true}, {"name": "Hinge Head (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Rotor", "children": [{"name": "Rotor (0.5m)", "size": 0.5, "leaf": true}, {"name": "Rotor (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Rotor Head", "children": [{"name": "Rotor Head (0.5m)", "size": 0.5, "leaf": true}, {"name": "Rotor Head (2.5m)", "size": 2.5, "leaf": true}]}]}]}, {"name": "T-3 \u00b7 Assembler", "tier": "T-3", "children": [{"name": "Assembler", "children": [{"name": "Atmospheric Thruster", "children": [{"name": "Atmospheric Thruster (5m)", "size": 5.0, "leaf": true}]}, {"name": "Cargo Container", "children": [{"name": "Cargo Container (7.5m)", "size": 7.5, "leaf": true}]}, {"name": "Drill", "children": [{"name": "Drill (3.5m)", "size": 3.5, "leaf": true}, {"name": "Drill (5.25m)", "size": 5.25, "leaf": true}]}, {"name": "Gatling Turret", "children": [{"name": "Gatling Turret (5.5m)", "size": 5.5, "leaf": true}]}, {"name": "Grinder", "children": [{"name": "Grinder (3.5m)", "size": 3.5, "leaf": true}, {"name": "Grinder (4m)", "size": 4.0, "leaf": true}]}, {"name": "Heavy Armor Corner", "children": [{"name": "Heavy Armor Corner (0.5m)", "size": 0.5, "leaf": true}, {"name": "Heavy Armor Corner (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Heavy Armor Cube", "children": [{"name": "Heavy Armor Cube (0.5m)", "size": 0.5, "leaf": true}, {"name": "Heavy Armor Cube (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Heavy Armor Half", "children": [{"name": "Heavy Armor Half (0.5m)", "size": 0.5, "leaf": true}, {"name": "Heavy Armor Half (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Heavy Armor Half Corner", "children": [{"name": "Heavy Armor Half Corner (0.25m)", "size": 0.25, "leaf": true}, {"name": "Heavy Armor Half Corner (1.25m)", "size": 1.25, "leaf": true}]}, {"name": "Heavy Armor Half Long Slope", "children": [{"name": "Heavy Armor Half Long Slope (0.5m)", "size": 0.5, "leaf": true}, {"name": "Heavy Armor Half Long Slope (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Heavy Armor Half Slope Corner Inverted", "children": [{"name": "Heavy Armor Half Slope Corner Inverted (0.5m)", "size": 0.5, "leaf": true}, {"name": "Heavy Armor Half Slope Corner Inverted (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Heavy Armor Half Slope Inverted", "children": [{"name": "Heavy Armor Half Slope Inverted (0.5m)", "size": 0.5, "leaf": true}, {"name": "Heavy Armor Half Slope Inverted (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Heavy Armor Half Tall Slope", "children": [{"name": "Heavy Armor Half Tall Slope (0.5m)", "size": 0.5, "leaf": true}, {"name": "Heavy Armor Half Tall Slope (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Heavy Armor Inverted Corner", "children": [{"name": "Heavy Armor Inverted Corner (0.5m)", "size": 0.5, "leaf": true}, {"name": "Heavy Armor Inverted Corner (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Heavy Armor Long Slope Corner Base", "children": [{"name": "Heavy Armor Long Slope Corner Base (0.5m)", "size": 0.5, "leaf": true}, {"name": "Heavy Armor Long Slope Corner Base (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Heavy Armor Long Slope Corner Tip", "children": [{"name": "Heavy Armor Long Slope Corner Tip (0.5m)", "size": 0.5, "leaf": true}, {"name": "Heavy Armor Long Slope Corner Tip (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Heavy Armor Long Slope Inverted Corner Base", "children": [{"name": "Heavy Armor Long Slope Inverted Corner Base (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Heavy Armor Long Slope Inverted Corner Tip", "children": [{"name": "Heavy Armor Long Slope Inverted Corner Tip (0.5m)", "size": 0.5, "leaf": true}, {"name": "Heavy Armor Long Slope Inverted Corner Tip (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Heavy Armor Slope", "children": [{"name": "Heavy Armor Slope (0.5m)", "size": 0.5, "leaf": true}, {"name": "Heavy Armor Slope (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Heavy Armor Slope Transition", "children": [{"name": "Heavy Armor Slope Transition (0.5m)", "size": 0.5, "leaf": true}, {"name": "Heavy Armor Slope Transition (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Heavy Armor Slope Transition Base", "children": [{"name": "Heavy Armor Slope Transition Base (0.5m)", "size": 0.5, "leaf": true}, {"name": "Heavy Armor Slope Transition Base (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Heavy Armor Slope Transition Base Mirrored", "children": [{"name": "Heavy Armor Slope Transition Base Mirrored (0.5m)", "size": 0.5, "leaf": true}, {"name": "Heavy Armor Slope Transition Base Mirrored (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Heavy Armor Slope Transition Mirrored", "children": [{"name": "Heavy Armor Slope Transition Mirrored (0.5m)", "size": 0.5, "leaf": true}, {"name": "Heavy Armor Slope Transition Mirrored (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Heavy Armor Slope Transition Tip", "children": [{"name": "Heavy Armor Slope Transition Tip (0.5m)", "size": 0.5, "leaf": true}, {"name": "Heavy Armor Slope Transition Tip (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Heavy Armor Slope Transition Tip Mirrored", "children": [{"name": "Heavy Armor Slope Transition Tip Mirrored (0.5m)", "size": 0.5, "leaf": true}, {"name": "Heavy Armor Slope Transition Tip Mirrored (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Heavy Armor Wide Half Corner Base", "children": [{"name": "Heavy Armor Wide Half Corner Base (0.5m)", "size": 0.5, "leaf": true}, {"name": "Heavy Armor Wide Half Corner Base (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Heavy Armor Wide Half Corner Tip", "children": [{"name": "Heavy Armor Wide Half Corner Tip (0.5m)", "size": 0.5, "leaf": true}, {"name": "Heavy Armor Wide Half Corner Tip (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Heavy Armor Wide Half Slope", "children": [{"name": "Heavy Armor Wide Half Slope (0.5m)", "size": 0.5, "leaf": true}, {"name": "Heavy Armor Wide Half Slope (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Hydrogen Tank", "children": [{"name": "Hydrogen Tank (12.5m)", "size": 12.5, "leaf": true}]}, {"name": "Ion Thruster", "children": [{"name": "Ion Thruster (1.5m)", "size": 1.5, "leaf": true}]}, {"name": "Landing Gear", "children": [{"name": "Landing Gear (5m)", "size": 5.0, "leaf": true}]}, {"name": "Medical Room", "children": [{"name": "Medical Room (5m)", "size": 5.0, "leaf": true}]}, {"name": "O2 H2 Generator", "children": [{"name": "O2 H2 Generator (5m)", "size": 5.0, "leaf": true}]}, {"name": "Ore Detector", "children": [{"name": "Ore Detector (5m)", "size": 5.0, "leaf": true}]}, {"name": "Reactor", "children": [{"name": "Reactor (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Rocket Launcher", "children": [{"name": "Rocket Launcher (2m)", "size": 2.0, "leaf": true}, {"name": "Rocket Launcher (5m)", "size": 5.0, "leaf": true}]}, {"name": "Rocket Turret", "children": [{"name": "Rocket Turret (2m)", "size": 2.0, "leaf": true}, {"name": "Rocket Turret (5m)", "size": 5.0, "leaf": true}]}, {"name": "Timer", "children": [{"name": "Timer (0.5m)", "size": 0.5, "leaf": true}]}, {"name": "Welder", "children": [{"name": "Welder (3.5m)", "size": 3.5, "leaf": true}, {"name": "Welder (4m)", "size": 4.0, "leaf": true}]}]}]}, {"name": "T-4 \u00b7 Assembler + Refinery", "tier": "T-4", "children": [{"name": "Refinery", "children": [{"name": "Hydrogen Thruster", "children": [{"name": "Hydrogen Thruster (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Ion Thruster", "children": [{"name": "Ion Thruster (5m)", "size": 5.0, "leaf": true}]}, {"name": "Piston", "children": [{"name": "Piston (1.25m)", "size": 1.25, "leaf": true}, {"name": "Piston (4.75m)", "size": 4.75, "leaf": true}]}]}]}, {"name": "T-5 \u00b7 Fabricator", "tier": "T-5", "children": [{"name": "Fabricator", "children": [{"name": "Atmospheric Thruster", "children": [{"name": "Atmospheric Thruster (10m)", "size": 10.0, "leaf": true}]}, {"name": "Gravity Generator", "children": [{"name": "Gravity Generator (5m)", "size": 5.0, "leaf": true}]}, {"name": "Gyroscope", "children": [{"name": "Gyroscope (7.5m)", "size": 7.5, "leaf": true}]}]}]}, {"name": "T-6 \u00b7 Fabricator + Refinery", "tier": "T-6", "children": [{"name": "Refinery", "children": [{"name": "Hydrogen Thruster", "children": [{"name": "Hydrogen Thruster (7.5m)", "size": 7.5, "leaf": true}]}, {"name": "Ion Thruster", "children": [{"name": "Ion Thruster (7.5m)", "size": 7.5, "leaf": true}]}, {"name": "Reactor", "children": [{"name": "Reactor (7.5m)", "size": 7.5, "leaf": true}]}]}]}, {"name": "Unclassified", "tier": "Unclassified", "children": [{"name": "Unassigned", "children": [{"name": "Trade Terminal", "children": [{"name": "Trade Terminal (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Window Curved", "children": [{"name": "Window Curved (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Window Curved Inward Triangle", "children": [{"name": "Window Curved Inward Triangle (2.75m)", "size": 2.75, "leaf": true}]}, {"name": "Window Curved with Side Left", "children": [{"name": "Window Curved with Side Left (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Window Curved with Side Right", "children": [{"name": "Window Curved with Side Right (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Window Quarter Sphere", "children": [{"name": "Window Quarter Sphere (2.5m)", "size": 2.5, "leaf": true}]}, {"name": "Window Round Face", "children": [{"name": "Window Round Face (2.5m)", "size": 2.5, "leaf": true}]}]}]}]}, "minSize": 0.25, "maxSize": 12.5};
+/* TRELLIS:DATA:END */
+
+/* ---------- build hierarchy ---------- */
+let idCounter = 0;
+const root = d3.hierarchy(DATA.tree);
+root.descendants().forEach(d => { d.id = idCounter++; });
+
+function countLeaves(d) {
+  const kids = d.children || d._children;
+  if (!kids || kids.length === 0) { d.leafCount = 1; return 1; }
+  let sum = 0;
+  kids.forEach(k => sum += countLeaves(k));
+  d.leafCount = sum;
+  return sum;
+}
+countLeaves(root);
+
+function collapseRecursive(d) {
+  if (d.children) {
+    d._children = d.children;
+    d.children = null;
+    d._children.forEach(collapseRecursive);
+  }
+}
+// initial state: only root + tier nodes visible
+root.children.forEach(collapseRecursive);
+
+/* ---------- color scale (ROYGBIV by size, log-mapped) ---------- */
+const roygbiv = d3.scaleLinear()
+  .domain([0, 1/6, 2/6, 3/6, 4/6, 5/6, 1])
+  .range(['#e63946','#f3722c','#f9c74f','#52b788','#4361ee','#6a4c93','#b15eff'])
+  .interpolate(d3.interpolateRgb);
+
+const logMin = Math.log(DATA.minSize);
+const logMax = Math.log(DATA.maxSize);
+function sizeColor(size) {
+  if (size == null) return '#33415c';
+  const t = (Math.log(size) - logMin) / (logMax - logMin);
+  return roygbiv(Math.max(0, Math.min(1, t)));
+}
+
+const STRUCTURAL_FILL = ['#0f1521', '#182238', '#22304c', '#2c3d60'];
+function nodeColor(d) {
+  if (d.data.leaf) return sizeColor(d.data.size);
+  return STRUCTURAL_FILL[Math.min(d.depth, STRUCTURAL_FILL.length - 1)];
+}
+function nodeRadius(d) {
+  if (d.data.leaf) {
+    const s = d.data.size;
+    return s ? Math.max(4, Math.min(11, 3 + Math.sqrt(s) * 2)) : 5;
+  }
+  return [13, 11, 9, 7][d.depth] ?? 6;
+}
+function labelFor(d) {
+  if (d.data.leaf) return d.data.size != null ? `${d.data.size}m` : d.data.name;
+  return `${d.data.name} (${d.leafCount})`;
+}
+function hasHiddenChildren(d) { return !!d._children; }
+
+/* ---------- traversal helpers (see both visible & hidden branches) ---------- */
+function eachAll(d, cb) {
+  cb(d);
+  const kids = d.children || d._children;
+  if (kids) kids.forEach(k => eachAll(k, cb));
+}
+function expandAncestors(d) {
+  let a = d.parent;
+  while (a) {
+    if (a._children) { a.children = a._children; a._children = null; }
+    a = a.parent;
+  }
+}
+
+/* ---------- layouts ---------- */
+let layoutMode = 'tree';
+const DX = 20, DY = 210;
+const treeLayout = d3.tree().nodeSize([DX, DY]);
+
+function maxVisibleDepth(r) {
+  let m = 0;
+  r.each(d => { if (d.depth > m) m = d.depth; });
+  return m;
+}
+
+function computeLayout() {
+  if (layoutMode === 'tree') {
+    treeLayout(root);
+    root.each(d => { d.px = d.y; d.py = d.x; });
+  } else {
+    const depth = Math.max(1, maxVisibleDepth(root));
+    const radius = depth * 150 + 40;
+    const radialLayout = d3.tree()
+      .size([2 * Math.PI, radius])
+      .separation((a, b) => (a.parent === b.parent ? 1 : 2) / a.depth);
+    radialLayout(root);
+    root.each(d => {
+      const angle = d.x - Math.PI / 2;
+      d.px = d.y * Math.cos(angle);
+      d.py = d.y * Math.sin(angle);
+    });
+  }
+}
+
+function linkPath(d) {
+  const s = d.source, t = d.target;
+  if (layoutMode === 'tree') {
+    const mx = (s.px + t.px) / 2;
+    return `M${s.px},${s.py} C${mx},${s.py} ${mx},${t.py} ${t.px},${t.py}`;
+  }
+  return `M${s.px},${s.py} L${t.px},${t.py}`;
+}
+
+/* ---------- svg setup ---------- */
+const svg = d3.select('#canvas');
+const zoomLayer = svg.append('g').attr('class', 'zoom-layer');
+const gLinks = zoomLayer.append('g').attr('class', 'links');
+const gNodes = zoomLayer.append('g').attr('class', 'nodes');
+
+const zoom = d3.zoom().scaleExtent([0.15, 3]).on('zoom', (event) => {
+  zoomLayer.attr('transform', event.transform);
+});
+svg.call(zoom);
+
+function centerView() {
+  const bounds = svg.node().getBoundingClientRect();
+  const initialScale = layoutMode === 'tree' ? 0.9 : 0.75;
+  const tx = layoutMode === 'tree' ? 60 : bounds.width / 2;
+  const ty = bounds.height / 2;
+  svg.call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(initialScale));
+}
+
+let searchQuery = '';
+
+function toggle(d) {
+  if (d.children) { d._children = d.children; d.children = null; }
+  else if (d._children) { d.children = d._children; d._children = null; }
+  render();
+}
+
+function render() {
+  computeLayout();
+  const nodes = root.descendants();
+  const links = root.links();
+
+  gLinks.selectAll('path.link')
+    .data(links, d => d.target.id)
+    .join('path')
+    .attr('class', d => 'link' + ((searchQuery && !(d.target.matched)) ? ' dimmed' : ''))
+    .attr('d', linkPath);
+
+  const nodeSel = gNodes.selectAll('g.node')
+    .data(nodes, d => d.id)
+    .join(enter => {
+      const g = enter.append('g').attr('class', 'node');
+      g.append('circle');
+      g.append('text');
+      g.on('click', (event, d) => toggle(d));
+      return g;
+    });
+
+  nodeSel
+    .attr('transform', d => `translate(${d.px},${d.py})`)
+    .classed('matched', d => !!d.matched)
+    .classed('dimmed', d => !!searchQuery && !d.matched);
+
+  nodeSel.select('circle')
+    .attr('r', nodeRadius)
+    .attr('fill', nodeColor)
+    .attr('stroke', d => hasHiddenChildren(d) ? '#0a0e16' : 'none')
+    .attr('stroke-dasharray', d => hasHiddenChildren(d) ? '2,2' : null);
+
+  nodeSel.select('text')
+    .attr('x', d => nodeRadius(d) + 6)
+    .attr('dy', '0.32em')
+    .attr('text-anchor', 'start')
+    .text(labelFor);
+
+  document.getElementById('status').textContent =
+    `${root.leafCount} blocks total · ${nodes.length} nodes visible`;
+}
+
+/* ---------- search ---------- */
+function applySearch() {
+  eachAll(root, d => { d.matched = false; });
+  let matchCount = 0;
+  if (searchQuery) {
+    eachAll(root, d => {
+      if (d.data.name.toLowerCase().includes(searchQuery)) {
+        d.matched = true;
+        matchCount++;
+        expandAncestors(d);
+        if (d._children) { d.children = d._children; d._children = null; }
+      }
+    });
+  }
+  document.getElementById('searchCount').textContent =
+    searchQuery ? `${matchCount} match${matchCount === 1 ? '' : 'es'}` : '';
+  render();
+}
+
+document.getElementById('search').addEventListener('input', (e) => {
+  searchQuery = e.target.value.trim().toLowerCase();
+  applySearch();
+});
+
+/* ---------- buttons ---------- */
+document.getElementById('layoutTreeBtn').addEventListener('click', () => {
+  layoutMode = 'tree';
+  document.getElementById('layoutTreeBtn').classList.add('active');
+  document.getElementById('layoutRadialBtn').classList.remove('active');
+  render();
+  centerView();
+});
+document.getElementById('layoutRadialBtn').addEventListener('click', () => {
+  layoutMode = 'radial';
+  document.getElementById('layoutRadialBtn').classList.add('active');
+  document.getElementById('layoutTreeBtn').classList.remove('active');
+  render();
+  centerView();
+});
+document.getElementById('expandAllBtn').addEventListener('click', () => {
+  eachAll(root, d => {
+    if (d._children) { d.children = d._children; d._children = null; }
+  });
+  render();
+});
+document.getElementById('collapseAllBtn').addEventListener('click', () => {
+  function collapseDeep(d) {
+    if (d.children) { d.children.forEach(collapseDeep); }
+    if (d.children) { d._children = d.children; d.children = null; }
+  }
+  root.children && root.children.forEach(collapseDeep);
+  document.getElementById('search').value = '';
+  searchQuery = '';
+  document.getElementById('searchCount').textContent = '';
+  render();
+});
+
+/* ---------- init ---------- */
+render();
+centerView();
+</script>
+</body>
+</html>
