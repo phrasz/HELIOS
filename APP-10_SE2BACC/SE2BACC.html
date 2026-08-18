@@ -7201,6 +7201,8 @@ var PL_REFINERY_MAP = null;   // Map<name, requiredResources>
 var PL_SIMPLE_MAP = null;
 var PL_COMPLEX_MAP = null;
 var PL_HIGHTECH_MAP = null;
+var PL_PLACE_MAP = null;      // Map<tierKey, stationName> — e.g. 'refinery' -> 'Refinery'
+
 var PL_BLOCKS_MAP = null;     // Map<uniqueKey, blockObj> — uniqueKey = name + dimension, since block names repeat
 var PL_NORM_INDEX = null;     // Map<normalizedName, {tier, name}>
 var PL_SELECTIONS = new Map(); // Map<blockName, qty>  (insertion-ordered)
@@ -7329,6 +7331,15 @@ function plBuildIndexes() {
 
   PL_HIGHTECH_MAP = new Map();
   plSafeItems(rd.highTechComponents).forEach(function(i){ PL_HIGHTECH_MAP.set(i.name, i.requiredResources || {}); });
+
+  // Station lookup for "Queue at {PLACE}" labels — pulled from production.<tier>.producedBy[0].
+  // (simpleComponents.producedBy = ["Smelter","Backpack"]; we use index 0 -> "Smelter".)
+  var prod = (PL_DICT && PL_DICT.production) || {};
+  PL_PLACE_MAP = new Map();
+  PL_PLACE_MAP.set('refinery', (prod.refineryProducts   && prod.refineryProducts.producedBy   && prod.refineryProducts.producedBy[0])   || 'Refinery');
+  PL_PLACE_MAP.set('simple',   (prod.simpleComponents    && prod.simpleComponents.producedBy    && prod.simpleComponents.producedBy[0])    || 'Smelter');
+  PL_PLACE_MAP.set('complex',  (prod.complexComponents   && prod.complexComponents.producedBy   && prod.complexComponents.producedBy[0])   || 'Assembler');
+  PL_PLACE_MAP.set('hightech', (prod.highTechComponents  && prod.highTechComponents.producedBy  && prod.highTechComponents.producedBy[0])  || 'Fabricator');
 
   PL_BLOCKS_MAP = new Map();
   var plKeyCounts = {};
@@ -7758,7 +7769,7 @@ function plRenderResults(acc) {
     var directTotal = 0, derivedTotal = 0, body = '';
 
     if (directKeys.length) {
-      body += '<div class="result-sublabel">🔧 Queue at Station</div>';
+      body += '<div class="result-sublabel">🔧 Queue at ' + plEscapeHtml((PL_PLACE_MAP && PL_PLACE_MAP.get(t.key)) || 'Production Block') + '</div>';
       directKeys.forEach(function(n){ directTotal += direct[n]; body += plLineHTML(n, direct[n], ''); });
     }
     if (derivedKeys.length) {
